@@ -1,0 +1,82 @@
+.preview-produit-illustration{
+    overflow: hidden;
+    border-radius: 10px;
+    height: 160px;
+
+}
+.preview-produit-illustration img{
+    width: 100%;
+    height: 100%;
+    width: 100%;
+    object-fit:  cover;
+    transition: all .3s ease-in-out;
+}
+.preview-produit-illustration img:hover{
+    transform: scale(1.1);
+}
+.vert{
+    color: #1ae624;
+}
+.cusor{
+    cursor: pointer;
+}
+.btn i{
+    font-size: 12px !important;
+}
+.btn-primary{
+    background-color: #027461 !important;
+    border: none !important ;
+}
+.msg-header{
+    background-color: #049b81 !important;
+}
+.text-primary-color{
+    color:hwb(143 1% 68%) !important
+}
+.pagination .active{
+    background-color: #049b81 !important;
+}
+
+.table-striped tbody tr:hover{
+    border-left: solid 5px #027461;
+    border-bottom: solid 1px #027461;
+    border-top: solid 1px #027461;
+    cursor: pointer;
+}
+.preview-banner-upload{
+    max-height: 300px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.preview-banner-upload img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.list-banner-image .image{
+    overflow: hidden;
+    border-radius: 05px;
+    max-height: 200px;
+    position: relative;
+}
+
+.list-banner-image .image img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.list-banner-image .image .btn{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.list-banner-image .titre{
+    height: 30px;
+}
+
+.list-banner-image .sous_titre{
+    height: 80px;
+}

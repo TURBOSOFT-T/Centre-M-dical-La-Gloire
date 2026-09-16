@@ -1,0 +1,85 @@
+{
+    "accueil": "مرحباً",
+    "about": "عن",
+    "boutique": "محل",
+    "Choisir_categorie": "Choisir une categorie",
+    "creation_compte" :"Creation compte",
+    "contact": "Contact",
+   
+    "voir_plus" : "Voir plus",
+    "add_cart" : "Ajouter au panier",
+    "quantite" : "Quantité",
+    "connexion": "Connexion",
+    "inscription" : "Incription",
+
+
+
+    "prix" : "Prix",
+    "facture" : "Facture",
+    "password_oublier" : "Mot de passe oublié ?",
+    "enregistrer" : "Enregistrer",
+      "voir_panier" : "Voir le panier",
+    "voir_boutique" : "Voir boutique",
+    "panier" : "Panier",
+    "mon_panier" : "Mon Panier",
+    "paiement" : "Voir le paiement",
+    "text_paiement" : "Paiement",
+    "adresse_facturation" : "Adresse de facturation",
+    "adresse_livraison" : "Adresse de livraison",
+   "profile":"Mon Profile",
+    "frais_livraison" : "Frais de livraison",
+    "ville" : "Ville",
+    "pays" : "Pays",
+    "code_postal" : "Code postal",
+    "prix_total" : "Prix total",
+    "compte" : "Compte",
+    "categories" : "Catégories",
+    "categorie" : "Catégorie",
+    "reference" : "Référence",
+    "produit" : "Produit",
+    "stock" : "Stock",
+    "stock_disponible" : "Disponible",
+    "non_disponible" :"Non-Disponible",
+    "sujet" : "Sujet",
+
+    "continuer_paiement" : "Continuer le paiement",
+    "panier_vide" : "Aucun produit dans votre panier!",
+    "continuer_commande" : "Continuer le commande",
+    "sous-total" : "Sous-total",
+    "modifier" : "Modifier",
+    "non_defini" : "Non défini .",
+    "gouvernorat" : "Gouvernorat",
+    "telephone" : "Téléphone",
+    "nom" : "Nom",
+    "Prenom" : "Prénom",
+    "paiement_livraison" : "Paiement à la livraison",
+    "password" : "Mot de passe",
+    "confirmer_pwd" : "Confirmer  le mot de passe",
+    "parametres" : "Mes Paramètres",
+    "login_register" : "Connexion et inscription",
+    "recherche_1" : "# Tapez au moins 1 caractère pour rechercher",
+    "recherche_2" : "# Appuyez sur Entrée pour rechercher ou ESC pour fermer",
+    "recherche_3" :"Recherche",
+
+    "liens": "Liens Utils",
+
+    "mon_compte" : "Mon compte",
+    "dashboard" : "Tableau de bord",
+
+    "securite" : "Sécurite",
+    "deconnexion" : "Déconnexion",
+    "favoris" : "Favoris",
+    "commandes" : "Commandes",
+    "salut": "salut",
+    "montant" : "Montant",
+
+    "new_password" : "Nouveau mot de passe",
+    "confirm_password": "Confirmation du nouveau mot de passe",
+  
+
+      "adresse": "Adresse"
+ 
+  
+
+
+}
