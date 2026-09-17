@@ -62,15 +62,15 @@
 									</div>
 								</div>
 							 </div>
-							<!--  <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
+							 <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
     <img src="{{ Storage::url($config->logo) }}"
          class="img-fluid d-none d-sm-block" 
          alt="Illustration Stratégie CRM" 
          loading="lazy">
-</div> -->
-							<div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
+</div> 
+							<!-- <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
 								<img src="https://blog.comexplorer.com/hubfs/strate%CC%81gie-crm-1.webp" class="img-fluid  d-none d-sm-block" alt="..." >
-							</div> 
+							</div>  -->
 						</div>
 						<!--end row-->
 					</div>
