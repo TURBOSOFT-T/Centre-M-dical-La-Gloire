@@ -101,7 +101,7 @@ class SellerSeeder extends Seeder
             [
                 'name' => 'Centre Médical La Gloire - Unité Principale',
                 'description' => 'Espace de gestion des soins et prestations de santé',
-                'phone' => '690000000',
+                'phone' => '682840743',
                 'adresse' => 'Douala, Cameroun',
                 'role' => 'seller',
                 'active' => true,
