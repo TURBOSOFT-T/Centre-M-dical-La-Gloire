@@ -122,9 +122,9 @@ class DatabaseSeeder extends Seeder
         $user->email = 'Centremedicallagloire56@gmail.com';
         $user->role = "admin";
         $user->adresse = 'Douala, Cameroun';
-        $user->phone = '690000000';
+        $user->phone = '682840743';
         $user->code_postal = '00237';
-        $user->password = Hash::make('123456789');
+        $user->password = Hash::make('682840743');
         $user->save();
 
         // Profil Client / Patient
@@ -134,9 +134,9 @@ class DatabaseSeeder extends Seeder
         $dev->email = 'client@centremedicallagloire.com';
         $dev->role = "client";
         $dev->adresse = 'Douala, Cameroun';
-        $dev->phone = '670000000';
+        $dev->phone = '682840744';
         $dev->code_postal = '00237';
-        $dev->password = Hash::make('123456789');
+        $dev->password = Hash::make('682840744');
         $dev->save();
 
         // Attribution des rôles et permissions
@@ -152,11 +152,11 @@ class DatabaseSeeder extends Seeder
 
         Role::firstOrCreate(['name' => 'personnel']);
 
-        // Configuration Générale de l'Établissement
+        // Configuration Générale de l'Établissement    
         $cat = new config();
         $cat->frais = '0';
         $cat->description = 'Bienvenue au Centre Médical La Gloire. Une structure de santé de référence dédiée à votre bien-être et à des soins de qualité.';
-        $cat->telephone = '690000000';
+        $cat->telephone = '682840743';
         $cat->email = 'Centremedicallagloire56@gmail.com';
         $cat->addresse = 'Douala, Cameroun';
         $cat->save();
