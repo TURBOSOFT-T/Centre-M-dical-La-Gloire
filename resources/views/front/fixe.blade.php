@@ -6,23 +6,10 @@
 <head>
     <meta charset="UTF-8" />
     <title> @yield('titre') -Centre Médical La Gloire</title>
+<link rel="icon" href="{{ Storage::url($config->icon) }}" type="image/png" />
+	
 
 
-
-    @section('styles')
-    @parent
-    @if(isset($config->icon) && !empty($config->icon))
-    <!-- Si le favicon est dynamique et stocké en base de données -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ Storage::url($config->icon  ?? '') }}">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ Storage::url($config->icon) }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ Storage::url($config->icon) }}">
-    <link rel="manifest" href="{{ Storage::url($config->icon) }}
-    @else
-  
-    <link rel=" shortcut icon" type="image/x-icon" href="{{ asset('icons/logo.jpg') }}">
-    @endif
-    @endsection
     <!-- mobile responsive meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="apple-touch-icon" sizes="57x57" href="images/favicon/apple-icon-57x57.png">
@@ -34,11 +21,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="images/favicon/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="images/favicon/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="images/favicon/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="images/favicon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
-    <link rel="manifest" href="images/favicon/manifest.json">
+      <link rel="manifest" href="images/favicon/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">

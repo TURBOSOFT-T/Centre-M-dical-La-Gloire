@@ -1,5 +1,5 @@
 @php
-    $config = DB::table('configs')->select('icon','logo')->first();
+$config = DB::table('configs')->select('icon','logo')->first();
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -10,20 +10,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<title>{{ config('app.name') }}</title>
 	<!--favicon-->
- @section('styles')
-    @parent
-    @if(isset($config->icon) && !empty($config->icon))
-    <!-- Si le favicon est dynamique et stocké en base de données -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ Storage::url($config->icon  ?? '') }}">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ Storage::url($config->icon) }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ Storage::url($config->icon) }}">
-    <link rel="manifest" href="{{ Storage::url($config->icon) }}
-    @else
-  
-    <link rel=" shortcut icon" type="image/x-icon" href="{{ asset('icons/logo.jpg') }}">
-    @endif
-    @endsection
+	<link rel="icon" href="{{ Storage::url($config->icon) }}" type="image/png" />
 	<!-- loader-->
 	<link href="/admin/assets/css/pace.min.css" rel="stylesheet" />
 	<script src="/admin/assets/js/pace.min.js"></script>
@@ -57,17 +44,17 @@
 											<hr>
 										</div>
 										<div class="form-body">
-                                            @livewire('Connexion')
+											@livewire('Connexion')
 										</div>
 									</div>
 								</div>
-							 </div>
-							 <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
-    <img src="{{ Storage::url($config->logo) }}"
-         class="img-fluid d-none d-sm-block" 
-         alt="Illustration Stratégie CRM" 
-         loading="lazy">
-</div> 
+							</div>
+							<div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
+								<img src="{{ Storage::url($config->logo) }}"
+									class="img-fluid d-none d-sm-block"
+									alt="Illustration Stratégie CRM"
+									loading="lazy">
+							</div>
 							<!-- <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
 								<img src="https://blog.comexplorer.com/hubfs/strate%CC%81gie-crm-1.webp" class="img-fluid  d-none d-sm-block" alt="..." >
 							</div>  -->
@@ -85,8 +72,8 @@
 <script src="/admin/assets/js/jquery.min.js"></script>
 <!--Password show & hide js -->
 <script>
-	$(document).ready(function () {
-		$("#show_hide_password a").on('click', function (event) {
+	$(document).ready(function() {
+		$("#show_hide_password a").on('click', function(event) {
 			event.preventDefault();
 			if ($('#show_hide_password input').attr("type") == "text") {
 				$('#show_hide_password input').attr('type', 'password');
