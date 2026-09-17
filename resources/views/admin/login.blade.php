@@ -36,7 +36,7 @@ $config = DB::table('configs')->select('icon','logo')->first();
 									<div class="text-center">
 										<img src="{{ Storage::url($config->icon) }}" width="80" alt="">
 										<h3 class="mt-4 font-weight-bold">
-											Bon retour.
+											Bienvenue au Centre Médical La Gloire
 										</h3>
 									</div>
 									<div class="">
