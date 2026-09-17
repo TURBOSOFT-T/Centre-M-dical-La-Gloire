@@ -179,7 +179,7 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                     </a>
                 </li>
                 @endcan
-                @role('admin')
+             <!--    @role('admin')
                 <li>
                     <a href="{{ route('transports') }}">
                         <div class="parent-icon icon-color-3">
@@ -190,39 +190,8 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                         </div>
                     </a>
                 </li>
-                @endcan
+                @endcan -->
 
-
-                @can('coupon_view')
-                <li>
-                    <a href="javascript:;" class="has-arrow">
-                        <div class="parent-icon icon-color-3"> <i class="ri-coupon-3-line"></i> </div>
-
-                        <div class="menu-title">
-                            Les codes promo
-                        </div>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ route('coupons') }}">
-                                <i class="bx bx-right-arrow-alt"></i>
-                                Liste des coupons
-                            </a>
-                        </li>
-
-                        @can('coupon_add')
-                        <li>
-                            <a href="{{ route('coupon.add') }}">
-                                <i class="bx bx-right-arrow-alt"></i>
-                                Créer un coupon
-                            </a>
-                        </li>
-                        @endcan
-
-
-                    </ul>
-                </li>
-                @endcan
 
 
                 @can('product_view')
@@ -303,12 +272,6 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                         </li>
 
                        
-                        <li>
-                            <a href="{{ route('commandes_commercial') }}">
-                                <i class="bx bx-right-arrow-alt"></i>
-                                Les commandes avec commercial
-                            </a>
-                        </li>
                       
  
 
@@ -365,53 +328,8 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                     </a>
                 </li>
                 @endcan
-                @can('message_view')
-                <li>
-                    <a href="{{ route('support') }}" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                        <div>
-                            <i class="fas fa-headset"></i>
-                            <span>Support Client</span>
-                        </div>
-
-                        @php
-                        // On compte le nombre de sessions uniques actives
-                        $sessionsActivesCount = \App\Models\Message::select('session_id')->groupBy('session_id')->get()->count();
-                        @endphp
-
-                        @if($sessionsActivesCount > 0)
-                        <span style="background: #dc3545; color: white; font-size: 11px; font-weight: bold; padding: 2px 7px; border-radius: 10px; margin-left: 10px; min-width: 18px; text-align: center;">
-                            {{ $sessionsActivesCount }}
-                        </span>
-                        @endif
-                    </a>
-                </li>
-                @endcan
-                @can('message_view')
-                <li>
-                    <a href="{{ route('admin_contact_form') }}">
-                        <div class="parent-icon " style="color: #027461">
-                            <i class='bx bxs-contact'></i>
-                        </div>
-                        <div class="menu-title">
-                            Messages
-                        </div>
-                    </a>
-                </li>
-                @endcan
-                @can('testimonial_view')
-                <li>
-                    <a href="{{ route('testimonials') }}">
-                        <div class="parent-icon " style="color: #027461">
-                            <i class="ri-star-line"></i>
-                        </div>
-                        <div class="menu-title">
-                            Témoignages
-                        </div>
-                    </a>
-
-
-                </li>
-                @endcan
+               
+              
                 @can('setting_view')
                 <li class="menu-label">
                     Settings

@@ -154,7 +154,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 <tr>
                     <!-- Informations de l'entreprise à gauche -->
                     <td class="company-details">
-                        <div class="company-name">{{ config('app.name') }}, {{ \App\Helpers\TranslationHelper::TranslateText('notre boutique') }}</div>
+                        <div class="company-name">{{ config('app.name') }}, {{ \App\Helpers\TranslationHelper::TranslateText('notre Centre') }}</div>
                         @if($config)
 
                         @if(!empty($config->telephone))

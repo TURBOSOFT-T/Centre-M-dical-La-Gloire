@@ -245,27 +245,26 @@ return [
 
     ])->toArray(),
 
-
-    /*
+/*
     |--------------------------------------------------------------------------
     | SEO
     |--------------------------------------------------------------------------
     */
-    'title' => 'SWOOT BIO | Compléments Alimentaires Naturels & Bien-être',
-    'description' => 'SWOOT BIO réinvente votre routine quotidienne avec des compléments alimentaires naturels, conçus pour nourrir votre corps de l\'intérieur.',
-    'author' => 'SWOOT BIO',
-    'keywords' => 'SWOOT BIO, compléments alimentaires, naturel, bio, bien-être, santé, nutrition, routine quotidienne',
+    'title' => 'Centre Médical La Gloire | Votre Santé, Notre Priorité',
+    'description' => 'Le Centre Médical La Gloire est une structure de santé de référence offrant des soins de qualité : médecine générale, urgences, maternité et examens de laboratoire.',
+    'author' => 'Centre Médical La Gloire',
+    'keywords' => 'Centre Médical La Gloire, santé, consultations médicales, soins d\'urgence, maternité, pédiatrie, laboratoire, examens, médecine générale, clinique',
 
     // Open Graph (Facebook, LinkedIn)
-    'og_title' => 'SWOOT BIO | Compléments Alimentaires Naturels',
-    'og_description' => 'Réinventez votre routine quotidienne avec des compléments conçus pour nourrir votre corps de l\'intérieur.',
+    'og_title' => 'Centre Médical La Gloire | Structure de Santé de Référence',
+    'og_description' => 'Des soins médicaux complets et personnalisés pour toute la famille : urgences, consultations, pédiatrie, maternité et laboratoire.',
     'og_type' => 'website',
-    'og_image' => 'images/og-swoot-bio.jpg',
+    'og_image' => 'images/og-centre-medical-la-gloire.jpg',
 
     // Twitter Card
     'twitter_card' => 'summary_large_image',
-    'twitter_title' => 'SWOOT BIO | Compléments Alimentaires Naturels',
-    'twitter_description' => 'Réinventez votre routine avec des compléments conçus pour nourrir votre corps de l\'intérieur.',
-    'twitter_image' => 'images/twitter-swoot-bio.jpg',
+    'twitter_title' => 'Centre Médical La Gloire | Structure de Santé de Référence',
+    'twitter_description' => 'Une prise en charge médicale complète et des soins adaptés à tous vos besoins de santé.',
+    'twitter_image' => 'images/twitter-centre-medical-la-gloire.jpg',
 
 ];

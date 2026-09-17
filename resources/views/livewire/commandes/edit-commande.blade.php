@@ -61,17 +61,7 @@
                         </td>
                     </tr>
                     @endforeach
-                    <tr>
-                        <td>
-                            <img width="30" height="30"
-                                src="https://img.icons8.com/ios/30/40C057/delivery--v1.png" alt="delivery--v1" />
-                        </td>
-                        <td> <b>Frais de livraison</b> </td>
-                        <td> {{ $commande->frais ?? 0}} <x-devise></x-devise> </td>
-                        <td> 1 </td>
-                        <td> {{ $commande->frais ?? 0}} <x-devise></x-devise> </td>
-                        <td></td>
-                    </tr>
+                  
                 </tbody>
             </table>
         </div>
@@ -100,45 +90,7 @@
                     </div>
                 </div>
 
-                <div class="mt-3 mb-1">
-                    @if($commande->transport_id)
-                    <button type="button" class="btn btn-danger btn-sm"
-                        wire:click.prevent="removeTransport">
-                        Annuler les frais de transport
-                    </button>
-                    @else
-                    <button type="button" class="btn btn-primary btn-sm"
-                        wire:click.prevent="openTransportForm">
-                        Appliquer les frais de transport
-                    </button>
-                    @endif
-
-                    @if($showTransportForm && !$commande->transport_id)
-                    <div class="mt-3 p-3 border rounded bg-light">
-                        <label>Choisir un transport</label>
-                        <select wire:model="transport_id" class="form-control">
-                            <option value="">-- Sélectionner --</option>
-                            @foreach($transports as $transport)
-                            <option value="{{ $transport->id }}">
-                                {{ $transport->ville }} - {{ $transport->frais }} <x-devise />
-                            </option>
-                            @endforeach
-                        </select>
-
-                        <div class="mt-2">
-                            <button type="button" class="btn btn-success btn-sm"
-                                wire:click.prevent="applyTransport">
-                                Valider
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                wire:click.prevent="closeTransportForm">
-                                Annuler
-                            </button>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-                <br>
+              
                 <hr>
                 <div class="d-flex justify-content-between">
                     <div>

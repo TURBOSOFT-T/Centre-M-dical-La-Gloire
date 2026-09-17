@@ -55,8 +55,24 @@ class AjouterCommande extends Component
             $this->clients = [];
         }
     }
+public function import($clientId)
+{
+    // Si $clientId est un entier, on récupère le modèle Client
+    $client = clients::find($clientId);
 
-    public function import($client)
+    if ($client) {
+        $this->nom = $client->nom;
+        $this->prenom = $client->prenom;
+        $this->adresse = $client->adresse;
+        $this->phone = $client->phone;
+
+        $this->recherche = "";
+        $this->clients = [];
+
+        session()->flash("message", "Patient/Client importé avec succès.");
+    }
+}
+    public function import1($client)
     {
         $this->nom = $client["nom"];
         $this->prenom = $client["prenom"];
@@ -135,67 +151,67 @@ class AjouterCommande extends Component
     }
 
     public function render()
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    // 1. Les admins voient tout, les autres voient uniquement leurs boutiques rattachées
-    if ($user->hasRole('admin') || $user->role === 'admin') {
-        $shops = Shop::all();
-    } else {
-        $shops = $user->shops;
-    }
+        // 1. Les admins voient tout, les autres voient uniquement leurs boutiques rattachées
+        if ($user->hasRole('admin') || $user->role === 'admin') {
+            $shops = Shop::all();
+        } else {
+            $shops = $user->shops;
+        }
 
-    // Sélection de la boutique active
-    $activeShopId = $this->shop_id ?: $shops->first()?->id;
+        // Sélection de la boutique active
+        $activeShopId = $this->shop_id ?: $shops->first()?->id;
 
-    $paniers = session()->get('panier', []);
+        $paniers = session()->get('panier', []);
 
-    if (!is_null($this->key) && !empty($activeShopId)) {
-        // Sécurité : l'utilisateur a-t-il le droit d'interroger ce shop ?
-        $canAccessShop = ($user->hasRole('admin') || $user->role === 'admin') 
-            ? true 
-            : $shops->contains('id', $activeShopId);
+        if (!is_null($this->key) && !empty($activeShopId)) {
+            // Sécurité : l'utilisateur a-t-il le droit d'interroger ce shop ?
+            $canAccessShop = ($user->hasRole('admin') || $user->role === 'admin')
+                ? true
+                : $shops->contains('id', $activeShopId);
 
-        if ($canAccessShop) {
-            $produits = produits::where('nom', 'like', '%' . $this->key . '%')
-                ->whereHas('shops', function ($query) use ($activeShopId) {
-                    $query->where('shop_id', $activeShopId)
-                          ->where('stock_particulier', '>', 0);
-                })
-                ->take(2)
-                ->get();
+            if ($canAccessShop) {
+                $produits = produits::where('nom', 'like', '%' . $this->key . '%')
+                    ->whereHas('shops', function ($query) use ($activeShopId) {
+                        $query->where('shop_id', $activeShopId)
+                            ->where('stock_particulier', '>', 0);
+                    })
+                    ->take(2)
+                    ->get();
 
-            $result = [];
-            $this->stocksDisponibles = [];
+                $result = [];
+                $this->stocksDisponibles = [];
 
-            foreach ($produits as $produit) {
-                $shopRecord = $produit->shops()->where('shop_id', $activeShopId)->first();
+                foreach ($produits as $produit) {
+                    $shopRecord = $produit->shops()->where('shop_id', $activeShopId)->first();
 
-                $this->stocksDisponibles[$produit->id] = $shopRecord ? $shopRecord->pivot->stock_particulier : 0;
+                    $this->stocksDisponibles[$produit->id] = $shopRecord ? $shopRecord->pivot->stock_particulier : 0;
 
-                $result[] = [
-                    'id'        => $produit->id,
-                    'nom'       => $produit->nom,
-                    'prix'      => $produit->prix,
-                    'reference' => $produit->reference,
-                    'type'      => 'produit'
-                ];
+                    $result[] = [
+                        'id'        => $produit->id,
+                        'nom'       => $produit->nom,
+                        'prix'      => $produit->prix,
+                        'reference' => $produit->reference,
+                        'type'      => 'produit'
+                    ];
+                }
+
+                $this->produits = $result;
+            } else {
+                $this->produits = [];
+                $this->stocksDisponibles = [];
             }
-
-            $this->produits = $result;
         } else {
             $this->produits = [];
             $this->stocksDisponibles = [];
         }
-    } else {
-        $this->produits = [];
-        $this->stocksDisponibles = [];
+
+        $this->gouvernoratsTunisie = $this->getListGouvernorat();
+
+        return view('livewire.commandes.ajouter-commande', compact('paniers', 'shops'));
     }
-
-    $this->gouvernoratsTunisie = $this->getListGouvernorat();
-
-    return view('livewire.commandes.ajouter-commande', compact('paniers', 'shops'));
-}
 
     public function delete_from_session($produitId)
     {
@@ -215,7 +231,7 @@ class AjouterCommande extends Component
         $cartData = array_values($cartData);
         Session::put('panier', $cartData);
     }
-public function order()
+    public function order()
     {
         $this->validate([
             'nom' => 'required|string|max:100',
@@ -238,12 +254,12 @@ public function order()
             ['nom' => $this->nom]
         );
 
-        $reference = 'SWB-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        $reference = 'CMG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
         $panier = session()->get('panier', []);
 
         if ($panier) {
             $config = config::first();
-            
+
             // 1. Calculer le montant total du panier au préalable
             $montantTotal = 0;
             foreach ($panier as $item) {
@@ -270,7 +286,7 @@ public function order()
             $commande->shop_id = $final_shop_id;
             $commande->frais = $fraisMontant > 0 ? $config->frais : null;
             $commande->montant_total = $montantTotal; // Assurez-vous que cette colonne existe dans votre table 'commandes'
-            
+
             if ($commande->save()) {
                 foreach ($panier as $item) {
                     $type = $item["type"];
@@ -282,7 +298,7 @@ public function order()
                             $contenu = new contenu_commande();
                             $contenu->id_commande = $commande->id;
                             $contenu->id_produit = $article->id;
-                            $contenu->shop_id = $final_shop_id; 
+                            $contenu->shop_id = $final_shop_id;
                             $contenu->quantite = $quantite;
                             $contenu->type = $type;
                             $contenu->prix_unitaire = $article->getPrice();
@@ -335,7 +351,7 @@ public function order()
             ]);
         }
 
-        $reference = 'SWB-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        $reference = 'CMG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
         $panier = session()->get('panier', []);
 
         if ($panier) {

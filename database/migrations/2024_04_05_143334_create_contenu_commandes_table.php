@@ -18,6 +18,7 @@ return new class extends Migration
               $table->unsignedBigInteger('table_id')->nullable();
             $table->unsignedBigInteger('id_pack')->nullable();
              $table->unsignedBigInteger('commercial_id')->nullable();
+             $table->unsignedBigInteger('shop_id')->nullable();
             $table->enum("type",["produit","pack"])->default("produit");
             $table->integer("quantite")->nullable();
               $table->integer('total_gain_points')->default(0);
@@ -35,6 +36,7 @@ return new class extends Migration
             $table->foreign('id_commande')->references('id')->on('commandes')->onDelete('cascade');
             $table->foreign('id_produit')->references('id')->on('produits')->onDelete('cascade');
              $table->foreign('commercial_id')->references('id')->on('users')->onDelete('set null');
+            // $table->foreign('shop_id')->references('id')->on('shops')->onDelete('set null');
            // $table->foreign('id_pack')->references('id')->on('packs')->onDelete('cascade');
         });
     }

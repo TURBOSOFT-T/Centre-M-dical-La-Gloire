@@ -84,8 +84,8 @@
             </span>
             <i class="ri-git-repository-private-line"></i>
             {{ \App\Helpers\TranslationHelper::TranslateText('Connexion') }}</button>
-        <a href="{{ route('forgot_password') }}" class="forgot-btn"> {{ \App\Helpers\TranslationHelper::TranslateText('Mot de passe oublié') }}?</a>
-    </div>
+       <!--  <a href="{{ route('forgot_password') }}" class="forgot-btn"> {{ \App\Helpers\TranslationHelper::TranslateText('Mot de passe oublié') }}?</a>
+ -->    </div>
 
     <style>
         .btn-bg-primary2 {

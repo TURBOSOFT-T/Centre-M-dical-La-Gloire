@@ -10,7 +10,20 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<title>{{ config('app.name') }}</title>
 	<!--favicon-->
-	<link rel="icon" href="/icons/icon.svg" type="image/png" />
+ @section('styles')
+    @parent
+    @if(isset($config->icon) && !empty($config->icon))
+    <!-- Si le favicon est dynamique et stocké en base de données -->
+    <link rel="shortcut icon" type="image/x-icon" href="{{ Storage::url($config->icon  ?? '') }}">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ Storage::url($config->icon) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ Storage::url($config->icon) }}">
+    <link rel="manifest" href="{{ Storage::url($config->icon) }}
+    @else
+  
+    <link rel=" shortcut icon" type="image/x-icon" href="{{ asset('icons/logo.jpg') }}">
+    @endif
+    @endsection
 	<!-- loader-->
 	<link href="/admin/assets/css/pace.min.css" rel="stylesheet" />
 	<script src="/admin/assets/js/pace.min.js"></script>
@@ -40,7 +53,7 @@
 										</h3>
 									</div>
 									<div class="">
-										<div class="login-separater text-center mb-4"> <span> CONNEXION AVEC L'EMAIL</span>
+										<div class="login-separater text-center mb-4"> <span> CONNEXION AVEC LE TELEPHONE</span>
 											<hr>
 										</div>
 										<div class="form-body">
@@ -49,9 +62,15 @@
 									</div>
 								</div>
 							 </div>
-							<div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
+							 <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
+    <img src="{{ Storage::url($config->logo) }}"
+         class="img-fluid d-none d-sm-block" 
+         alt="Illustration Stratégie CRM" 
+         loading="lazy">
+</div>
+							<!-- <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
 								<img src="https://blog.comexplorer.com/hubfs/strate%CC%81gie-crm-1.webp" class="img-fluid  d-none d-sm-block" alt="..." >
-							</div>
+							</div> -->
 						</div>
 						<!--end row-->
 					</div>

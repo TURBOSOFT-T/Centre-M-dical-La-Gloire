@@ -24,7 +24,7 @@ class HomeController extends Controller
 
 
 
-    public function home(Request $request)
+    public function home1(Request $request)
     {
 
         $categoryProducts = DB::table('produits')
@@ -38,7 +38,10 @@ class HomeController extends Controller
 
         return view('front.index', compact('banners',  'categoryProducts'));
     }
-
+ public function home()
+    {
+        return view('admin.login');
+    }
 
 
     public function shop(Request $request)

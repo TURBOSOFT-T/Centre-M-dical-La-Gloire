@@ -14,7 +14,7 @@ class SellerSeeder extends Seeder
      * Permissions spécifiques au guard 'seller'
      */
     private $permissionsSeller = [
-       'dashboard',
+        'dashboard',
         'clients_view',
         'clients_delete',
         'category_view',
@@ -42,8 +42,8 @@ class SellerSeeder extends Seeder
         'marque_edit',
         'marque_delete',
         'sponsor_view',
-        'sposor_edit', // Correction faute de frappe existante
-        'sposor_add',  // Correction faute de frappe existante
+        'sposor_edit',
+        'sposor_add',
         'sponsor_delete',
         'service_view',
         'service_add',
@@ -95,14 +95,14 @@ class SellerSeeder extends Seeder
             $roleSeller->givePermissionTo($permission);
         }
 
-        // 3. Créer un compte de test "Boutique / Vendeur" (SWOOT BIO)
+        // 3. Créer un compte de test partenaire/prestataire pour le Centre Médical La Gloire
         $shop = Shop::updateOrCreate(
-            ['email' => 'vendeur@gmail.com'],
+            ['email' => 'partenaire@centremedicallagloire.com'],
             [
-                'name' => 'Swoot Bio - Boutique Principale',
-                'description' => 'Point de vente officiel de Swoot Bio',
-                'phone' => '690884281',
-                'adresse' => 'Carrefour Orly, Douala',
+                'name' => 'Centre Médical La Gloire - Unité Principale',
+                'description' => 'Espace de gestion des soins et prestations de santé',
+                'phone' => '690000000',
+                'adresse' => 'Douala, Cameroun',
                 'role' => 'seller',
                 'active' => true,
                 'statut' => 'disponible',
@@ -110,7 +110,7 @@ class SellerSeeder extends Seeder
             ]
         );
 
-        // 4. Assigner le rôle au vendeur connecté sur le guard 'seller'
+        // 4. Assigner le rôle au vendeur/prestataire connecté sur le guard 'seller'
         $shop->assignRole($roleSeller);
     }
 }

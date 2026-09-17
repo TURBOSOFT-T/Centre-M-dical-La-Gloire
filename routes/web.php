@@ -57,7 +57,10 @@ Route::get('/registerverify', [HomeController::class, 'registerverify'])->name('
 
 
 
-Route::get('/', [HomeController::class, 'home'])->name('home');
+//Route::get('/', [HomeController::class, 'home'])->name('home');
+    Route::get('/', [HomeController::class, 'home'])->name('home');
+    Route::get('login', [HomeController::class, 'home'])->name('login');
+
 Route::get('/print/commande/{id}', [HomeController::class, 'print_commande'])->name('print_commande');
 Route::get('/commande_print/{id}', [HomeController::class, 'print'])->name('commande_print');
 Route::get('/print_bordereau/{ids}', [HomeController::class, 'print_bordereau'])->name('print_bordereau');

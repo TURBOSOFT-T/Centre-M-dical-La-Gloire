@@ -61,4 +61,6 @@ class AdminUserSeeder extends Seeder
         $this->command->info("L'utilisateur {$user1->email} a été créé et possède toutes les permissions !");
         $this->command->info("L'utilisateur {$user2->email} a été créé et possède toutes les permissions !");
     }
+
+    //////////////Executer    la commande   php artisan db:seed --class=AdminUserSeeder
 }

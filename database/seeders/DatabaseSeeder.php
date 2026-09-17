@@ -80,8 +80,6 @@ class DatabaseSeeder extends Seeder
         'coupon_edit',
         'coupon_delete',
 
-
-
         'testimonial_view',
         'testimonial_add',
         'testimonial_edit',
@@ -92,9 +90,7 @@ class DatabaseSeeder extends Seeder
         'table_edit',
         'table_delete',
 
-
         'price_view',
-
 
         'order_view',
         'order_add',
@@ -107,72 +103,62 @@ class DatabaseSeeder extends Seeder
         'live_order_edit',
         'live_order_delete',
 
-
         'setting_view',
         'message_view',
         'gestion_stock'
     ];
 
-
     public function run(): void
     {
-
+        // Création des permissions
         foreach ($this->permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
-
-
-
-
-        // Créer un administrateur directement après la création de la table
+        // Administrateur Général - Centre Médical La Gloire
         $user = new User();
-        $user->nom = ' SWOOT BIO';
-        $user->prenom = 'SWOOT BIO';
-        $user->email = 'admin@gmail.com';
+        $user->nom = 'Centre Médical';
+        $user->prenom = 'La Gloire';
+        $user->email = 'Centremedicallagloire56@gmail.com';
         $user->role = "admin";
-        $user->adresse = '123 rue de la paix';
-        $user->phone = '690884281';
-        $user->code_postal = '75000';
-        $user->password = Hash::make('690884281');
+        $user->adresse = 'Douala, Cameroun';
+        $user->phone = '690000000';
+        $user->code_postal = '00237';
+        $user->password = Hash::make('123456789');
         $user->save();
 
-
-        //creer un profil developpers
+        // Profil Client / Patient
         $dev = new User();
-        $dev->nom = "Client";
-        $dev->prenom = 'Client';
-        $dev->email = 'client@gmail.com';
+        $dev->nom = "Patient";
+        $dev->prenom = 'Test';
+        $dev->email = 'client@centremedicallagloire.com';
         $dev->role = "client";
-        $dev->adresse = '123 rue du code';
-        $dev->phone = '0612345678';
-        $dev->code_postal = '75000';
+        $dev->adresse = 'Douala, Cameroun';
+        $dev->phone = '670000000';
+        $dev->code_postal = '00237';
         $dev->password = Hash::make('123456789');
         $dev->save();
 
-
+        // Attribution des rôles et permissions
         $permissions = Permission::pluck('id', 'id')->all();
 
-        $role = Role::create(['name' => 'admin']);
-        $role->syncPermissions($permissions);
-        $user->assignRole([$role->id]);
+        $roleAdmin = Role::firstOrCreate(['name' => 'admin']);
+        $roleAdmin->syncPermissions($permissions);
+        $user->assignRole([$roleAdmin->id]);
 
+        $roleDev = Role::firstOrCreate(['name' => 'developper']);
+        $roleDev->syncPermissions($permissions);
+        $dev->assignRole([$roleDev->id]);
 
-        $role2 = Role::create(['name' => 'developper']);
-        $dev->assignRole([$role2->id]);
-        $role2->syncPermissions($permissions);
+        Role::firstOrCreate(['name' => 'personnel']);
 
-
-        $role = Role::create(['name' => 'personnel']);
-
-
+        // Configuration Générale de l'Établissement
         $cat = new config();
         $cat->frais = '0';
-        $cat->description = 'Bienvenue à SWOOT BIO. Toute l\’équipe de SWOOT BIO vous souhaite la bienvenue dans notre univers.';
-        $cat->telephone = '690884281';
-        $cat->email = 'swootbio@gmail.com';
-        $cat->addresse = 'Carrefour Orly ,Rue des Pavés Makepe BM, Douala, Cameroon, 8954';
-
+        $cat->description = 'Bienvenue au Centre Médical La Gloire. Une structure de santé de référence dédiée à votre bien-être et à des soins de qualité.';
+        $cat->telephone = '690000000';
+        $cat->email = 'Centremedicallagloire56@gmail.com';
+        $cat->addresse = 'Douala, Cameroun';
         $cat->save();
     }
 }

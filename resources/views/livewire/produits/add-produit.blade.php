@@ -11,34 +11,9 @@
         <div class="row">
             <div class="col-sm-8">
 
-                <div class="d-flex gap-3 mb-3">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" wire:model="is_new" id="is_new">
-                        <label class="form-check-label" for="is_new">
-                            Nouveau produit
-                        </label>
-                    </div>
+         
 
-                    <!-- Activer la commission -->
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" wire:model.live="avec_commission" id="avec_commission">
-                        <label class="form-check-label font-weight-bold" for="avec_commission">
-                            Activer une commission
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Montant de la commission (Affiché conditionnellement) -->
-                @if($avec_commission)
-                <div class="mb-3 p-3 border rounded bg-light">
-                    <label for="commission">Montant de la commission</label>
-                    <input type="number" id="commission" class="form-control @error('commission') is-invalid @enderror"
-                        wire:model="commission" placeholder="Ex: 500">
-                    @error('commission')
-                    <span class="text-danger small">{{ $message }}</span>
-                    @enderror
-                </div>
-                @endif
+               
 
                 <div class="mb-3">
                     <label for="nom">Nom du produit</label>

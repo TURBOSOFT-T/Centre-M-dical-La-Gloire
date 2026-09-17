@@ -39,7 +39,7 @@
                     <th>Prix achat</th>
                     <th>Sell</th>
                     <th>Vues</th>
-                    <th>Commission</th>
+                  
                     <th>Création</th>
                     <th style="text-align: right;">
                         <span wire:loading>
@@ -136,13 +136,7 @@
                     <td>
                         <i class="ri-bar-chart-box-line vert"></i> {{ $produit->vues->count() }}
                     </td>
-                    <td>
-                        @if($produit->avec_commission)
-                        {{ $produit->commission }} <x-devise></x-devise>
-                        @else
-                        <span class="badge bg-secondary">Pas de commission</span>
-                        @endif
-                    </td>
+                
                     <td>{{ $produit->created_at->format('d/m/Y') }}</td>
                     <td style="text-align: right;">
                         <div class="btn-group">
