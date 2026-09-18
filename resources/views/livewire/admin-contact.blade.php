@@ -32,34 +32,10 @@
                 </div>
             </div>
 
-            <div class="col-sm-6">
-                <div class="mb-3">
-                    <label for="">Logo Footer </label>
-                    <input type="file" wire:model="logofooter" accept="image/*" class="form-control">
-                    @error('logofooter')
-                    <span class="text-danger small"> {{ $message }} </span>
-                    @enderror
-                </div>
-            </div>
+            
 
-            <div class="col-sm-6">
-                <div class="mb-3">
-                    <label for="">Image Page Connexion(689*1080) </label>
-                    <input type="file" wire:model="image_login" accept="image/*" class="form-control">
-                    @error('image_login')
-                    <span class="text-danger small"> {{ $message }} </span>
-                    @enderror
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="mb-3">
-                    <label for="">Image Page Enregistrement (689*1000)</label>
-                    <input type="file" wire:model="image_register" accept="image/*" class="form-control">
-                    @error('image_register')
-                    <span class="text-danger small"> {{ $message }} </span>
-                    @enderror
-                </div>
-            </div>
+           
+          
 
          
 

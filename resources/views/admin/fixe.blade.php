@@ -218,14 +218,7 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                             </a>
                         </li>
                         @endcan
-                        @can('product_edit')
-                        <li>
-                            <a href="{{ route('promotions') }}">
-                                <i class="bx bx-right-arrow-alt"></i>
-                                Gestion des promotions
-                            </a>
-                        </li>
-                        @endcan
+                       
 
                     </ul>
                 </li>
@@ -350,12 +343,7 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                                 Boutique
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('banner.index') }}">
-                                <i class="bx bx-right-arrow-alt"></i>
-                                Bannières
-                            </a>
-                        </li>
+                        
 
 
                     </ul>
