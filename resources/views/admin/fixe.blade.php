@@ -340,7 +340,7 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                         <li>
                             <a href="{{ route('contact-admin') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
-                                Boutique
+                                Clinique
                             </a>
                         </li>
                         

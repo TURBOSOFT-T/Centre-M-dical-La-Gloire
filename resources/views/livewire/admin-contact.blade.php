@@ -32,15 +32,6 @@
                 </div>
             </div>
 
-            
-
-           
-          
-
-         
-
-
-
             <div class="col-sm-6">
                 <div class="mb-3">
                     <label for="">Email</label>
@@ -77,19 +68,17 @@
             </div>
 
 
-            
-         
-            
-<br>
-<div class="modal-footer">
-    <button class="btn btn-primary btn-sm" type="submit">
-        <span wire:loading>
-            <img src="https://i.gifer.com/ZKZg.gif" height="15" alt="" srcset="">
-        </span>
-        <i class="ri-save-line me-1 fs-16 lh-1"></i>
-        Enregistrer les changements
-    </button>
-</div>
-</form>
+
+            <br>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-sm" type="submit">
+                    <span wire:loading>
+                        <img src="https://i.gifer.com/ZKZg.gif" height="15" alt="" srcset="">
+                    </span>
+                    <i class="ri-save-line me-1 fs-16 lh-1"></i>
+                    Enregistrer les changements
+                </button>
+            </div>
+    </form>
 
 </div>
