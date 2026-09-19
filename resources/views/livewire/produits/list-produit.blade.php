@@ -38,7 +38,7 @@
                     <th>Prix vente</th>
                     <th>Prix achat</th>
                     <th>Sell</th>
-                    <th>Vues</th>
+                  
                   
                     <th>Création</th>
                     <th style="text-align: right;">
@@ -133,10 +133,7 @@
                     <td>
                         <i class="ri-wallet-2-line vert"></i> {{ $produit->vendus->count() }}
                     </td>
-                    <td>
-                        <i class="ri-bar-chart-box-line vert"></i> {{ $produit->vues->count() }}
-                    </td>
-                
+                   
                     <td>{{ $produit->created_at->format('d/m/Y') }}</td>
                     <td style="text-align: right;">
                         <div class="btn-group">

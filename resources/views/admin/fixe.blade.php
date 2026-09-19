@@ -316,7 +316,7 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                             <i class="bx bx-group"></i>
                         </div>
                         <div class="menu-title">
-                            Clients
+                            Patients
                         </div>
                     </a>
                 </li>

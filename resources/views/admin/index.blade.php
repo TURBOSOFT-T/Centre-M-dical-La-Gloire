@@ -114,7 +114,7 @@
                             <div class="d-flex align-items-center">
                                 <div>
                                     <p class="mb-0 text-white">
-                                        Clients
+                                        Total des patients
                                     </p>
                                 </div>
                                 {{-- <div class="ms-auto font-14 text-white">+13.6%</div> --}}
@@ -321,7 +321,7 @@
                             <div class="d-flex align-items-center">
                                 <div>
                                     <h5 class="mb-0">
-                                        Statistiques d'enregistrement des clients
+                                        Statistiques d'enregistrement des patients par mois
                                     </h5>
                                 </div>
                                 <div class="dropdown ms-auto">
@@ -334,7 +334,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div>
                                                     <p class="mb-0">
-                                                        Total des utilisateurs
+                                                        Total des patients
                                                     </p>
                                                 </div>
                                                 <div class="ms-auto text-success">

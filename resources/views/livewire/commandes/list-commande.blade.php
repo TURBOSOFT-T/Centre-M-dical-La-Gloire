@@ -121,10 +121,10 @@
                         <th>Nom</th>
                         <th>Responsable</th> 
                         <th>Montant</th>
-                        <th>Traitement</th>
+                    
                         <th>Statut</th>
                         <th>Mode</th>
-                        <th>Coupon (Valeur)</th>
+                     
                         <th class="text-end">
                             <span wire:loading>
                                 <img src="https://i.gifer.com/ZKZg.gif" height="15" alt="Chargement...">
@@ -201,8 +201,7 @@
                                                 data-current-status="{{ $commande->statut }}">
                                                 <option value="créé" {{ $commande->statut === 'créé' ? 'selected' : '' }}>Créé</option>
                                                 <option value="traitement" {{ $commande->statut === 'traitement' ? 'selected' : '' }}>En Traitement</option>
-                                                <option value="En cours livraison" {{ $commande->statut === 'En cours livraison' ? 'selected' : '' }}>En cours de Livraison</option>
-                                                <option value="livrée" {{ $commande->statut === 'livrée' ? 'selected' : '' }}>Livrée</option>
+                                                 <option value="livrée" {{ $commande->statut === 'livrée' ? 'selected' : '' }}>Livrée</option>
                                                 <option value="payée" {{ $commande->statut === 'payée' ? 'selected' : '' }}>Payée</option>
                                                 <option value="retournée" {{ $commande->statut === 'retournée' ? 'selected' : '' }}>Retournée</option>
                                             </select>
@@ -224,39 +223,12 @@
                                 @endcan
                             </td>
 
-                            <td>
-                                @switch($commande->statut)
-                                    @case('attente')
-                                        <span class="badge bg-warning text-dark">En attente</span>
-                                        @break
-                                    @case('traitement')
-                                        <span class="badge bg-info text-dark">En Traitement</span>
-                                        @break
-                                    @case('En cours livraison')
-                                        <span class="badge bg-primary">En cours livraison</span>
-                                        @break
-                                    @case('livrée')
-                                        <span class="badge bg-success">Livrée</span>
-                                        @break
-                                    @case('retournée')
-                                        <span class="badge bg-danger">Retournée</span>
-                                        @break
-                                    @default
-                                        <span class="badge bg-secondary">{{ ucfirst($commande->statut) }}</span>
-                                @endswitch
-                            </td>
+                          
 
                             <td>
                                 <span class="text-capitalize">{{ $commande->mode }}</span>
                             </td>
 
-                            <td>
-                                @if ($commande->coupon)
-                                    {{ $commande->coupon }} <x-devise></x-devise>
-                                @else
-                                    <span class="text-muted">---</span>
-                                @endif
-                            </td>
 
                             <td class="text-end">
                                 <div class="btn-group">

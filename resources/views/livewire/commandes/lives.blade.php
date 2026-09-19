@@ -12,7 +12,7 @@
 
     @include('components.alert')
 
-    <div wire:poll.1s class="table-responsive-sm">
+    <div wire:poll.10s class="table-responsive-sm">
         <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
             <thead class="table-dark">
                 <tr>
@@ -24,12 +24,12 @@
                     <th>Téléphone</th>
 
                     <th>Montant</th>
-                    <th>Table</th>
+                   
 
 
                     <th>Statut</th>
                     <th>Mode</th>
-                    <th>Coupon(Valeur)</th>
+                    
                     <th>Date</th>
                     <th class="text-end">
                         <span wire:loading>
@@ -92,19 +92,7 @@
 
                         <td>{{ $commande->montant() - $commande->coupon ?? '' }} <x-devise></x-devise> </td>
 
-                        <td>
-                           
-                                @if($commande->table->nom)
-                                    <img src="{{ Storage::url($commande->table->photo) }}" width="40 " height="40 "
-                                        class="rounded shadow" alt="photo"> {{-- {{ $commande->table->nom  ?? ''}} --}}
-                                        @else
-                                        A Emporter
-                               
-                                @endif
-                            
-                          {{ $commande->table->nom    ?? ''}}
-
-                        </td>
+                   
                         <td>
                             @switch($commande->statut)
                                 @case('attente')
@@ -138,14 +126,7 @@
                                 {{ $commande->mode }}
                             </span>
                         </td>
-                        <td>
-                            @if ($commande->coupon)
-                                {{ $commande->coupon }}
-                                <x-devise></x-devise>
-                            @else
-                                ---
-                            @endif
-                        </td>
+                   
                         <td>{{ $commande->created_at }} </td>
 
                     </tr>
