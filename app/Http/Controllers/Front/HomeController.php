@@ -38,7 +38,7 @@ class HomeController extends Controller
 
         return view('front.index', compact('banners',  'categoryProducts'));
     }
- public function home()
+    public function home()
     {
         return view('admin.login');
     }
@@ -136,67 +136,67 @@ class HomeController extends Controller
         return redirect()->route('shop');
     }
 
-    
-public function details($id)
-{
-    $produit = produits::findOrFail($id);
 
-    // 1. Récupération et nettoyage du numéro WhatsApp
-    $config = config::first();
-    $rawPhone = $config->whatsapp ?? $config->telephone ?? '237600000000';
-    $whatsappNumber = preg_replace('/[^0-9]/', '', $rawPhone);
+    public function details($id)
+    {
+        $produit = produits::findOrFail($id);
 
-    // Sécurité indicatif : Ajoute automatiquement 237 si le numéro est saisi sans indicatif (ex: 6XXXXXXXX)
-    if (strlen($whatsappNumber) === 9 && str_starts_with($whatsappNumber, '6')) {
-        $whatsappNumber = '237' . $whatsappNumber;
+        // 1. Récupération et nettoyage du numéro WhatsApp
+        $config = config::first();
+        $rawPhone = $config->whatsapp ?? $config->telephone ?? '237600000000';
+        $whatsappNumber = preg_replace('/[^0-9]/', '', $rawPhone);
+
+        // Sécurité indicatif : Ajoute automatiquement 237 si le numéro est saisi sans indicatif (ex: 6XXXXXXXX)
+        if (strlen($whatsappNumber) === 9 && str_starts_with($whatsappNumber, '6')) {
+            $whatsappNumber = '237' . $whatsappNumber;
+        }
+
+        // 2. URL absolue de la page produit
+        $productUrl = route('details-produits', [
+            'id'   => $produit->id,
+            'slug' => \Illuminate\Support\Str::slug($produit->nom)
+        ]);
+
+        // 3. URL absolue de l'image du produit
+        $photoPath = ltrim($produit->photo, '/');
+        if (!str_starts_with($photoPath, 'storage/')) {
+            $photoPath = 'storage/' . $photoPath;
+        }
+        $productImageUrl = asset($photoPath);
+
+        // 4. Message prédéfini (Fallback wa.me)
+        $whatsappMessage = "Bonjour,\n\n"
+            . "Je souhaite commander ce produit :\n"
+            . "📦 *{$produit->nom}*\n"
+            . "💰 Prix : {$produit->getPrice()} FCFA\n\n"
+            . "🖼️ *Photo du produit :*\n{$productImageUrl}\n\n"
+            . "🔗 *Lien du produit :*\n{$productUrl}";
+
+        $whatsappUrl = "https://wa.me/{$whatsappNumber}?text=" . rawurlencode($whatsappMessage);
+
+        // 5. Produits similaires
+        $produitsSimilaires = produits::where('category_id', $produit->category_id)
+            ->where('id', '!=', $produit->id)
+            ->latest()
+            ->take(8)
+            ->get();
+
+        return view('front.shop.details', compact(
+            'produit',
+            'whatsappUrl',
+            'whatsappNumber',
+            'productUrl',
+            'productImageUrl',
+            'produitsSimilaires',
+            'whatsappMessage'
+        ));
     }
-
-    // 2. URL absolue de la page produit
-    $productUrl = route('details-produits', [
-        'id'   => $produit->id,
-        'slug' => \Illuminate\Support\Str::slug($produit->nom)
-    ]);
-
-    // 3. URL absolue de l'image du produit
-    $photoPath = ltrim($produit->photo, '/');
-    if (!str_starts_with($photoPath, 'storage/')) {
-        $photoPath = 'storage/' . $photoPath;
-    }
-    $productImageUrl = asset($photoPath);
-
-    // 4. Message prédéfini (Fallback wa.me)
-    $whatsappMessage = "Bonjour,\n\n"
-        . "Je souhaite commander ce produit :\n"
-        . "📦 *{$produit->nom}*\n"
-        . "💰 Prix : {$produit->getPrice()} FCFA\n\n"
-        . "🖼️ *Photo du produit :*\n{$productImageUrl}\n\n"
-        . "🔗 *Lien du produit :*\n{$productUrl}";
-
-    $whatsappUrl = "https://wa.me/{$whatsappNumber}?text=" . rawurlencode($whatsappMessage);
-
-    // 5. Produits similaires
-    $produitsSimilaires = produits::where('category_id', $produit->category_id)
-        ->where('id', '!=', $produit->id)
-        ->latest()
-        ->take(8)
-        ->get();
-
-    return view('front.shop.details', compact(
-        'produit',
-        'whatsappUrl',
-        'whatsappNumber',
-        'productUrl',
-        'productImageUrl',
-        'produitsSimilaires',
-        'whatsappMessage'
-    ));
-}
     ///////////Login///////////////////////////////////////////////////
     public function login()
     {
-      /*   return view('auth.login'); */
+        /*   return view('auth.login'); */
 
-       return view('admin.login');
+        return view('admin.login');
     }
 
 

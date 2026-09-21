@@ -139,7 +139,7 @@
 
 
 
-        @yield('body')
+   @section('body')
 
 
 
