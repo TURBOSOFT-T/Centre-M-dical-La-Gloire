@@ -41,7 +41,12 @@ Route::middleware(['auth'])->group(function () {
         ->name('consultations.facture.pdf');
 });
 
+use App\Http\Controllers\VisiteController;
 
+// Route pour l'impression du Pass Visiteur
+Route::get('/visites/{id}/pass-pdf', [VisiteController::class, 'imprimerPassPdf'])
+    ->name('visites.pass.pdf')
+    ->middleware('auth');
 /*
 |--------------------------------------------------------------------------
 | Web Routes
