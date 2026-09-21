@@ -41,6 +41,7 @@
                   
                   
                     <th>Création</th>
+                    <th>Date peremption</th>
                     <th style="text-align: right;">
                         <span wire:loading>
                             <img src="https://i.gifer.com/ZKZg.gif" width="20" height="20" class="rounded shadow" alt="Chargement...">
@@ -135,29 +136,41 @@
                     </td>
                    
                     <td>{{ $produit->created_at->format('d/m/Y') }}</td>
+
+                    <td>
+                        @if($produit->date_peremption)
+    @if($produit->est_expire)
+        <span class="badge bg-danger"><i class="bx bx-x-circle me-1"></i> Périmé ({{ $produit->date_peremption->format('d/m/Y') }})</span>
+    @elseif($produit->jours_restants <= 30)
+        <span class="badge bg-warning text-dark"><i class="bx bx-time me-1"></i> Expire dans {{ $produit->jours_restants }} jours</span>
+    @else
+        <span class="badge bg-light text-dark"><i class="bx bx-calendar me-1"></i> Exp : {{ $produit->date_peremption->format('d/m/Y') }}</span>
+    @endif
+@else
+    <span class="text-muted small">Non renseignée</span>
+@endif
+                    </td>
                     <td style="text-align: right;">
                         <div class="btn-group">
                             @can('gestion_stock')
                             <button class="btn btn-primary btn-sm" title="Ajouter Stock" wire:click="openModal({{ $produit->id }})">
-                                <i class="fas fa-plus"></i>
+                            <!--     <i class="fas fa-plus"></i> -->
+                                <span class="hide-tablete">Ajouter Stock</span>
                             </button>
                             @endcan
 
                             @can('product_edit')
                             <button class="btn btn-sm btn-dark" onclick="url('{{ route('produits.update', ['id' => $produit->id]) }}')">
-                                <i class="ri-edit-box-line"></i>
+                                <!-- <i class="ri-edit-box-line"></i> -->
+                                <span class="hide-tablete">Modifier</span>
                             </button>
                             @endcan
 
-                            @can('product_edit')
-                            <button class="btn btn-sm btn-warning" title="Promotion" onclick="url('{{ route('promotions_produit', ['id' => $produit->id]) }}')">
-                                <i class="ri-discount-percent-fill"></i>
-                            </button>
-                            @endcan
-
+                           
                             @can('product_delete')
                             <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $produit->id }})">
-                                <i class="ri-delete-bin-6-line"></i>
+                             <!--    <i class="ri-delete-bin-6-line"></i> -->
+                                <span class="hide-tablete">Supprimer</span>
                             </button>
                             @endcan
                         </div>

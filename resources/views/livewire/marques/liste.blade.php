@@ -3,7 +3,7 @@
     <table class="table table-striped dt-responsive nowrap w-100">
         <thead class="table-dark cusor">
             <tr>
-                <th>Image</th>
+               
                 <th>Nom</th>
                 <th>Articles</th>
                 <th>Création</th>
@@ -14,10 +14,7 @@
         <tbody>
             @forelse ($marques as $marque)
                 <tr>
-                    <td>
-                        <img src="{{ Storage::url($marque->image) }}" width="50" height="50" class="rounded shadow"
-                            alt="">
-                    </td>
+                   
                     <td>
                         {{ $marque->nom }}
                     </td>
@@ -56,7 +53,10 @@
                                 src="https://img.icons8.com/external-outline-geotatah/80/1fb141/external-brand-a-commerce-automated-commerce-outline-geotatah.png"
                                 alt="external-brand-a-commerce-automated-commerce-outline-geotatah" />
                             <br>
-                            <h6 class="text-muted">Aucune marque trouvée</h6>
+                            <h6 class="text-muted">Aucun laboratoire n'a été trouvé</h6>
+                
+                    
+
                         </div>
                     </td>
                 </tr>

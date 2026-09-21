@@ -170,16 +170,39 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
 
                 @can('marque_view')
                 <li>
-                    <a href="{{ route('marques') }}">
-                        <div class="parent-icon icon-color-3"> <i class="ri-boxing-fill"></i>
+                    <a href="{{ route('laboratoires') }}">
+                        <div class="parent-icon icon-color-3">
+                            <i class="bx bx-test-tube"></i>
                         </div>
                         <div class="menu-title">
-                            Les marques
+                            Laboratoire 
                         </div>
                     </a>
                 </li>
                 @endcan
-             <!--    @role('admin')
+
+                <li>
+                    <a href="{{ route('assurances') }}">
+                        <div class="parent-icon icon-color-3">
+                            <i class="bx bx-shield-quarter"></i>
+                        </div>
+                        <div class="menu-title">
+                            Assurances Santé
+                        </div>
+                    </a>
+                </li>
+
+                <li>
+    <a href="{{ route('visites') }}">
+        <div class="parent-icon icon-color-2">
+            <i class="bx bx-user-voice"></i>
+        </div>
+        <div class="menu-title">
+            Registre des Visiteurs
+        </div>
+    </a>
+</li>
+                <!--    @role('admin')
                 <li>
                     <a href="{{ route('transports') }}">
                         <div class="parent-icon icon-color-3">
@@ -218,14 +241,14 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                             </a>
                         </li>
                         @endcan
-                       
+
 
                     </ul>
                 </li>
                 @endcan
 
                 {{-- 🔹 Menu Statistiques & Rapports --}}
-              @role('admin')
+                @role('admin')
                 <li>
                     <a href="{{ route('admin.statistiques') }}">
                         <div class="parent-icon icon-color-6">
@@ -264,22 +287,15 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                             </a>
                         </li>
 
-                       
-                      
- 
+
+
+
 
 
                     </ul>
                 </li>
                 @endcan
-             <!--    <li>
-                    <a href="{{ route('comptes')}}">
-                        <div class="parent-icon">
-                            <i class="ri-user-settings-line"></i>
-                        </div>
-                        <div class="menu-title">Comptes utilisateurs</div>
-                    </a>
-                </li> -->
+
                 @role('admin')
                 <li>
                     <a href="{{ route('personnels') }}">
@@ -294,24 +310,24 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                 </li>
                 @endrole
 
-                 @role('admin')
+                @role('admin')
                 <li>
                     <a href="{{ route('shops') }}">
                         <div class="parent-icon icon-color-6">
-                            <i class="ri-store-2-line"></i> {{-- Icône 'store' plus adaptée pour un shop qu'un profil utilisateur --}}
+                            <i class="bx bx-capsule"></i>
                         </div>
                         <div class="menu-title">
-
-                            Gestion des shops
-
+                            Gestion des pharmacies
                         </div>
                     </a>
                 </li>
                 @endrole
 
-                @can('clients_view')
+
+
+
                 <li>
-                    <a href="{{ route('clients') }}">
+                    <a href="{{ route('patients') }}">
                         <div class="parent-icon icon-color-5">
                             <i class="bx bx-group"></i>
                         </div>
@@ -320,9 +336,19 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                         </div>
                     </a>
                 </li>
-                @endcan
-               
-              
+
+                 <li>
+                    <a href="{{ route('consultations') }}">
+                        <div class="parent-icon icon-color-5">
+                            <i class="bx bx-calendar-check"></i>
+                        </div>
+                        <div class="menu-title">
+                            Consultations & RDV
+                        </div>
+                    </a>
+                </li> 
+
+
                 @can('setting_view')
                 <li class="menu-label">
                     Settings
@@ -343,7 +369,7 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                                 Clinique
                             </a>
                         </li>
-                        
+
 
 
                     </ul>

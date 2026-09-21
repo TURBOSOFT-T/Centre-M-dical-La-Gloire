@@ -12,7 +12,7 @@
                 <form action="{{ route('update-personnel-permissions') }}" method="post">
                     <input type="hidden" name="id" value="{{$personnel->id}}">
                     @csrf
-                  <div class="modal-body text-start  table-responsive">
+                   <div class="modal-body text-start  table-responsive">
                         <table class="table align-middle">
                             <tbody>
                                 <tr>

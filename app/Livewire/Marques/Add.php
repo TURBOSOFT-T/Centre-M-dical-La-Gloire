@@ -22,15 +22,15 @@ class Add extends Component
     public function save(){
         $this->validate([
             'nom' =>'required|string|max:200',
-            'logo' =>'required|image|mimes:jpg,jpeg,png,webp',
+           
         ]);
 
         $marque = new Marque();
         $marque->nom = $this->nom;
-        $marque->image = $this->logo->store('marques', 'public');
+   
         $marque->save();
 
-        session()->flash('success', 'Marque ajoutée avec succès');
+        session()->flash('success', 'Labo ajouté avec succès');
         $this->reset();
         $this->dispatch("MarqueAdded");
     }

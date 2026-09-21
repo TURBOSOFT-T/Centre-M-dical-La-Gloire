@@ -19,11 +19,17 @@ class AddProduit extends Component
     use TailleProduit;
 
     public $nom, $tags,  $prix, $category_id, $photo, $photos, $prix_achat, $photo2, $photos2, $produit, $reference, $description, $marque_id;
-    public $free_shipping = false;
+
     public $is_new = false;
     public $meta_description;
-    public $avec_commission = false;
-    public $commission;
+    public $avec_dci = false;
+    public $dci;
+    public $grammage;
+  public $voie;
+  // Nouveaux champs pour la traçabilité et les péremptions
+    public $date_peremption;
+    public $numero_lot;
+
 
     public function mount($produit = null)
     {
@@ -40,11 +46,15 @@ class AddProduit extends Component
             $this->photo2 = $produit->photo;
             $this->photos2 = $produit->photos;
             $this->description = $produit->description;
-            $this->free_shipping = (bool)$produit->free_shipping;
+      
             $this->is_new = (bool)$produit->is_new;
             $this->meta_description = $produit->meta_description;
-            $this->avec_commission = (bool)$produit->avec_commission;
-            $this->commission = $produit->commission;
+            $this->avec_dci = (bool)$produit->avec_dci;
+            $this->dci = $produit->dci;
+            $this->grammage = $produit->grammage;
+            $this->voie = $produit->voie;
+            $this->numero_lot = $produit->numero_lot;
+            $this->date_peremption = $produit->date_peremption ? date('Y-m-d', strtotime($produit->date_peremption)) : null;
         }
     }
 
@@ -81,19 +91,24 @@ class AddProduit extends Component
             'nom'               => 'required|string',
             'description'       => 'required|string|max:50000',
             'meta_description'  => 'nullable|string|max:50000',
-            'reference'         => 'required|string|unique:produits,reference',
+            'reference'         => 'nullable|string|unique:produits,reference',
             'prix'              => 'required|numeric|gt:prix_achat',
             'prix_achat'        => 'required|numeric',
             'photo'             => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:10240',
             'photos.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
             'category_id'       => 'required|integer|exists:categories,id',
            
-            'free_shipping'     => 'nullable|boolean',
+        
             'is_new'            => 'nullable|boolean',
             'marque_id'         => 'nullable|integer|exists:marques,id',
+            'voie'              => 'nullable|integer|min:0',
 
-            'avec_commission'   => 'required|boolean',
-            'commission'        => 'required_if:avec_commission,true|nullable|numeric|min:0',
+            'avec_dci'   => 'required|boolean',
+            'dci'        => 'required_if:avec_dci,true|nullable|string',
+            'grammage'        => 'required_if:avec_dci,true|nullable|integer|min:0',
+            // Validation de la péremption et du lot
+            'date_peremption'   => 'nullable|date',
+            'numero_lot'        => 'nullable|string|max:255',
         ]);
 
         $produit = new produits();
@@ -106,10 +121,16 @@ class AddProduit extends Component
      
         $produit->category_id = $this->category_id;
         $produit->marque_id = $this->marque_id ?: null;
-        $produit->free_shipping = (bool)$this->free_shipping;
+
         $produit->is_new = (bool)$this->is_new;
-        $produit->avec_commission = (bool)$this->avec_commission;
-        $produit->commission = $this->avec_commission ? $this->commission : null;
+        $produit->avec_dci = (bool)$this->avec_dci;
+        $produit->dci = $this->avec_dci ? $this->dci : null;
+        $produit->grammage = $this->avec_dci ? $this->grammage : null;
+        $produit->voie = $this->voie ?? null;
+
+        // Enregistrement de la date de péremption et du numéro de lot
+        $produit->date_peremption = $this->date_peremption ?: null;
+        $produit->numero_lot = $this->numero_lot ?: null;
 
         // Compression et stockage de la photo principale
         $produit->photo = $this->compressAndStoreImage($this->photo);
@@ -142,10 +163,11 @@ class AddProduit extends Component
                 'photos.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
                 'category_id'       => 'required|integer|exists:categories,id',
                 'marque_id'         => 'nullable|integer|exists:marques,id',
-                'free_shipping'     => 'nullable|boolean',
+            
                 'is_new'            => 'nullable|boolean',
-                'avec_commission'   => 'required|boolean',
-                'commission'        => 'required_if:avec_commission,true|nullable|numeric|min:0',
+                'avec_dci'   => 'required|boolean',
+                'dci'        => 'required_if:avec_dci,true|nullable|string',
+                'grammage'        => 'required_if:avec_dci,true|nullable|integer|min:0',
             ]);
 
             $this->produit->nom = $this->nom;
@@ -156,10 +178,15 @@ class AddProduit extends Component
             $this->produit->prix_achat = $this->prix_achat;
             $this->produit->category_id = $this->category_id;
             $this->produit->marque_id = $this->marque_id ?: null;
-            $this->produit->free_shipping = (bool)$this->free_shipping;
+   
             $this->produit->is_new = (bool)$this->is_new;
-            $this->produit->avec_commission = (bool)$this->avec_commission;
-            $this->produit->commission = $this->avec_commission ? $this->commission : null;
+            $this->produit->avec_dci = (bool)$this->avec_dci;
+            $this->produit->dci = $this->avec_dci ? $this->dci : null;
+            $this->produit->grammage = $this->avec_dci ? $this->grammage : null;
+            $this->produit->voie = $this->voie ?? null;
+            // Mise à jour de la date de péremption et du numéro de lot
+            $this->produit->date_peremption = $this->date_peremption ?: null;
+            $this->produit->numero_lot = $this->numero_lot ?: null;
 
             // 1. Gestion de la photo principale (si une nouvelle est envoyée)
             if ($this->photo) {

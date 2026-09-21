@@ -27,7 +27,7 @@
             <thead class="table-dark cusor">
                 <tr>
                    
-                    <th>Photo</th>
+                 
                     <th>Nom categorie</th>
                     <th>Nombre produits</th>
                   
@@ -46,11 +46,7 @@
             <tbody>
                 @forelse ($categories as $cat)
                     <tr>
-                        <td>
-                            <img src="{{ Storage::url($cat->photo) }}" width="40 " height="40 "
-                                class="rounded shadow" alt="">
-                               
-                        </td>
+                       
                         <td>
                             
 

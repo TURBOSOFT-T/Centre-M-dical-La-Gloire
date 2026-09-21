@@ -9,7 +9,7 @@ use App\Models\commandes;
 use App\Models\historiques_stock;
 use App\Models\config;
 use App\Models\historiques_connexion;
-use App\Models\{produits, Category, Marque, Contact, favoris, Coupon, Message, Shop, Testimonial, Visitor, Sous_category};
+use App\Models\{produits, Category,Consultation, Marque, Contact, favoris, Coupon, Message, Patient, Shop, Testimonial, Visitor, Sous_category};
 use App\Models\User;
 use App\Models\views;
 use Illuminate\Http\Request;
@@ -423,7 +423,12 @@ class AdminController extends Controller
         return view('admin.marques.list');
     }
 
+//////////////////Assurances/////////////////////
 
+    public function assurances()
+    {
+        return view('admin.assurances.list');
+    }
 
     ////////////////coupons //////////////////
 
@@ -599,6 +604,32 @@ class AdminController extends Controller
         $comptes = clients::all();
         return view('admin.clients.list', compact('clients', 'comptes'));
     }
+
+
+
+       public function patients()
+    {
+        $patients = Patient::with('assurance')->get();
+      
+        return view('admin.patients.list', compact('patients'));
+    }
+
+    public function visites()
+    {
+        $visites = DB::table('visites')
+            ->join('patients', 'visites.patient_id', '=', 'patients.id')
+            ->select('visites.*', 'patients.nom as patient_nom')
+            ->get();
+
+        return view('admin.visites.list', compact('visites'));
+    }
+
+    public function consultations()
+    {
+        $consultations = Consultation::with(['patient.assurance', 'medecin'])->get();
+        return view('admin.consultations.list', compact('consultations'));
+    }
+
 
     public function comptes()
     {

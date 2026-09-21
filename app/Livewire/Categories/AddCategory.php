@@ -53,12 +53,12 @@ class AddCategory extends Component
         $this->validate([
             'nom' => 'required|string',
             'description' => 'nullable|string|Max:5000',
-            'photo' => 'required|image|mimes:jpg,jpeg,png,webp',
+          
         ]);
         ;[
             'description.required' => 'La description doit avoir moins de 5000 caractères',
             'nom.required' => 'Veuillez entrer le nom ',
-           'photo.required' => 'Veuillez  mettre une photo',
+        
             //'adresse.required' => 'Veuillez entrer votre addresse',
       
           ];
@@ -68,9 +68,9 @@ class AddCategory extends Component
 
         $category = new Category();
         $category->nom = $this->nom;
-        $category->description = $this->description;
+     
         
-        $category->photo = $this->photo->store('categories', 'public');
+      
       /*   if ($this->photos) {
             $photosPaths = [];
             foreach ($this->photos as $photo) {
@@ -99,7 +99,7 @@ class AddCategory extends Component
               
               
               
-                'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+             
                
             ]);
 
@@ -109,13 +109,6 @@ class AddCategory extends Component
          
             
 
-            if($this->photo){
-                //delete old photo
-                if ($this->category->photo) {
-                    Storage::disk('public')->delete($this->category->photo);
-                }
-                $this->category->photo = $this->photo->store('categories', 'public');
-            }
 
         /*     if ($this->photos) {
                 $photosPaths = [];

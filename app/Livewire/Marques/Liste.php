@@ -21,9 +21,8 @@ class Liste extends Component
     public function delete($id){
         $marque = Marque::find($id);
         if ($marque) {
-            if ($marque->image) {
-                Storage::disk('public')->delete($marque->image); 
-            };
+          
+        
             $marque->delete();
             session()->flash('info', 'Marque supprimée avec succès');
         }

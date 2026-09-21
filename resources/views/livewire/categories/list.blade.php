@@ -31,7 +31,7 @@
                     <th title="Ajouter un produit dans la bannier de l'accueil">
                         Top
                     </th>
-                    <th>Photo</th>
+                   
                     <th>Nom categorie</th>
                     <th>Nombre produits</th>
                     <th>Descrieeeption</th>
@@ -54,10 +54,7 @@
                             <input type="checkbox" class="form-check-input" @checked($produit->top == 1)
                                 wire:click="add_top({{ $produit->id }})">
                         </td>
-                        <td>
-                            <img src="{{ Storage::url($produit->photo) }}" width="40 " height="40 "
-                                class="rounded shadow" alt="">
-                        </td>
+                       
                         <td>
                             <button class="btn btn-sm btn-outline" data-bs-toggle="modal"
                                 data-bs-target="#qr-code-{{ $produit->id }}">

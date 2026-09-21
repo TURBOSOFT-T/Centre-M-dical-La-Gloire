@@ -20,9 +20,12 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('meta_description')->nullable();
 
-            $table->string('reference')->unique();
+            $table->string('reference')->nullable();
 
             $table->integer('prix');
+                 $table->integer('grammage')->nullable();
+                   $table->integer('voie')->nullable();
+
 
             $table->integer('prix_achat');
 
@@ -33,11 +36,10 @@ return new class extends Migration
 
             // galerie images
             $table->json('photos')->nullable();
-            $table->string('taille')->nullable();
-            $table->string('couleur')->nullable();
-            $table->boolean('avec_commission')->default(false);
-            // On le met en nullable car si 'avec_commission' est false, ce champ sera vide
-            $table->integer('commission')->nullable(); // Utilise decimal('commission', 8, 2) si tu as des centimes
+         
+            $table->boolean('avec_dci')->default(false);
+            // On le met en nullable car si 'avec_dci' est false, ce champ sera vide
+            $table->integer('dci')->nullable(); // Utilise decimal('dci', 8, 2) si tu as des centimes
             /*
             |--------------------------------------------------------------------------
             | RELATIONS
@@ -49,13 +51,12 @@ return new class extends Migration
 
             $table->unsignedBigInteger('category_id')->nullable();
 
-            $table->unsignedBigInteger("sous_category_id")->nullable();
-            $table->unsignedBigInteger("sous_categorie_id")->nullable();
-            $table->unsignedBigInteger("famille_id")->nullable();
             $table->unsignedBigInteger('marque_id')->nullable();
 
             // stock
             $table->integer('stock')->default(0);
+             $table->string('numero_lot')->nullable();
+            $table->date('date_peremption')->nullable();
 
             // statut
             $table->enum('statut', [
@@ -71,8 +72,7 @@ return new class extends Migration
             $table->boolean('new')->default(false);
             $table->boolean('is_new')->default(false);
 
-            $table->boolean('free_shipping')->default(false);
-
+         
             $table->softDeletes();
 
             $table->timestamps();

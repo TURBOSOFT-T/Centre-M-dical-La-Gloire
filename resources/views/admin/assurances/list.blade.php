@@ -1,4 +1,4 @@
-@section('titre', 'Liste des laboratoires')
+@section('titre', 'Liste des assurances')
 @extends('admin.fixe')
 
 @section('body')
@@ -33,7 +33,7 @@
                         <div class="col-sm-6">
                             <div class="card-title">
                                 <h5 class="mb-0 my-auto">
-                                    Liste des laboratoires
+                                    Liste des assurances
                                 </h5>
                             </div>
                         </div>
@@ -43,22 +43,10 @@
                     </div>
                     <hr />
                     <div class="row">
-                        <div class="col-sm-8">
-                            @livewire('Marques.Liste')
+                        <div class="col-sm-12">
+                            @livewire('Assurances.GestionAssurances')
                         </div>
-                        <div class="col-sm-4">
-                              @can('marque_add')
-                            <h5>
-                                <b>
-                                    Ajouter un laboratoire
-                                </b>
-                            </h5>
-                            <br>
-                            
-                            @livewire('Marques.Add')
-                            @endcan
-                        </div>
-                    </div>
+                        
                 </div>
             </div>
         </div>

@@ -25,10 +25,51 @@ class DatabaseSeeder extends Seeder
         'category_edit',
         'category_delete',
 
-        'sous_category_view',
-        'sous_category_add',
-        'sous_category_edit',
-        'sous_category_delete',
+        'marque_view',
+        'marque_add',
+        'marque_edit',
+        'marque_delete',
+
+        'consultation_view',
+        'consultation_add',
+        'consultation_edit',
+        'consultation_dlete',
+
+        'boutique_view',
+        'boutique_add',
+        'boutique_edit',
+        'boutique_delete',
+
+        'visiteur_view',
+        'visiteur_add',
+        'visiteur_edit',
+        'visiteur_delete',  
+
+        'assurance_view',
+        'assurance_add',
+        'assurance_edit',   
+        'assurance_delete',
+
+        'patient_view',
+        'patient_add',
+        'patient_edit',
+        'patient_delete',
+
+        'rendez-vous_view',
+        'rendez-vous_add',
+        'rendez-vous_edit',
+        'rendez-vous_delete',
+
+        'rapport_view',
+        'rapport_add',
+        'rapport_edit',
+        'rapport_delete',
+
+
+
+
+
+     
 
         'famille_view',
         'famille_add',
@@ -154,7 +195,7 @@ class DatabaseSeeder extends Seeder
 
         // Configuration Générale de l'Établissement    
         $cat = new config();
-        $cat->frais = '0';
+
         $cat->description = 'Bienvenue au Centre Médical La Gloire. Une structure de santé de référence dédiée à votre bien-être et à des soins de qualité.';
         $cat->telephone = '682840743';
         $cat->email = 'Centremedicallagloire56@gmail.com';

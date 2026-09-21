@@ -26,6 +26,21 @@ use App\Http\Controllers\Front\{
     TestimonialController
 };
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\PrescriptionController;
+
+Route::middleware(['auth'])->group(function () {
+    // Route d'impression de l'ordonnance
+    Route::get('/consultations/{id}/ordonnance/pdf', [PrescriptionController::class, 'imprimerOrdonnance'])
+        ->name('consultations.ordonnance.pdf');
+});
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/consultations/{id}/facture/pdf', [PrescriptionController::class, 'imprimerFactureConsultation'])
+        ->name('consultations.facture.pdf');
+});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -175,10 +190,11 @@ Route::middleware(['auth'])->group(function () {
 
 
     /////////////////////////Les marques//////////////////////////////////////
-    Route::get('/admin/marques', [AdminController::class, 'marques'])
-        ->name('marques');
+    Route::get('/admin/laboratoires', [AdminController::class, 'marques'])
+        ->name('laboratoires');
+   Route::get('/assurances', [AdminController::class, 'assurances'])->name('assurances');
 
-
+    Route::get('/visites', [AdminController::class, 'visites'])->name('visites');
 
 
     ///////////////////les  produits////////////////////////////////////////////////
@@ -251,7 +267,12 @@ Route::middleware(['auth'])->group(function () {
 
 
 
+  Route::get('patients', [AdminController::class, 'patients'])
+        ->name('patients');
 
+        
+  Route::get('consultations', [AdminController::class, 'consultations'])
+        ->name('consultations');
 
 
     Route::get('clients', [AdminController::class, 'clients'])

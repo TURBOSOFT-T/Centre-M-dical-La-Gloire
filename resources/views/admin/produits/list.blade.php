@@ -29,7 +29,31 @@
 
             <div class="card radius-15">
                 <div class="card-body">
-                    <div class="row">
+
+                   <!-- Entête -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <h4 class="mb-0 font-weight-bold text-primary">
+                    <i class="bx bx-user-plus me-2"></i>  Liste des produits
+                </h4>
+                <p class="text-muted small mb-0">  Liste des produits - Centre Médical La Gloire</p>
+            </div>
+
+            @can('gestion_stock')
+                                    <button class="btn btn-primary px-4 radius-30" data-bs-toggle="modal"
+                                        data-bs-target="#modal-add-stock">
+                                        Ajout de stock
+                                    </button>
+                                @endcan
+             @can('product_add')
+            <button onclick="url('{{ route('produit.add') }}')" class="btn btn-primary px-4 radius-30">
+                <i class="bx bx-plus me-1"></i> Nouveau Produit
+            </button>
+               @endcan
+        </div>
+    </div>
+                  <!--   <div class="row">
                         <div class="col-sm-6">
                             <div class="card-title">
                                 <h5 class="mb-0 my-auto">
@@ -57,7 +81,7 @@
                                 @endcan
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <hr />
                     @livewire('Produits.ListProduit')
                 </div>

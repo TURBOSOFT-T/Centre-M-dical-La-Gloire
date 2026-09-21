@@ -1,4 +1,4 @@
-@section('titre', 'Liste des laboratoires')
+@section('titre', 'Liste des visites')
 @extends('admin.fixe')
 
 @section('body')
@@ -16,7 +16,7 @@
                                     <a href="javascript: void(0);">{{ config('app.name') }}</a>
                                 </li>
                                 <li class="breadcrumb-item">
-                                    <a href="{{ route('laboratoires') }}">Les laboratoires</a>
+                                    <a href="{{ route('visites') }}">Les visites</a>
                                 </li>
                                 <li class="breadcrumb-item active">Liste</li>
                             </ol>
@@ -33,7 +33,7 @@
                         <div class="col-sm-6">
                             <div class="card-title">
                                 <h5 class="mb-0 my-auto">
-                                    Liste des laboratoires
+                                    Liste des visites
                                 </h5>
                             </div>
                         </div>
@@ -43,22 +43,10 @@
                     </div>
                     <hr />
                     <div class="row">
-                        <div class="col-sm-8">
-                            @livewire('Marques.Liste')
+                        <div class="col-sm-12">
+                            @livewire('Visites.GestionVisites')
                         </div>
-                        <div class="col-sm-4">
-                              @can('marque_add')
-                            <h5>
-                                <b>
-                                    Ajouter un laboratoire
-                                </b>
-                            </h5>
-                            <br>
-                            
-                            @livewire('Marques.Add')
-                            @endcan
-                        </div>
-                    </div>
+                        
                 </div>
             </div>
         </div>

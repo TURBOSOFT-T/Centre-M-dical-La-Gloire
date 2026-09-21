@@ -30,7 +30,7 @@ class produits extends Model
         'stock',
         'statut',
         'photos',
-        'free_shipping  ',
+
 
         'top',
         'active',
@@ -39,13 +39,19 @@ class produits extends Model
         'taille',
         'couleur',
         'is_new',
-        'avec_commission'
+        'avec_dci',
+        'dci',
+        'grammage',
+        'voie',
+        'marque_id',
+        'numero_lot', 'date_peremption', // <--- Nouveaux champs
     ];
 
     protected $casts = [
         'photos' => 'json',
         'taille' => 'array',
         'couleur' => 'array',
+        'date_peremption' => 'date',
     ];
 
     protected $appends = [
@@ -55,7 +61,17 @@ class produits extends Model
         'slug',
 
     ];
+// Helper pour vérifier rapidement si le produit est périmé
+public function getEstExpireAttribute(): bool
+{
+    return $this->date_peremption ? $this->date_peremption->isPast() : false;
+}
 
+// Helper pour obtenir le nombre de jours restants
+public function getJoursRestantsAttribute(): int
+{
+    return $this->date_peremption ? (int) now()->diffInDays($this->date_peremption, false) : 0;
+}
     /**
      * Relation vers les stocks par boutique
      */
@@ -165,7 +181,7 @@ class produits extends Model
     {
         $this->stock += $quantite;
         $this->save();
-    }
+    }                               
  */
 
     // Dans App\Models\produits.php
@@ -177,7 +193,7 @@ class produits extends Model
         // 2. Diminuer le stock spécifique au magasin
         if ($shopId) {
             $updated = $this->shops()->updateExistingPivot($shopId, [
-                'stock_particulier' => \DB::raw("stock_particulier - {$quantite}")
+                'stock_particulier' => \Illuminate\Support\Facades\DB::raw("stock_particulier - {$quantite}")
             ]);
 
             if (!$updated) {
@@ -196,7 +212,7 @@ class produits extends Model
         // 2. Mise à jour magasin
         if ($shopId) {
             $updated = $this->shops()->updateExistingPivot($shopId, [
-                'stock_particulier' => \DB::raw("stock_particulier + {$quantite}")
+                'stock_particulier' => \Illuminate\Support\Facades\DB::raw("stock_particulier + {$quantite}")
             ]);
 
             if (!$updated) {
@@ -232,17 +248,7 @@ class produits extends Model
     }
 
 
-    public function getSlugAttribute()
-    {
-        return \Str::slug($this->nom . '-' . $this->id);
-    }
-
-
-    public function reviews()
-    {
-        return $this->hasMany(Review::class, 'product_id', 'id');
-    }
-
+   
     public function getReview()
     {
         return $this->hasMany('App\Models\Review', 'product_id', 'id');

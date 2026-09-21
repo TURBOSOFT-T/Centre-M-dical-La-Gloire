@@ -25,18 +25,15 @@ class Update extends Component
     public function update(){
         $this->validate([
             'nom' =>'required|string|max:200',
-            'logo' =>'nullable|image|mimes:jpg,jpeg,png,webp',
+         
         ]);
 
         $this->marque->nom = $this->nom;
-        if($this->logo){
-            Storage::disk('public')->delete($this->marque->image); 
-            $this->marque->image = $this->logo->store('marques', "public");
-        }
+       
         $this->marque->save();
 
 
-        return redirect('/admin/marques')->with('success', "Marque modifié !");
+        return redirect('/admin/laboratoires')->with('success', "Labo modifié !");
     }
 
 }
