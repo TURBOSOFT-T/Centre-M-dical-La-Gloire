@@ -27,15 +27,21 @@ return new class extends Migration
             $table->dateTime('two_factor_expires_at')->nullable();
             $table->string('code_postal')->nullable(true)->default(null);
             $table->enum("role", [
-                "personnel",
-                "admin",
-                "client",
-                "caisse",
-                'commercial',
-                'user',
-                'gerant',
-                'vendeur'
-            ])->default("client");
+                'admin',
+            'medecin',
+            'infirmier',
+            'caisse',
+            'comptable',
+            'secretaire',
+            'accueil',
+            'pharmacien',
+            'laborantin',
+            'personnel',
+            'commercial',
+            'gerant',
+            'vendeur',
+            'user'
+            ])->default("accueil");
             $table->integer("points")->default(0);
             $table->integer('solde')->nullable()->default(null);
             $table->string('token')->nullable();

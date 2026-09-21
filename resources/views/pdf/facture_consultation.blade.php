@@ -143,12 +143,19 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <!-- EN-TÊTE -->
     <table class="header-table">
         <tr>
-            <td style="width: 55%;">
+            <td style="width: 20%;">
                 <div class="clinic-name">{{ config('app.name') }}</div>
                 <div class="clinic-info">{{ $config->addresse ?? 'N/A' }}</div>
                 <div class="clinic-info">Tél: {{ $config->telephone ?? 'N/A' }} | Email: {{ $config->email ?? 'N/A' }}</div>
             </td>
-            <td style="width: 45%; text-align: right;">
+              <td style="width: 20%;">
+                @if(!empty($logoBase64))
+                    <img src="{{ $logoBase64 }}" alt="Logo" class="logo" style="max-width: 50px; height: auto;">
+                @else
+                    <div style="font-size: 10pt; color: #888;">Logo indisponible</div>
+                @endif
+            </td>
+            <td style="width: 60%; text-align: right;">
                 <div class="invoice-title">Reçu de Caisse</div>
                 <div style="font-size: 9pt; color: #666;">N° Facture : <strong>FAC-{{ $consultation->code_consultation }}</strong></div>
                 <div style="font-size: 9pt; color: #666;">Date : {{ date('d/m/Y H:i') }}</div>
