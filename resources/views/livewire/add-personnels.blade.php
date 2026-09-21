@@ -71,6 +71,8 @@
                         <select class="form-select" wire:model="role_in_shop" id="role_in_shop">
                             <option value="caisse">Seller (Vendeur)</option>
                             <option value="commercial">Commercial</option>
+                            <option value="secretaire">Sécretaire</option>
+                            
 
                         </select>
                         @error('role_in_shop')

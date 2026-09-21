@@ -44,6 +44,7 @@
                     <option value="vendeur">Vendeur</option>
                     <option value="gerant">Gérant</option>
                     <option value="commercial">Commercial</option>
+                    
                 </select>
                 @error('role_in_shop') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>

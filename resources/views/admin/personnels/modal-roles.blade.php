@@ -14,12 +14,9 @@
                 <div class="modal-body">
                     <label class="form-label">{{ \App\Helpers\TranslationHelper::TranslateText('Nouveau rôle') }} :</label>
                     <select class="form-control" name="role" required>
-                        <option value="client" {{ $personnel->role == 'client' ? 'selected' : '' }}>
-                            {{ \App\Helpers\TranslationHelper::TranslateText('Client') }}
-                        </option>
-                        <option value="personnel" {{ $personnel->role == 'personnel' ? 'selected' : '' }}>
-                            {{ \App\Helpers\TranslationHelper::TranslateText('Personnel') }}
-                        </option>
+                        
+
+
                         <option value="admin" {{ $personnel->role == 'admin' ? 'selected' : '' }}>
                             {{ \App\Helpers\TranslationHelper::TranslateText('Admin') }}
                         </option>
@@ -28,6 +25,17 @@
                         </option>
                         <option value="commercial" {{ $personnel->role == 'commercial' ? 'selected' : '' }}>
                             {{ \App\Helpers\TranslationHelper::TranslateText('Commercial') }}
+                        </option>
+
+                        <option value="comptable" {{ $personnel->role == 'comptable' ? 'selected' : '' }}>
+                            {{ \App\Helpers\TranslationHelper::TranslateText('Comptable') }}
+                        </option>
+                        <option value="secretaire" {{ $personnel->role == 'secretaire' ? 'selected' : '' }}>
+                            {{ \App\Helpers\TranslationHelper::TranslateText('Secrétaire') }}
+                        </option>
+
+                          <option value="medecin" {{ $personnel->role == 'medecin' ? 'selected' : '' }}>
+                            {{ \App\Helpers\TranslationHelper::TranslateText('Médecin') }}
                         </option>
                     </select>
                 </div>
