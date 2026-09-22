@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Http\Traits\TypeConsultations;
 use App\Models\RendezVous;
 use App\Models\Patient;
 use App\Models\User;
@@ -13,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class RendezVousManager extends Component
 {
     use WithPagination;
+    use TypeConsultations;
 
     // Mode d'affichage : 'index', 'create', 'edit', 'show'
     public string $mode = 'index';
@@ -39,6 +41,7 @@ class RendezVousManager extends Component
     public $statut = 'planifie';
     public $motif;
     public $medecinsFound = [];
+    
 
     // --- Durée estimée par type de rendez-vous (en minutes) ---
     protected array $durations = [

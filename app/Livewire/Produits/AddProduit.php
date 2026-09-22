@@ -89,14 +89,14 @@ class AddProduit extends Component
     {
         $this->validate([
             'nom'               => 'required|string',
-            'description'       => 'required|string|max:50000',
+            'description'       => 'nullable|string|max:50000',
             'meta_description'  => 'nullable|string|max:50000',
             'reference'         => 'nullable|string|unique:produits,reference',
             'prix'              => 'required|numeric|gt:prix_achat',
             'prix_achat'        => 'required|numeric',
             'photo'             => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:10240',
             'photos.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
-            'category_id'       => 'required|integer|exists:categories,id',
+            'category_id'       => 'nullable|integer|exists:categories,id',
            
         
             'is_new'            => 'nullable|boolean',

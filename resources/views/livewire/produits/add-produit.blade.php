@@ -41,38 +41,38 @@
                     <div class="row">
                         <!-- Sélection Catégorie -->
                         <div class="col-sm-6 mb-3">
-                        <label for="nom">Nom du produit</label>
-                        <input type="text" id="nom" name="nom" class="form-control @error('nom') is-invalid @enderror" wire:model="nom">
-                        @error('nom')
-                        <span class="text-danger small"> {{ $message }} </span>
-                        @enderror
-                    </div>
+                            <label for="nom">Nom du produit</label>
+                            <input type="text" id="nom" name="nom" class="form-control @error('nom') is-invalid @enderror" wire:model="nom">
+                            @error('nom')
+                            <span class="text-danger small"> {{ $message }} </span>
+                            @enderror
+                        </div>
 
-                    
 
-  <div class="col-sm-6 mb-3">
-                        <label for="grammage">Grammage</label>
-                        <input type="text" id="grammage" name="grammage" class="form-control @error('grammage') is-invalid @enderror" wire:model="grammage">
-                        @error('grammage')
-                        <span class="text-danger small"> {{ $message }} </span>
-                        @enderror
-                    </div>
-                    </div>
-<div class="row g-3 mt-2">
-    <!-- Numéro de lot -->
-    <div class="col-md-6">
-        <label class="form-label font-weight-bold">Numéro de Lot</label>
-        <input type="text" wire:model="numero_lot" class="form-control @error('numero_lot') is-invalid @enderror" placeholder="Ex: LOT-2026-001">
-        @error('numero_lot') <div class="invalid-feedback">{{ $message }}</div> @enderror
-    </div>
 
-    <!-- Date de Péremption -->
-    <div class="col-md-6">
-        <label class="form-label font-weight-bold">Date de Péremption <span class="text-danger">*</span></label>
-        <input type="date" wire:model="date_peremption" class="form-control @error('date_peremption') is-invalid @enderror">
-        @error('date_peremption') <div class="invalid-feedback">{{ $message }}</div> @enderror
-    </div>
-</div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="grammage">Grammage</label>
+                            <input type="text" id="grammage" name="grammage" class="form-control @error('grammage') is-invalid @enderror" wire:model="grammage">
+                            @error('grammage')
+                            <span class="text-danger small"> {{ $message }} </span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <!-- Numéro de lot -->
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Numéro de Lot</label>
+                            <input type="text" wire:model="numero_lot" class="form-control @error('numero_lot') is-invalid @enderror" placeholder="Ex: LOT-2026-001">
+                            @error('numero_lot') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        <!-- Date de Péremption -->
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold">Date de Péremption <span class="text-danger">*</span></label>
+                            <input type="date" wire:model="date_peremption" class="form-control @error('date_peremption') is-invalid @enderror">
+                            @error('date_peremption') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
 
                     <div class="mb-3" wire:ignore>
                         <label><strong>Description :</strong></label>

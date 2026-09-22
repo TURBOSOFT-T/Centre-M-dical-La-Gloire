@@ -45,13 +45,14 @@ class Consultation extends Model
         });
     }
 
-    public function patient()
-    {
-        return $this->belongsTo(Patient::class);
-    }
-
     public function medecin()
     {
         return $this->belongsTo(User::class, 'medecin_id');
+    }
+
+    // Relation avec le patient
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 }

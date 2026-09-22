@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Consultations;
 
+use App\Http\Traits\TypeConsultations;
 use App\Models\Consultation;
 use App\Models\Patient;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Livewire\WithPagination;
 class GestionConsultations extends Component
 {
     use WithPagination;
+    use TypeConsultations;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -46,14 +48,15 @@ class GestionConsultations extends Component
     public $isEditMode = false;
     public $selectedConsultation = null;
     public $isViewModalOpen = false;
-
+    public $typeConsultations;
+public $searchMedecin = '';
     protected function rules()
     {
         return [
             'patient_id' => 'required|exists:patients,id',
             'medecin_id' => 'nullable|exists:users,id',
             'date_heure_rdv' => 'required|date',
-            'type' => 'required|in:consultation_generale,specialiste,suivi,urgence',
+          //  'type' => 'required|in:consultation_generale,specialiste,suivi,urgence',
             'statut' => 'required|in:programme,en_attente,en_cours,termine,annule',
             'motif' => 'nullable|string',
             'examen_physique' => 'nullable|string',
@@ -70,10 +73,22 @@ class GestionConsultations extends Component
         $this->date_heure_rdv = date('Y-m-d\TH:i');
     }
 
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingFiltreStatut() { $this->resetPage(); }
-    public function updatingFiltreDate() { $this->resetPage(); }
-    public function updatingFiltrePaiement() { $this->resetPage(); }
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+    public function updatingFiltreStatut()
+    {
+        $this->resetPage();
+    }
+    public function updatingFiltreDate()
+    {
+        $this->resetPage();
+    }
+    public function updatingFiltrePaiement()
+    {
+        $this->resetPage();
+    }
 
     /**
      * Sélectionne le patient dans la liste de recherche dynamique
@@ -91,7 +106,6 @@ class GestionConsultations extends Component
             $this->glycemie = $params['glycemie'] ?? '';
             $this->temperature = $params['temperature'] ?? '';
             $this->pouls = $params['pouls'] ?? '';
-
         }
     }
 
@@ -165,6 +179,7 @@ class GestionConsultations extends Component
         // Conversion explicite des chaînes vides pour éviter les exceptions SQL
         $validatedData['motif'] = $this->motif ?: null;
         $validatedData['examen_physique'] = $this->examen_physique ?: null;
+        $validatedData['type'] = $this->type ?: null;
         $validatedData['diagnostic'] = $this->diagnostic ?: null;
         $validatedData['ordonnance'] = $this->ordonnance ?: null;
         $validatedData['notes_privees'] = $this->notes_privees ?: null;
@@ -242,9 +257,9 @@ class GestionConsultations extends Component
             ->when($this->search, function ($query) {
                 $query->whereHas('patient', function ($q) {
                     $q->where('nom', 'like', '%' . $this->search . '%')
-                      ->orWhere('prenom', 'like', '%' . $this->search . '%')
-                      ->orWhere('code_patient', 'like', '%' . $this->search . '%')
-                      ->orWhere('telephone', 'like', '%' . $this->search . '%');
+                        ->orWhere('prenom', 'like', '%' . $this->search . '%')
+                        ->orWhere('code_patient', 'like', '%' . $this->search . '%')
+                        ->orWhere('telephone', 'like', '%' . $this->search . '%');
                 })->orWhere('code_consultation', 'like', '%' . $this->search . '%');
             })
             ->when($this->filtreStatut, function ($query) {
@@ -263,9 +278,9 @@ class GestionConsultations extends Component
         $patients = Patient::query()
             ->when($this->searchPatient, function ($q) {
                 $q->where('nom', 'like', '%' . $this->searchPatient . '%')
-                  ->orWhere('prenom', 'like', '%' . $this->searchPatient . '%')
-                  ->orWhere('telephone', 'like', '%' . $this->searchPatient . '%')
-                  ->orWhere('code_patient', 'like', '%' . $this->searchPatient . '%');
+                    ->orWhere('prenom', 'like', '%' . $this->searchPatient . '%')
+                    ->orWhere('telephone', 'like', '%' . $this->searchPatient . '%')
+                    ->orWhere('code_patient', 'like', '%' . $this->searchPatient . '%');
             })
             ->orderBy('nom', 'asc')
             ->take(10)
@@ -274,13 +289,28 @@ class GestionConsultations extends Component
         // Compteur de consultations en attente de paiement
         $countEnAttentePaiement = Consultation::where('est_paye', false)->count();
 
-        $medecins = User::orderBy('nom', 'asc')->get();
-
+       // Filtrer les médecins en fonction de la recherche
+    $medecins = User::where('role', 'medecin') // Ou selon votre logique d'identification des médecins
+        ->where(function($q) {
+            $q->where('nom', 'like', '%' . $this->searchMedecin . '%')
+            
+              ->orWhere('email', 'like', '%' . $this->searchMedecin . '%');
+        })
+        ->limit(10)
+        ->get();
+        $this->typeConsultations =  $this->getTypeConsultations();
         return view('livewire.consultations.gestion-consultations', compact(
             'consultations',
             'patients',
             'medecins',
-            'countEnAttentePaiement'
+            'countEnAttentePaiement',
+
         ));
     }
+
+    // 3. Méthode pour sélectionner directement le médecin en cliquant dessus
+public function selectMedecin($medecinId)
+{
+    $this->medecin_id = $medecinId;
+}
 }
