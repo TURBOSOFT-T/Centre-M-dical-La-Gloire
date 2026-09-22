@@ -9,7 +9,7 @@ use App\Models\commandes;
 use App\Models\historiques_stock;
 use App\Models\config;
 use App\Models\historiques_connexion;
-use App\Models\{produits, Category,Consultation, Marque, Contact, favoris, Coupon, Message, Patient, Shop, Testimonial, Visitor, Sous_category};
+use App\Models\{produits, Category,Consultation,RendezVous, Marque, Contact, favoris, Coupon, Message, Patient, Shop, Testimonial, Visitor, Sous_category};
 use App\Models\User;
 use App\Models\views;
 use Illuminate\Http\Request;
@@ -628,6 +628,12 @@ class AdminController extends Controller
     {
         $consultations = Consultation::with(['patient.assurance', 'medecin'])->get();
         return view('admin.consultations.list', compact('consultations'));
+    }
+
+    public function rendez_vous()
+    {
+        $rendez_vous = RendezVous::with(['patient.assurance', 'medecin'])->get();
+        return view('admin.rendez-vous.list', compact('rendez_vous'));
     }
 
 

@@ -29,7 +29,7 @@
                     @if($avec_dci)
                     <div class="mb-3 p-3 border rounded bg-light">
                         <label for="dci"> la DCI</label>
-                        <input type="number" id="dci" class="form-control @error('dci') is-invalid @enderror"
+                        <input type="text" id="dci" class="form-control @error('dci') is-invalid @enderror"
                             wire:model="dci" placeholder="Ex: 500">
                         @error('dci')
                         <span class="text-danger small">{{ $message }}</span>
@@ -104,9 +104,9 @@
 
                         <!-- Sélection Marque -->
                         <div class="col-sm-6 mb-3">
-                            <label for="marque_id">Marque </label>
+                            <label for="marque_id">Laboratoire </label>
                             <select id="marque_id" wire:model='marque_id' class="form-control @error('marque_id') is-invalid @enderror">
-                                <option value="">Choisir une marque</option>
+                                <option value="">Choisir un laboratoire</option>
                                 @foreach ($marques as $brand)
                                 <option value="{{ $brand->id }}">{{ $brand->nom }}</option>
                                 @endforeach

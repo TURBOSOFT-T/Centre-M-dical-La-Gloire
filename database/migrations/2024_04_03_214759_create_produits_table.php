@@ -12,83 +12,50 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('produits', function (Blueprint $table) {
-
             $table->id();
 
-            $table->string('nom');
-
+            // Informations générales
+            $table->string('nom'); // Ex: Paracétamol Biogaran 500mg
+            $table->string('reference')->unique()->nullable(); // Code CIP, Code Barre / EAN
             $table->text('description')->nullable();
             $table->text('meta_description')->nullable();
 
-            $table->string('reference')->nullable();
-
-            $table->integer('prix');
-                 $table->integer('grammage')->nullable();
-                   $table->integer('voie')->nullable();
-
-
-            $table->integer('prix_achat');
-
-            $table->integer('points')->default(0);
-
-            // image principale
-            $table->string('photo')->nullable();
-
-            // galerie images
-            $table->json('photos')->nullable();
-         
+            // Spécificités Médicales / Pharmacie
             $table->boolean('avec_dci')->default(false);
-            // On le met en nullable car si 'avec_dci' est false, ce champ sera vide
-            $table->integer('dci')->nullable(); // Utilise decimal('dci', 8, 2) si tu as des centimes
-            /*
-            |--------------------------------------------------------------------------
-            | RELATIONS
-            |--------------------------------------------------------------------------
-            */
+            $table->string('dci')->nullable(); // Dénomination Commune Internationale (ex: Paracétamol)
+            $table->integer('grammage')->nullable(); // Ex: 500mg, 1g
+            $table->string('voie')->nullable(); // Ex: Comprimé sécable, Sirop, Voie orale, Injectable
+            $table->boolean('sur_ordonnance')->default(false); // Si le médicament nécessite une prescription
 
-            $table->unsignedBigInteger('id_shop')->nullable(); // Doit être nullable !
-            $table->unsignedBigInteger('id_promotion')->nullable();
+            // Tarification & Fidelité
+            $table->integer('prix'); // Prix de vente public (FCFA)
+            $table->integer('prix_achat')->default(0); // Prix d'achat fournisseur (FCFA)
+            $table->integer('points')->default(0); // Points de fidélité
 
-            $table->unsignedBigInteger('category_id')->nullable();
+            // Images & Médias
+            $table->string('photo')->nullable(); // Photo principale
+            $table->json('photos')->nullable(); // Galerie photos secondaires
 
-            $table->unsignedBigInteger('marque_id')->nullable();
-
-            // stock
+            // Gestion du Stock & Traçabilité
             $table->integer('stock')->default(0);
-             $table->string('numero_lot')->nullable();
-            $table->date('date_peremption')->nullable();
+            $table->integer('seuil_alerte_stock')->default(5); // Alerte réapprovisionnement
+            $table->string('numero_lot')->nullable(); // Numéro de lot fabricant
+            $table->date('date_peremption')->nullable(); // Date d'expiration
 
-            // statut
-            $table->enum('statut', [
-                'disponible',
-                'indisponible'
-            ])->default('indisponible');
+            // Relations (Clés étrangères)
+            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->foreignId('marque_id')->nullable()->constrained('marques')->nullOnDelete(); // Ou laboratoire fabricant
+            $table->foreignId('id_promotion')->nullable()->constrained('promotions')->nullOnDelete();
+            $table->unsignedBigInteger('id_shop')->nullable();
 
-            // options
-            $table->boolean('top')->default(false);
+            // Visibilité & Statuts
+            $table->enum('statut', ['disponible', 'indisponible'])->default('disponible');
+            $table->boolean('active')->default(true);
+            $table->boolean('top')->default(false); // Produit vedette
+            $table->boolean('is_new')->default(false); // Nouveauté
 
-            $table->boolean('active')->default(false);
-
-            $table->boolean('new')->default(false);
-            $table->boolean('is_new')->default(false);
-
-         
-            $table->softDeletes();
-
+            $table->softDeletes(); // Suppression douce
             $table->timestamps();
-
-            /*
-            |--------------------------------------------------------------------------
-            | FOREIGN KEYS
-            |--------------------------------------------------------------------------
-            */
-
-     
-
-            $table->foreign('id_promotion')
-                ->references('id')
-                ->on('promotions')
-                ->nullOnDelete();
         });
     }
 

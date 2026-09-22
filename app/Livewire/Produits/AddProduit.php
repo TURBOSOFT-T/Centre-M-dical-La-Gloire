@@ -94,18 +94,19 @@ class AddProduit extends Component
             'reference'         => 'nullable|string|unique:produits,reference',
             'prix'              => 'required|numeric|gt:prix_achat',
             'prix_achat'        => 'required|numeric',
-            'photo'             => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:10240',
+            'photo'             => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:10240',
             'photos.*'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
             'category_id'       => 'required|integer|exists:categories,id',
            
         
             'is_new'            => 'nullable|boolean',
             'marque_id'         => 'nullable|integer|exists:marques,id',
-            'voie'              => 'nullable|integer|min:0',
+        
+
 
             'avec_dci'   => 'required|boolean',
             'dci'        => 'required_if:avec_dci,true|nullable|string',
-            'grammage'        => 'required_if:avec_dci,true|nullable|integer|min:0',
+            'grammage'        => 'nullable|integer|min:0',
             // Validation de la péremption et du lot
             'date_peremption'   => 'nullable|date',
             'numero_lot'        => 'nullable|string|max:255',
@@ -125,7 +126,7 @@ class AddProduit extends Component
         $produit->is_new = (bool)$this->is_new;
         $produit->avec_dci = (bool)$this->avec_dci;
         $produit->dci = $this->avec_dci ? $this->dci : null;
-        $produit->grammage = $this->avec_dci ? $this->grammage : null;
+        $produit->grammage = $this->grammage ?: null;
         $produit->voie = $this->voie ?? null;
 
         // Enregistrement de la date de péremption et du numéro de lot
@@ -133,7 +134,7 @@ class AddProduit extends Component
         $produit->numero_lot = $this->numero_lot ?: null;
 
         // Compression et stockage de la photo principale
-        $produit->photo = $this->compressAndStoreImage($this->photo);
+      //  $produit->photo = $this->compressAndStoreImage($this->photo);
 
         // Compression et stockage de la galerie photos
         if ($this->photos) {

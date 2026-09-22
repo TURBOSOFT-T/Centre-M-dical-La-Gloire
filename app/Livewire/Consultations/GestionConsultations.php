@@ -39,7 +39,7 @@ class GestionConsultations extends Component
     public $est_paye = false;
 
     // Constantes lors du RDV
-    public $poids, $tension, $temperature, $pouls;
+    public $poids, $tension, $temperature, $pouls, $glycemie;
 
     // Modales
     public $isModalOpen = false;
@@ -88,8 +88,10 @@ class GestionConsultations extends Component
             $params = $patient->parametres;
             $this->poids = $params['poids'] ?? '';
             $this->tension = $params['tension'] ?? '';
+            $this->glycemie = $params['glycemie'] ?? '';
             $this->temperature = $params['temperature'] ?? '';
             $this->pouls = $params['pouls'] ?? '';
+
         }
     }
 
@@ -151,6 +153,8 @@ class GestionConsultations extends Component
         $this->tension = '';
         $this->temperature = '';
         $this->pouls = '';
+        $this->glycemie = '';
+
         $this->resetValidation();
     }
 
@@ -170,6 +174,8 @@ class GestionConsultations extends Component
             'tension' => $this->tension,
             'temperature' => $this->temperature,
             'pouls' => $this->pouls,
+            'glycemie' => $this->glycemie,
+
         ];
 
         Consultation::updateOrCreate(['id' => $this->consultation_id], $validatedData);

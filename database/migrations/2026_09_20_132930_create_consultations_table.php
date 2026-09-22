@@ -18,7 +18,30 @@ return new class extends Migration
 
             // Rendez-vous & Timing
             $table->dateTime('date_heure_rdv');
-            $table->enum('type', ['consultation_generale', 'specialiste', 'suivi', 'urgence'])->default('consultation_generale');
+            $table->enum('type', [ 'medecin_general',
+            'specialiste',
+            'suivi',
+            'urgence',
+            'sage_femme',
+            'pédiatrie',
+            'cardiologie',
+            'dermatologie',
+            'gynécologie',
+            'neurologie',
+            'ophtalmologie',
+            'orthopédie',
+            'psychiatrie',
+            'radiologie',
+            'chirurgie',
+            'dentisterie', 
+            'tromatologie',
+            'ORL',
+            'kinesithérapie',
+            'nutrition',
+            'autre'
+            
+            
+            ])->default('consultation_generale');
             $table->enum('statut', ['programme', 'en_attente', 'en_cours', 'termine', 'annule'])->default('programme');
 
             // Médical

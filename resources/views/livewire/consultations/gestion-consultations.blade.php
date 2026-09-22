@@ -414,28 +414,35 @@
                                             $constantes = $selectedConsultation->constantes ?? [];
                                         @endphp
                                         <div class="row text-center g-3">
-                                            <div class="col-md-3 col-6">
+                                            <div class="col-md-3 col-4">
                                                 <div class="p-2 border radius-10 bg-white">
                                                     <small class="text-muted d-block">Poids</small>
                                                     <span class="fs-5 font-weight-bold text-dark">{{ $constantes['poids'] ?? '-' }} kg</span>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 col-6">
+                                            <div class="col-md-3 col-4">
                                                 <div class="p-2 border radius-10 bg-white">
-                                                    <small class="text-muted d-block">Tension Artérielle</small>
+                                                    <small class="text-muted d-block">TA</small>
                                                     <span class="fs-5 font-weight-bold text-dark">{{ $constantes['tension'] ?? '-' }}</span>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 col-6">
+                                            <div class="col-md-3 col-4">
                                                 <div class="p-2 border radius-10 bg-white">
                                                     <small class="text-muted d-block">Température</small>
                                                     <span class="fs-5 font-weight-bold text-danger">{{ $constantes['temperature'] ?? '-' }} °C</span>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 col-6">
+                                            <div class="col-md-3 col-4">
                                                 <div class="p-2 border radius-10 bg-white">
                                                     <small class="text-muted d-block">Pouls</small>
                                                     <span class="fs-5 font-weight-bold text-dark">{{ $constantes['pouls'] ?? '-' }} bpm</span>
+                                                </div>
+                                            </div>
+
+                                             <div class="col-md-3 col-4">
+                                                <div class="p-2 border radius-10 bg-white">
+                                                    <small class="text-muted d-block">GC</small>
+                                                    <span class="fs-5 font-weight-bold text-dark">{{ $constantes['glycemie'] ?? '-' }} mg/dL</span>
                                                 </div>
                                             </div>
                                         </div>

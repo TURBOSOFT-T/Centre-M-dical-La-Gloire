@@ -337,16 +337,37 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                     </a>
                 </li>
 
-                 <li>
-                    <a href="{{ route('consultations') }}">
+                
+                
+
+                   <li>
+                    <a href="javascript:;" class="has-arrow">
                         <div class="parent-icon icon-color-5">
                             <i class="bx bx-calendar-check"></i>
                         </div>
-                        <div class="menu-title">
+                         <div class="menu-title">
                             Consultations & RDV
                         </div>
                     </a>
-                </li> 
+                    <ul>
+                        <li>
+                            <a href="{{ route('consultations') }}">
+                                <i class="bx bx-right-arrow-alt"></i>
+                                Liste des consultations
+                            </a>
+                        </li>
+                    
+                        <li>
+                            <a href="{{ route('rendez-vous') }}">
+                                <i class="bx bx-right-arrow-alt"></i>
+                                Liste des rendez-vous
+                            </a>
+                        </li>
+                      
+
+
+                    </ul>
+                </li>
 
 
                 @can('setting_view')

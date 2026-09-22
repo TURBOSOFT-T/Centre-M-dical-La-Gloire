@@ -279,6 +279,9 @@ Route::middleware(['auth'])->group(function () {
   Route::get('consultations', [AdminController::class, 'consultations'])
         ->name('consultations');
 
+        
+  Route::get('rendez-vous', [AdminController::class, 'rendez_vous'])
+        ->name('rendez-vous');
 
     Route::get('clients', [AdminController::class, 'clients'])
         ->name('clients')
