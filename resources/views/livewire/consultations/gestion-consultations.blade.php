@@ -11,9 +11,9 @@
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
                 <h4 class="mb-0 font-weight-bold text-primary">
-                    <i class="bx bx-calendar-event me-2"></i>Rendez-vous & Consultations
+                    <i class="bx bx-calendar-event me-2"></i>Consultations
                 </h4>
-                <p class="text-muted small mb-0">Planning et fiches de consultation - Centre Médical La Gloire</p>
+                <p class="text-muted small mb-0">Planning et fiches de consultations - Centre Médical La Gloire</p>
             </div>
 
             <div class="d-flex align-items-center gap-2">
@@ -28,7 +28,7 @@
                 </button>
 
                 <button wire:click="openModal" class="btn btn-primary px-4 radius-30">
-                    <i class="bx bx-plus me-1"></i> Nouveau Rendez-vous
+                    <i class="bx bx-plus me-1"></i> Nouvelle consultation
                 </button>
             </div>
         </div>
@@ -164,7 +164,7 @@
                 <div class="modal-content radius-15 border-0" style="max-height: 90vh;">
                     <div class="modal-header bg-light">
                         <h5 class="modal-title font-weight-bold text-primary">
-                            {{ $isEditMode ? 'Modifier Consultation' : 'Nouveau Rendez-vous / Consultation' }}
+                            {{ $isEditMode ? 'Modifier Consultation' : 'Consultation' }}
                         </h5>
                         <button type="button" class="btn-close" wire:click="closeModal"></button>
                     </div>
