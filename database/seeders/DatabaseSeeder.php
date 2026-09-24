@@ -173,7 +173,7 @@ class DatabaseSeeder extends Seeder
         $dev->nom = "Patient";
         $dev->prenom = 'Test';
         $dev->email = 'client@centremedicallagloire.com';
-        $dev->role = "client";
+        $dev->role = "accueil";
         $dev->adresse = 'Douala, Cameroun';
         $dev->phone = '682840744';
         $dev->code_postal = '00237';

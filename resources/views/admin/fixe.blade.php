@@ -175,7 +175,7 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                             <i class="bx bx-test-tube"></i>
                         </div>
                         <div class="menu-title">
-                            Laboratoire 
+                            Laboratoire
                         </div>
                     </a>
                 </li>
@@ -193,15 +193,15 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                 </li>
 
                 <li>
-    <a href="{{ route('visites') }}">
-        <div class="parent-icon icon-color-2">
-            <i class="bx bx-user-voice"></i>
-        </div>
-        <div class="menu-title">
-            Registre des Visiteurs
-        </div>
-    </a>
-</li>
+                    <a href="{{ route('visites') }}">
+                        <div class="parent-icon icon-color-2">
+                            <i class="bx bx-user-voice"></i>
+                        </div>
+                        <div class="menu-title">
+                            Registre des Visiteurs
+                        </div>
+                    </a>
+                </li>
                 <!--    @role('admin')
                 <li>
                     <a href="{{ route('transports') }}">
@@ -323,7 +323,27 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                 </li>
                 @endrole
 
+                <li>
+                    <a href="{{ route('hospitalisations') }}">
+                        <div class="parent-icon icon-color-5">
+                            <i class="bx bx-group"></i>
+                        </div>
+                        <div class="menu-title">
+                            Hospitalisations
+                        </div>
+                    </a>
+                </li>
 
+                 <li>
+                    <a href="{{ route('dossiersmedicaux') }}">
+                        <div class="parent-icon icon-color-5">
+                            <i class="bx bx-group"></i>
+                        </div>
+                        <div class="menu-title">
+                            dossiers-medicaux
+                        </div>
+                    </a>
+                </li>
 
 
                 <li>
@@ -337,15 +357,15 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                     </a>
                 </li>
 
-                
-                
 
-                   <li>
+
+
+                <li>
                     <a href="javascript:;" class="has-arrow">
                         <div class="parent-icon icon-color-5">
                             <i class="bx bx-calendar-check"></i>
                         </div>
-                         <div class="menu-title">
+                        <div class="menu-title">
                             Consultations & RDV
                         </div>
                     </a>
@@ -356,14 +376,14 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                                 Liste des consultations
                             </a>
                         </li>
-                    
+
                         <li>
                             <a href="{{ route('rendez-vous') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
                                 Liste des rendez-vous
                             </a>
                         </li>
-                      
+
 
 
                     </ul>

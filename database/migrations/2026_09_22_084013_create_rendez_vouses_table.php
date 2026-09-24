@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->foreignId('medecin_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('cree_par')->nullable()->constrained('users')->onDelete('set null'); // Agent d'accueil/secrétaire
+ $table->foreignId('dossier_medical_id')->nullable()->constrained('dossiers_medicaux')->nullOnDelete();
 
             // Timing
             $table->dateTime('date_heure'); // Date et heure du RDV

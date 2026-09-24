@@ -31,7 +31,7 @@ class AddPersonnels extends Component
             'email'        => 'required|email|unique:users,email',
             'phone'        => 'required|numeric|unique:users,phone',
             'shop_id'      => 'nullable|exists:shops,id',
-            'role_in_shop' => 'required|in:caisse,personnel,vendeur,gerant,commercial',
+          //  'role_in_shop' => 'required|in:caisse,personnel,vendeur,gerant,commercial',
         ];
     }
 

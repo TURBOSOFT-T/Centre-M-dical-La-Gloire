@@ -69,9 +69,10 @@
                     <div class="mb-3">
                         <label for="role_in_shop" class="form-label">Rôle / Poste *</label>
                         <select class="form-select" wire:model="role_in_shop" id="role_in_shop">
-                            <option value="caisse">Seller (Vendeur)</option>
-                            <option value="commercial">Commercial</option>
+                            <option value="caisse">Seller (Caisse)</option>
+                            <option value="medecin">Medecin</option>
                             <option value="secretaire">Sécretaire</option>
+                               <option value="comptable">Comptable</option>
                             
 
                         </select>

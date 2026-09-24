@@ -533,167 +533,263 @@
     }
     @endphp
 
-    <!-- TEMPLATE DE FACTURE IMPRIMABLE -->
-    <div class="card border-0 shadow-sm radius-15 printable-invoice p-4 bg-white">
-        <!-- En-tête de la facture -->
-        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
-            <div>
-                <h3 class="fw-bold text-primary mb-1">CENTRE MÉDICAL LA GLOIRE</h3>
-                <p class="text-muted small mb-0">{{ $config->addresse ?? 'N/A' }}</p>
-                <p class="text-muted small mb-0">Tél: {{ $config->telephone ?? 'N/A' }} </p>
+    <!-- TEMPLATE DE FACTURE PLEINE PAGE -->
+    <!-- TEMPLATE DE FACTURE AUTO-ADAPTATIF -->
+    <div class="printable-invoice bg-white w-100">
+        <!-- Section contenu principal -->
+        <div class="invoice-body">
+            <!-- En-tête de la facture -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <div>
+                    <h3 class="fw-bold text-primary mb-0 fs-4">CENTRE MÉDICAL LA GLOIRE</h3>
+                    <p class="text-muted small mb-0">{{ $config->addresse ?? $config->adresse ?? 'N/A' }}</p>
+                    <p class="text-muted small mb-0">Tél : {{ $config->telephone ?? 'N/A' }} \vert{} Email : {{ $config->email ?? 'contact@cm-lagloire.cm' }}</p>
+                </div>
 
-                <p class="text-muted small mb-0">Email : contact@cm-lagloire.cm</p>
-
-
-            </div>
-
-            <div>
-                @if(!empty($logoBase64))
-                <img src="{{ $logoBase64 }}" alt="Logo" class="logo" style="max-width: 100px; height: auto;">
-                @else
-                <div style="font-size: 10pt; color: #888;">Logo indisponible</div>
-                @endif
-            </div>
-            <div class="text-end">
-                <h4 class="fw-bold text-dark mb-1">FACTURE DE CONSULTATION</h4>
-                <span class="badge bg-light-primary text-primary fs-6 px-3 py-1 radius-30">
-                    N° {{ $selectedRdv->code_rdv }}
-                </span>
-                <p class="text-muted small mt-2 mb-0">
-                    Date d'émission : {{ \Carbon\Carbon::parse($selectedRdv->created_at ?? now())->format('d/m/Y H:i') }}
-                </p>
-            </div>
-        </div>
-
-        <!-- Informations du Patient et du Praticien -->
-        <div class="row g-3 mb-4">
-            <div class="col-6">
-                <div class="p-3 bg-light rounded border">
-                    <h6 class="text-uppercase text-muted fw-bold small mb-2">Informations Patient</h6>
-                    <div class="fw-bold fs-6 text-dark">
-                        {{ $selectedRdv->patient->nom ?? 'N/A' }} {{ $selectedRdv->patient->prenom ?? '' }}
-                    </div>
-                    <div class="small text-muted mt-1">
-                        <i class="bx bx-phone me-1"></i> Tél : {{ $selectedRdv->patient->telephone ?? 'N/A' }}
-                    </div>
-                    @if(isset($selectedRdv->patient->est_assure) && $selectedRdv->patient->est_assure && $selectedRdv->patient->assurance)
-                    <div class="small text-muted mt-1">
-                        <i class="bx bx-shield-quarter me-1"></i> Assurance : {{ $selectedRdv->patient->assurance->code ?? $selectedRdv->patient->assurance->nom }} ({{ $selectedRdv->patient->taux_couverture }}%)
-                    </div>
+                <div class="text-center">
+                    @if(!empty($logoBase64))
+                    <img src="{{ $logoBase64 }}" alt="Logo" class="logo-img">
+                    @else
+                    <div class="text-muted small">Logo indisponible</div>
                     @endif
                 </div>
-            </div>
-            <div class="col-6">
-                <div class="p-3 bg-light rounded border">
-                    <h6 class="text-uppercase text-muted fw-bold small mb-2">Détails Rendez-vous</h6>
-                    <div class="fw-semibold text-dark">
-                        Type : {{ ucfirst(str_replace('_', ' ', $selectedRdv->type)) }}
-                    </div>
-                    <div class="small text-muted mt-1">
-                        Médecin : {{ $selectedRdv->medecin ? 'Dr. ' . $selectedRdv->medecin->nom . ' ' . $selectedRdv->medecin->prenom : 'Non assigné' }}
-                    </div>
-                    <div class="small text-muted mt-1">
-                        Date du RDV : {{ $selectedRdv->date_heure ? \Carbon\Carbon::parse($selectedRdv->date_heure)->format('d/m/Y à H:i') : '-' }}
-                    </div>
+
+                <div class="text-end">
+                    <h4 class="fw-bold text-dark mb-1 fs-5">FACTURE DE CONSULTATION</h4>
+                    <span class="badge bg-light text-primary border fs-6 px-2 py-1">
+                        N° {{ $selectedRdv->code_consultation ?? $selectedRdv->code_rdv ?? 'CONS-'.str_pad($selectedRdv->id, 5, '0', STR_PAD_LEFT) }}
+                    </span>
+                    <p class="text-muted small mt-1 mb-0">
+                        Date : {{ \Carbon\Carbon::parse($selectedRdv->created_at ?? now())->format('d/m/Y H:i') }}
+                    </p>
                 </div>
             </div>
-        </div>
 
-        <!-- Table des prestations -->
-        <div class="table-responsive mb-4">
-            <table class="table table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Désignation</th>
-                        <th class="text-end">Tarif Brut</th>
-                        <th class="text-end">Couverture Assurance</th>
-                        <th class="text-end">Net Patient</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $selectedRdv->type)) }}</strong>
-                            @if($selectedRdv->motif)
-                            <br><small class="text-muted">Motif : {{ $selectedRdv->motif }}</small>
+            <!-- Informations du Patient et du Praticien -->
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <h6 class="text-uppercase text-muted fw-bold small mb-2">Informations Patient</h6>
+                        <div class="fw-bold text-dark fs-6">
+                            {{ $selectedRdv->patient?->nom_complet ?? ($selectedRdv->patient?->nom . ' ' . ($selectedRdv->patient?->prenom ?? '')) }}
+                        </div>
+                        <div class="small text-muted mt-1">
+                            <i class="bx bx-phone me-1"></i> Tél : {{ $selectedRdv->patient?->telephone ?? 'N/A' }}
+                        </div>
+                        @if(isset($selectedRdv->patient?->est_assure) && $selectedRdv->patient->est_assure &&$selectedRdv->patient?->assurance)
+                        <div class="small text-muted mt-1">
+                            <i class="bx bx-shield-quarter me-1"></i> Assurance : {{ $selectedRdv->patient->assurance->code ?? $selectedRdv->patient->assurance->nom }} ({{$selectedRdv->patient->taux_couverture ?? 0 }}%)
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <h6 class="text-uppercase text-muted fw-bold small mb-2">Détails Consultation</h6>
+                        <div class="fw-semibold text-dark">
+                            Type : {{ ucfirst(str_replace('_', ' ', $selectedRdv->type ?? 'Consultation')) }}
+                        </div>
+                        <div class="small text-muted mt-1">
+                            Médecin :
+                            @if($selectedRdv->medecin)
+                            Dr. {{ $selectedRdv->medecin->name ?? ($selectedRdv->medecin->nom . ' ' . ($selectedRdv->medecin->prenom ?? '')) }}
+                            @else
+                            <span class="text-muted">Non assigné</span>
                             @endif
-                        </td>
-                        <td class="text-end fw-semibold">{{ number_format($selectedRdv->tarif_brut, 0, ',', ' ') }} FCFA</td>
-                        <td class="text-end text-success fw-semibold">- {{ number_format($selectedRdv->part_assurance, 0, ',', ' ') }} FCFA</td>
-                        <td class="text-end fw-bold text-primary">{{ number_format($selectedRdv->part_patient, 0, ',', ' ') }} FCFA</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                        <div class="small text-muted mt-1">
+                            Date RDV : {{ isset($selectedRdv->date_heure_rdv) ? \Carbon\Carbon::parse($selectedRdv->date_heure_rdv)->format('d/m/Y à H:i') : (isset($selectedRdv->date_heure) ? \Carbon\Carbon::parse($selectedRdv->date_heure)->format('d/m/Y à H:i') : '-') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Totaux & Règlement -->
-        <div class="row justify-content-end mb-4">
-            <div class="col-md-5">
-                <div class="bg-light p-3 rounded border">
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted small">Part Patient à Payer :</span>
-                        <strong class="text-dark">{{ number_format($selectedRdv->part_patient, 0, ',', ' ') }} FCFA</strong>
+            <!-- Table des prestations -->
+            <div class="table-responsive mb-3">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="py-2">Désignation</th>
+                            <th class="text-end py-2">Tarif Brut</th>
+                            <th class="text-end py-2">Couverture Assurance</th>
+                            <th class="text-end py-2">Net Patient</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                        $tarifBrut =$selectedRdv->tarif_brut ?? 5000;
+                        $tauxAssurance = ($selectedRdv->patient?->est_assure && $selectedRdv->patient?->assurance) ? ($selectedRdv->patient->taux_couverture ?? 0) : 0;
+                        $partAssurance = $selectedRdv->part_assurance ?? round(($tarifBrut * $tauxAssurance) / 100);$partPatient = $selectedRdv->part_patient ?? ($tarifBrut - $partAssurance);$montantPaye = $selectedRdv->montant_paye ?? ($selectedRdv->est_paye ? $partPatient : 0);$resteAPayer = max(0, $partPatient -$montantPaye);
+                        @endphp
+                        <tr>
+                            <td class="py-2">
+                                <strong>{{ ucfirst(str_replace('_', ' ', $selectedRdv->type ?? 'Consultation')) }}</strong>
+                                @if(!empty($selectedRdv->motif))
+                                <br><small class="text-muted">Motif : {{ $selectedRdv->motif }}</small>
+                                @endif
+                            </td>
+                            <td class="text-end fw-semibold py-2">{{ number_format($tarifBrut, 0, ',', ' ') }} FCFA</td>
+                            <td class="text-end text-success fw-semibold py-2">- {{ number_format($partAssurance, 0, ',', ' ') }} FCFA</td>
+                            <td class="text-end fw-bold text-primary py-2">{{ number_format($partPatient, 0, ',', ' ') }} FCFA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totaux & Règlement -->
+            <div class="row justify-content-end mb-3">
+                <div class="col-md-5 col-sm-6">
+                    <div class="bg-light p-3 rounded border">
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted small">Part Patient à Payer :</span>
+                            <strong class="text-dark">{{ number_format($partPatient, 0, ',', ' ') }} FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted small">Montant Encaissé :</span>
+                            <strong class="text-success">{{ number_format($montantPaye, 0, ',', ' ') }} FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted small">Reste à Régler :</span>
+                            <strong class="{{ $resteAPayer > 0 ? 'text-danger' : 'text-success' }}">
+                                {{ number_format($resteAPayer, 0, ',', ' ') }} FCFA
+                            </strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted small">Mode de Paiement :</span>
+                            <span class="fw-bold text-dark">
+                                {{ !empty($selectedRdv->mode_paiement) ? ucfirst(str_replace('_', ' ', $selectedRdv->mode_paiement)) : 'Espèces' }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted small">Montant Encaissé :</span>
-                        <strong class="text-success">{{ number_format($selectedRdv->montant_paye, 0, ',', ' ') }} FCFA</strong>
+                </div>
+            </div>
+<br><br><br>
+            <div class="invoice-footer">
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <p class="small text-muted mb-4">Signature / Cachet du Patient</p>
+                        <p class="mb-0">_______________________</p>
                     </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted small">Reste à Réglé :</span>
-                        <strong class="text-danger">
-                            {{ number_format(max(0, $selectedRdv->part_patient - $selectedRdv->montant_paye), 0, ',', ' ') }} FCFA
-                        </strong>
+                    <div class="col-6">
+                        <p class="small text-muted mb-4">La Caissière / Le Secrétariat</p>
+                        <p class="mb-0">_______________________</p>
                     </div>
-                    <div class="d-flex justify-content-between py-1">
-                        <span class="text-muted small">Mode de Paiement :</span>
-                        <span class="fw-bold text-dark">{{ $selectedRdv->mode_paiement ? ucfirst(str_replace('_', ' ', $selectedRdv->mode_paiement)) : 'Non précisé' }}</span>
-                    </div>
+                </div>
+
+                <!-- Boutons d'impression (masqués à l'impression) -->
+                <div class="d-flex justify-content-end gap-2 d-print-none pt-2">
+
                 </div>
             </div>
         </div>
 
-        <!-- Bloc de Signature -->
-        <div class="row pt-4 text-center mt-3">
-            <div class="col-6">
-                <p class="small text-muted mb-5">Signature / Cachet du Patient</p>
-                <p class="mb-0">_______________________</p>
-            </div>
-            <div class="col-6">
-                <p class="small text-muted mb-5">La Caissière / Le Secrétariat</p>
-                <p class="mb-0">_______________________</p>
-            </div>
-        </div>
+        <!-- Pied de page : Signatures & Boutons d'impression -->
 
-        <!-- Bouton au bas de la facture pour ré-imprimer si besoin -->
-        <div class="d-flex justify-content-end gap-2 mt-4 d-print-none">
-            <button onclick="window.print()" class="btn btn-primary px-4 radius-30">
-                <i class="bx bx-printer me-1"></i> Imprimer la Facture
-            </button>
-        </div>
     </div>
 
-    <!-- Styles CSS dédiés à l'impression -->
+    <!-- SCRIPT DE GESTION D'ORIENTATION -->
+    <script>
+        function imprimerFacture(orientation = 'portrait') {
+            // 1. Création dynamique de la règle d'impression CSS pour l'orientation
+            let styleImpression = document.getElementById('style-impression-orientation');
+
+            if (!styleImpression) {
+                styleImpression = document.createElement('style');
+                styleImpression.id = 'style-impression-orientation';
+                document.head.appendChild(styleImpression);
+            }
+
+            // Définit le format et les marges d'impression
+            styleImpression.innerHTML = `
+        @media print {
+            @page {
+                size: A4 ${orientation};
+                margin: 10mm;
+            }
+            body {
+                background: #fff !important;
+                color: #000 !important;
+            }
+            /* Masquer l'ensemble des éléments non imprimables */
+            .d-print-none,
+            header,
+            footer,
+            .sidebar-wrapper,
+            .topbar,
+            .btn {
+                display: none !important;
+            }
+            /* Ajustement pour optimiser la zone d'impression */
+            .container-fluid, .card {
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    `;
+
+            // 2. Déclenchement de l'impression
+            window.print();
+        }
+    </script>
+
     <style>
+        /* Configuration globale du conteneur */
+        .printable-invoice {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .logo-img {
+            max-width: 110px;
+            max-height: 70px;
+            object-fit: contain;
+        }
+
+        /* RÈGLES D'IMPRESSION STRICTES SUR 1 PAGE */
         @media print {
 
-            /* Masquer tout le contenu de la page */
+            html,
+            body {
+                height: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                background: #fff !important;
+            }
+
             body * {
                 visibility: hidden;
             }
 
-            /* Afficher uniquement la section imprimable de la facture */
             .printable-invoice,
             .printable-invoice * {
                 visibility: visible;
             }
 
             .printable-invoice {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                box-shadow: none !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                padding: 10mm !important;
+                margin: 0 !important;
                 border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
             }
 
             .d-print-none {

@@ -75,5 +75,26 @@ class Patient extends Model
     public function visites()
 {
     return $this->hasMany(Visite::class, 'patient_id');
-}
+}/**
+     * Relation avec le dossier médical du patient
+     */
+    public function dossierMedical()
+    {
+        return $this->hasOne(DossierMedical::class, 'patient_id');
+    }
+
+    /**
+     * Relation avec les rendez-vous du patient
+     */
+    public function rendezVous()
+    {
+        return $this->hasMany(RendezVous::class, 'patient_id')->orderBy('date_heure', 'desc');
+    }
+
+       public function consultations()
+    {
+        return $this->hasMany(Consultation::class, 'patient_id');
+    }
+
+
 }

@@ -3,13 +3,15 @@
 namespace App\Livewire;
 
 use App\Http\Traits\TypeConsultations;
-use App\Models\RendezVous;
+use App\Models\config;
+use App\Models\Configuration;
 use App\Models\Patient;
+use App\Models\RendezVous;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class RendezVousManager extends Component
 {
@@ -19,11 +21,11 @@ class RendezVousManager extends Component
     // Mode d'affichage : 'index', 'create', 'edit', 'show'
     public string $mode = 'index';
 
-    // Recherche et filtre pour le tableau de liste
+    // Recherche et filtres
     public string $search = '';
     public string $filterStatut = '';
 
-    // Instance pour consultation (détails)
+    // Instance sélectionnée
     public ?RendezVous $selectedRdv = null;
 
     // Champs du formulaire
@@ -31,19 +33,17 @@ class RendezVousManager extends Component
     public $patient_id;
     public $medecin_id;
     public $date_heure;
-    public $type = 'consultation_generale';
+    public string $type = 'consultation_generale';
     public $tarif_brut = 0;
     public $part_assurance = 0;
     public $part_patient = 0;
     public $montant_paye = 0;
-    public $statut_paiement = 'non_paye';
+    public string $statut_paiement = 'non_paye';
     public $mode_paiement;
-    public $statut = 'planifie';
+    public string $statut = 'planifie';
     public $motif;
-    public $medecinsFound = [];
-    
 
-    // --- Durée estimée par type de rendez-vous (en minutes) ---
+    // --- Durées estimées par type de rendez-vous (en minutes) ---
     protected array $durations = [
         'consultation_generale' => 30,
         'consultation_specialisee' => 45,
@@ -51,7 +51,7 @@ class RendezVousManager extends Component
         'urgence' => 30,
     ];
 
-    // --- Variables pour la recherche autocomplétée ---
+    // --- Variables d'autocomplétion ---
     public string $searchPatient = '';
     public string $selectedPatientName = '';
     public bool $showPatientDropdown = false;
@@ -59,16 +59,6 @@ class RendezVousManager extends Component
     public string $searchMedecin = '';
     public string $selectedMedecinName = '';
     public bool $showMedecinDropdown = false;
-
-public function downloadFacture($id)
-{
-    $rdv = RendezVous::with(['patient', 'medecin'])->findOrFail($id);
-    $pdf = Pdf::loadView('pdf.facture', ['selectedRdv' => $rdv]);
-
-    return response()->streamDownload(function () use ($pdf) {
-        echo $pdf->stream();
-    }, 'facture-' . $rdv->code_rdv . '.pdf');
-}
 
     protected function rules(): array
     {
@@ -88,20 +78,36 @@ public function downloadFacture($id)
         ];
     }
 
-    public function updatedSearchMedecin()
-{
-    if (strlen($this->searchMedecin) >= 2) {
-        $this->medecinsFound = User::query()
-            ->where('nom', 'like', '%' . $this->searchMedecin . '%')
-            ->orWhere('prenom', 'like', '%' . $this->searchMedecin . '%')
-            ->orWhere('role', 'like', '%' . $this->searchMedecin . '%')
-            ->limit(5)
-            ->get();
-    } else {
-        $this->medecinsFound = [];
-    }
-}
+    // --- Téléchargement PDF de la facture ---
+    public function downloadFacture($id)
+    {
+        $rdv = RendezVous::with(['patient.assurance', 'medecin'])->findOrFail($id);
+        $config = config::first();
 
+        // Encodage du logo en base64 pour DomPDF
+        $logoBase64 = null;
+        if ($config && $config->logo && file_exists(public_path('storage/' . $config->logo))) {
+            $path = public_path('storage/' . $config->logo);
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+
+        $pdf = Pdf::loadView('pdf.facture', [
+            'selectedRdv' => $rdv,
+            'config'      => $config,
+            'logoBase64'  => $logoBase64,
+        ])->setPaper('a4', 'portrait');
+
+        $fileName = 'facture-' . ($rdv->code_rdv ?? $rdv->id) . '.pdf';
+
+        // Correction ici : utilisation d'une fonction anonyme classique
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, $fileName);
+    }
+
+    // --- Écouteurs de mise à jour des prix ---
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -112,14 +118,14 @@ public function downloadFacture($id)
         $this->resetPage();
     }
 
-    public function updatedTarifBrut(): void 
-    { 
-        $this->calculerReste(); 
+    public function updatedTarifBrut(): void
+    {
+        $this->calculerReste();
     }
 
-    public function updatedPartAssurance(): void 
-    { 
-        $this->calculerReste(); 
+    public function updatedPartAssurance(): void
+    {
+        $this->calculerReste();
     }
 
     private function calculerReste(): void
@@ -140,7 +146,6 @@ public function downloadFacture($id)
         $durationMinutes = $this->durations[$this->type] ?? 30;
         $end = (clone $start)->addMinutes($durationMinutes);
 
-        // Recherche d'un chevauchement d'horaires
         $hasConflict = RendezVous::where('medecin_id', $this->medecin_id)
             ->whereNotIn('statut', ['annule', 'absent'])
             ->when($this->mode === 'edit' && $this->rdv_id, function ($query) {
@@ -148,7 +153,7 @@ public function downloadFacture($id)
             })
             ->where(function ($query) use ($start, $end, $durationMinutes) {
                 $query->where('date_heure', '<', $end->format('Y-m-d H:i:s'))
-                      ->whereRaw("DATE_ADD(date_heure, INTERVAL ? MINUTE) > ?", [$durationMinutes, $start->format('Y-m-d H:i:s')]);
+                    ->whereRaw("DATE_ADD(date_heure, INTERVAL ? MINUTE) > ?", [$durationMinutes, $start->format('Y-m-d H:i:s')]);
             })
             ->exists();
 
@@ -159,7 +164,7 @@ public function downloadFacture($id)
 
         return true;
     }
-  
+
     // --- Méthodes de Sélection Patient ---
     public function selectPatient($id, string $nomComplet): void
     {
@@ -181,13 +186,10 @@ public function downloadFacture($id)
     public function selectMedecin($id, string $nomComplet): void
     {
         $this->medecin_id = $id;
-        $this->selectedMedecinName = ' ' . $nomComplet;
-        $this->searchMedecin = '' . $nomComplet;
+        $this->selectedMedecinName = $nomComplet;
+        $this->searchMedecin = $nomComplet;
         $this->showMedecinDropdown = false;
-         $this->medecinsFound = [];
     }
-
-
 
     public function clearMedecin(): void
     {
@@ -200,11 +202,26 @@ public function downloadFacture($id)
     public function resetFields(): void
     {
         $this->reset([
-            'rdv_id', 'patient_id', 'medecin_id', 'date_heure', 'type',
-            'tarif_brut', 'part_assurance', 'part_patient', 'montant_paye',
-            'statut_paiement', 'mode_paiement', 'statut', 'motif', 'selectedRdv',
-            'searchPatient', 'selectedPatientName', 'showPatientDropdown',
-            'searchMedecin', 'selectedMedecinName', 'showMedecinDropdown'
+            'rdv_id',
+            'patient_id',
+            'medecin_id',
+            'date_heure',
+            'type',
+            'tarif_brut',
+            'part_assurance',
+            'part_patient',
+            'montant_paye',
+            'statut_paiement',
+            'mode_paiement',
+            'statut',
+            'motif',
+            'selectedRdv',
+            'searchPatient',
+            'selectedPatientName',
+            'showPatientDropdown',
+            'searchMedecin',
+            'selectedMedecinName',
+            'showMedecinDropdown'
         ]);
         $this->resetValidation();
     }
@@ -217,7 +234,7 @@ public function downloadFacture($id)
 
     public function openShow($id): void
     {
-        $this->selectedRdv = RendezVous::with(['patient', 'medecin', 'agent'])->findOrFail($id);
+        $this->selectedRdv = RendezVous::with(['patient.assurance', 'medecin', 'agent'])->findOrFail($id);
         $this->mode = 'show';
     }
 
@@ -225,28 +242,28 @@ public function downloadFacture($id)
     {
         $this->resetFields();
         $rdv = RendezVous::with(['patient', 'medecin'])->findOrFail($id);
-        
+
         $this->rdv_id          = $rdv->id;
         $this->patient_id      = $rdv->patient_id;
         $this->medecin_id      = $rdv->medecin_id;
         $this->date_heure      = $rdv->date_heure?->format('Y-m-d\TH:i');
-        $this->type            = $rdv->type;
+        $this->type            = $rdv->type ?? 'consultation_generale';
         $this->tarif_brut      = $rdv->tarif_brut;
         $this->part_assurance  = $rdv->part_assurance;
         $this->part_patient    = $rdv->part_patient;
         $this->montant_paye    = $rdv->montant_paye;
-        $this->statut_paiement = $rdv->statut_paiement;
+        $this->statut_paiement = $rdv->statut_paiement ?? 'non_paye';
         $this->mode_paiement   = $rdv->mode_paiement;
-        $this->statut          = $rdv->statut;
+        $this->statut          = $rdv->statut ?? 'planifie';
         $this->motif           = $rdv->motif;
 
         if ($rdv->patient) {
-            $this->selectedPatientName = trim($rdv->patient->nom . ' ' . $rdv->patient->prenom);
+            $this->selectedPatientName = trim(($rdv->patient->nom ?? '') . ' ' . ($rdv->patient->prenom ?? ''));
             $this->searchPatient = $this->selectedPatientName;
         }
 
         if ($rdv->medecin) {
-            $this->selectedMedecinName = 'Dr. ' . $rdv->medecin->nom . ' ' . $rdv->medecin->prenom;
+            $this->selectedMedecinName = 'Dr. ' . trim(($rdv->medecin->name ?? ($rdv->medecin->nom ?? '')) . ' ' . ($rdv->medecin->prenom ?? ''));
             $this->searchMedecin = $this->selectedMedecinName;
         }
 
@@ -306,11 +323,15 @@ public function downloadFacture($id)
 
         $medecinsFound = collect();
         if (strlen(trim($this->searchMedecin)) >= 2 && !$this->medecin_id) {
-            $cleanSearch = '%' . str_replace(['Dr.', 'Dr '], '', trim($this->searchMedecin)) . '%';
-            $medecinsFound = User::where('role', 'medecin')
+            $cleanSearch = '%' . trim(str_replace(['Dr.', 'Dr '], '', $this->searchMedecin)) . '%';
+            $medecinsFound = User::where(function ($q) {
+                $q->where('role', 'medecin')
+                    ->orWhere('role', 'like', '%medecin%');
+            })
                 ->where(function ($query) use ($cleanSearch) {
-                    $query->where('nom', 'like', $cleanSearch)
-                          ->orWhere('prenom', 'like', $cleanSearch);
+                    $query->where('email', 'like', $cleanSearch)
+                        ->orWhere('nom', 'like', $cleanSearch)
+                        ->orWhere('prenom', 'like', $cleanSearch);
                 })
                 ->take(5)
                 ->get();
@@ -319,10 +340,10 @@ public function downloadFacture($id)
         $rendezVousList = RendezVous::with(['patient', 'medecin'])
             ->when($this->search, function ($query) {
                 $query->where('code_rdv', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('patient', function ($q) {
-                          $q->where('nom', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('patient', function ($q) {
+                        $q->where('nom', 'like', '%' . $this->search . '%')
                             ->orWhere('prenom', 'like', '%' . $this->search . '%');
-                      });
+                    });
             })
             ->when($this->filterStatut, fn($q) => $q->where('statut', $this->filterStatut))
             ->latest()

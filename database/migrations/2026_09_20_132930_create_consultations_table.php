@@ -12,36 +12,42 @@ return new class extends Migration
             $table->id();
             $table->string('code_consultation')->unique(); // Ex: CNS-2026-0001
 
-            // Rattachements
+            // Rattachements (Placé juste après 'id')
+            $table->foreignId('dossier_medical_id')
+                ->nullable()
+                ->constrained('dossiers_medicaux') // Assurez-vous du nom exact de la table
+                ->onDelete('cascade');
+                
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->foreignId('medecin_id')->nullable()->constrained('users')->onDelete('set null');
 
             // Rendez-vous & Timing
-            $table->dateTime('date_heure_rdv');
-            $table->enum('type', [ 'medecin_general',
-            'specialiste',
-            'suivi',
-            'urgence',
-            'sage_femme',
-            'pédiatrie',
-            'cardiologie',
-            'dermatologie',
-            'gynécologie',
-            'neurologie',
-            'ophtalmologie',
-            'orthopédie',
-            'psychiatrie',
-            'radiologie',
-            'chirurgie',
-            'dentisterie', 
-            'tromatologie',
-            'ORL',
-            'kinesithérapie',
-            'nutrition',
-            'autre'
+            $table->dateTime('date_heure_rdv'); // Modifié en dateTime si besoin d'inclure l'heure
             
-            
-            ])->default('consultation_generale');
+            $table->enum('type', [
+                'medecin_general',
+                'specialiste',
+                'suivi',
+                'urgence',
+                'sage_femme',
+                'pédiatrie',
+                'cardiologie',
+                'dermatologie',
+                'gynécologie',
+                'neurologie',
+                'ophtalmologie',
+                'orthopédie',
+                'psychiatrie',
+                'radiologie',
+                'chirurgie',
+                'dentisterie',
+                'traumatologie', // Correction orthographique : traumatologie
+                'ORL',
+                'kinesithérapie',
+                'nutrition',
+                'autre'
+            ])->default('medecin_general'); // Alignement avec une clé valide du tableau
+
             $table->enum('statut', ['programme', 'en_attente', 'en_cours', 'termine', 'annule'])->default('programme');
 
             // Médical
