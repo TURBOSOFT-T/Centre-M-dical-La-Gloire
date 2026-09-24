@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->foreignId('medecin_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('cree_par')->nullable()->constrained('users')->onDelete('set null'); // Agent d'accueil/secrétaire
- $table->foreignId('dossier_medical_id')->nullable()->constrained('dossiers_medicaux')->nullOnDelete();
+            $table->foreignId('dossier_medical_id')->nullable()->constrained('dossiers_medicaux')->nullOnDelete();
 
             // Timing
             $table->dateTime('date_heure'); // Date et heure du RDV
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->decimal('part_assurance', 10, 2)->default(0);  // Prise en charge mutuelle / assurance
             $table->decimal('part_patient', 10, 2)->default(0);    // Reste à payer par le patient
             $table->decimal('montant_paye', 10, 2)->default(0);    // Somme effectivement versée à la réservation
-            
+
             $table->enum('statut_paiement', [
                 'non_paye',
                 'partiel',
