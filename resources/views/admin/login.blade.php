@@ -47,7 +47,10 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 							<div class="col-xl-6">
 								<div class="card-body p-5">
 									<div class="text-center">
-										<img src="{{ Storage::url($config->icon) }}" width="80" alt="">
+										
+										 @if(!empty($logoBase64))
+                        <img src="{{ $logoBase64 }}" alt="logo"  width="80"  class="logo">
+                        @endif
 										<h3 class="mt-4 font-weight-bold">
 											Bienvenue au Centre Médical La Gloire
 										</h3>
