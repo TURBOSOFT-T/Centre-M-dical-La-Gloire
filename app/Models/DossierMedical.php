@@ -25,7 +25,7 @@ class DossierMedical extends Model
         'traitements_chroniques',
         'statut',
     ];
-   public function modifiable()
+    public function modifiable()
     {
         if ($this->statut === 'actif' || $this->statut === 'archive') {
             return true;
@@ -77,12 +77,35 @@ class DossierMedical extends Model
     }
 
     public function rendezVous()
-{
-    return $this->hasManyThrough(RendezVous::class, Patient::class, 'id', 'patient_id', 'patient_id', 'id');
-}
+    {
+        return $this->hasManyThrough(RendezVous::class, Patient::class, 'id', 'patient_id', 'patient_id', 'id');
+    }
 
     public function consultations()
-{
-    return $this->hasManyThrough(Consultation::class, Patient::class, 'id', 'patient_id', 'patient_id', 'id');
-}
+    {
+        return $this->hasManyThrough(Consultation::class, Patient::class, 'id', 'patient_id', 'patient_id', 'id');
+    }
+
+     public function examens()
+    {
+        return $this->hasManyThrough(Examen::class, Patient::class, 'id', 'patient_id', 'patient_id', 'id');
+    }
+
+
+    public function demandesExamens()
+    {
+        return $this->hasManyThrough(
+            DemandeExamen::class,
+            Consultation::class,
+            'dossier_medical_id', // Clé étrangère sur la table consultations
+            'consultation_id',    // Clé étrangère sur la table demandes_examens
+            'id',                 // Clé locale sur la table dossiers_medicaux
+            'id'                  // Clé locale sur la table consultations
+        );
+    }
+
+    public function getDemandesExamensAttribute()
+    {
+        return $this->consultations->flatMap->demandesExamens;
+    }
 }

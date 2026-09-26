@@ -6,7 +6,6 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\DossierMedical;
 use App\Models\Patient;
-use App\Models\DemandeExamen;
 
 class DossierMedicalManager extends Component
 {
@@ -16,13 +15,9 @@ class DossierMedicalManager extends Component
 
     public $mode = 'index'; // 'index', 'show', 'create', 'edit'
     public $search = '';
-    public $activeTab = 'apercu'; // 'apercu', 'consultations', 'hospitalisations', 'rendezvous', 'factures', 'examens'
+    public $activeTab = 'apercu'; // 'apercu', 'consultations', 'hospitalisations', 'rendezvous', 'factures'
 
     public $selectedDossier = null;
-
-    // Gestion de la modale de visualisation des résultats d'examens
-    public $isModalResultatsOpen = false;
-    public $selectedDemandeExamen = null;
 
     // Champs Formulaire
     public $dossierId;
@@ -116,10 +111,10 @@ class DossierMedicalManager extends Component
     {
         $this->selectedDossier = DossierMedical::with([
             'patient.assurance',
-            'consultations.demandesExamens.examen',
+            'consultations',
             'hospitalisations',
             'rendezVous',
-            'demandesExamens.examen', // Chargement direct des examens du dossier
+            
         ])->findOrFail($id);
 
         $this->activeTab = 'apercu';
@@ -187,21 +182,6 @@ class DossierMedicalManager extends Component
         $this->activeTab = $tab;
     }
 
-    /**
-     * Ouvre la modale pour voir les résultats d'un examen spécifique
-     */
-    public function voirResultatsExamen($demandeId)
-    {
-        $this->selectedDemandeExamen = DemandeExamen::with(['examen', 'prescripteur'])->findOrFail($demandeId);
-        $this->isModalResultatsOpen = true;
-    }
-
-    public function fermerModalResultats()
-    {
-        $this->isModalResultatsOpen = false;
-        $this->selectedDemandeExamen = null;
-    }
-
     public function selectPatient($id, $name)
     {
         $this->patient_id = $id;
@@ -227,8 +207,7 @@ class DossierMedicalManager extends Component
         $this->reset([
             'selectedDossier', 'dossierId', 'patient_id', 'searchPatient',
             'selectedPatientName', 'groupe_sanguin', 'antecedents_medicaux',
-            'antecedents_chirurgicaux', 'allergies', 'traitements_chroniques',
-            'selectedDemandeExamen', 'isModalResultatsOpen'
+            'antecedents_chirurgicaux', 'allergies', 'traitements_chroniques'
         ]);
         $this->statut = 'actif';
     }

@@ -5,39 +5,37 @@
             <tr>
                
                 <th>Nom</th>
-                <th>Articles</th>
+              
                 <th>Création</th>
                 <th>Actions</th>
             </tr>
         </thead>
 
         <tbody>
-            @forelse ($marques as $marque)
+            @forelse ($examens as $examen)
                 <tr>
                    
                     <td>
-                        {{ $marque->nom }}
+                        {{ $examen->nom }}
                     </td>
+                    
                     <td>
-                        {{ $marque->produits->count() }}
-                    </td>
-                    <td>
-                        {{ $marque->created_at }}
+                        {{ $examen->created_at }}
                     </td>
                     <td class="text-end">
-                        @can('marque_edit')
+                       
                         <button class="btn btn-sm btn-dark" data-bs-toggle="modal"
-                            data-bs-target="#marque-{{ $marque->id }}">
+                            data-bs-target="#examen-{{ $examen->id }}">
                             <i class="ri-edit-box-line"></i> Modifier
                         </button>
-                        @endcan
-                        @can('marque_delete')
-                        <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $marque->id }})">
-                            <i class="bx bx-trash"></i>
+                      
+                      
+                        <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $examen->id }})">
+                             <i class="bx bx-trash"></i>
                         </button>
-                        @endcan
-                        <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $marque->id }}"
-                            wire:click="delete({{ $marque->id }})">
+                        
+                        <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $examen->id }}"
+                            wire:click="delete({{ $examen->id }})">
                             <i class="bi bi-check-circle"></i>
                             <span class="hide-tablete">
                                 Confirmer
@@ -64,20 +62,20 @@
         </tbody>
     </table>
 
-    @foreach ($marques as $marque)
+    @foreach ($examens as $examen)
         <!-- Center modal content -->
-        <div class="modal fade" id="marque-{{ $marque->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal fade" id="examen-{{ $examen->id }}" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h6 class="modal-title" id="myCenterModalLabel">
-                            {{ $marque->nom }}
+                            {{ $examen->nom }}
                         </h6>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p>
-                            @livewire('Marques.Update',['marque'=>$marque])
+                            @livewire('Examens.Update',['examen'=>$examen])
                         </p>
                     </div>
                 </div><!-- /.modal-content -->

@@ -181,6 +181,21 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                 </li>
                 @endcan
 
+                @role('admin')
+                <li>
+                    <a href="{{ route('shops') }}">
+                        <div class="parent-icon icon-color-6">
+                            <i class="bx bx-capsule"></i>
+                        </div>
+                        <div class="menu-title">
+                            Gestion des pharmacies
+                        </div>
+                    </a>
+                </li>
+                @endrole
+
+
+
                 <li>
                     <a href="{{ route('assurances') }}">
                         <div class="parent-icon icon-color-3">
@@ -192,29 +207,18 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('visites') }}">
-                        <div class="parent-icon icon-color-2">
-                            <i class="bx bx-user-voice"></i>
-                        </div>
-                        <div class="menu-title">
-                            Registre des Visiteurs
-                        </div>
-                    </a>
-                </li>
-                <!--    @role('admin')
-                <li>
-                    <a href="{{ route('transports') }}">
-                        <div class="parent-icon icon-color-3">
-                            <i class="ri-truck-fill"></i>
-                        </div>
-                        <div class="menu-title">
-                            Les frais de transport
-                        </div>
-                    </a>
-                </li>
-                @endcan -->
 
+
+                <li>
+                    <a href="{{ route('examens') }}">
+                        <div class="parent-icon icon-color-3">
+                            <i class="bx bx-test-tube"></i>
+                        </div>
+                        <div class="menu-title">
+                            Examens
+                        </div>
+                    </a>
+                </li>
 
 
                 @can('product_view')
@@ -247,19 +251,6 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                 </li>
                 @endcan
 
-                {{-- 🔹 Menu Statistiques & Rapports --}}
-                @role('admin')
-                <li>
-                    <a href="{{ route('admin.statistiques') }}">
-                        <div class="parent-icon icon-color-6">
-                            <i class="ri-bar-chart-box-line"></i>
-                        </div>
-                        <div class="menu-title">
-                            Statistiques & Bilans
-                        </div>
-                    </a>
-                </li>
-                @endcan
 
 
 
@@ -296,98 +287,104 @@ $config = DB::table('configs')->select('icon', 'logo')->first();
                 </li>
                 @endcan
 
-                @role('admin')
-                <li>
-                    <a href="{{ route('personnels') }}">
-                        <div class="parent-icon icon-color-6">
-                            <i class="ri-user-settings-line"></i>
-                        </div>
-                        <div class="menu-title">
-                            Gestion du personnel
-                        </div>
-                    </a>
-
-                </li>
-                @endrole
-
-                @role('admin')
-                <li>
-                    <a href="{{ route('shops') }}">
-                        <div class="parent-icon icon-color-6">
-                            <i class="bx bx-capsule"></i>
-                        </div>
-                        <div class="menu-title">
-                            Gestion des pharmacies
-                        </div>
-                    </a>
-                </li>
-                @endrole
-
-                <li>
-                    <a href="{{ route('hospitalisations') }}">
-                        <div class="parent-icon icon-color-5">
-                            <i class="bx bx-group"></i>
-                        </div>
-                        <div class="menu-title">
-                            Hospitalisations
-                        </div>
-                    </a>
-                </li>
-
-                 <li>
-                    <a href="{{ route('dossiersmedicaux') }}">
-                        <div class="parent-icon icon-color-5">
-                            <i class="bx bx-group"></i>
-                        </div>
-                        <div class="menu-title">
-                            dossiers-medicaux
-                        </div>
-                    </a>
-                </li>
-
-
-                <li>
-                    <a href="{{ route('patients') }}">
-                        <div class="parent-icon icon-color-5">
-                            <i class="bx bx-group"></i>
-                        </div>
-                        <div class="menu-title">
-                            Patients
-                        </div>
-                    </a>
-                </li>
+{{-- MODULE 1 : ACCUEIL & ADMINISTRATION --}}
+<li>
+    <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon icon-color-5">
+            <i class="ri-user-shared-line"></i>
+        </div>
+        <div class="menu-title">
+            Accueil & Admissions
+        </div>
+    </a>
+    <ul>
+        @role('admin')
+        <li>
+            <a href="{{ route('personnels') }}">
+                <i class="bx bx-right-arrow-alt"></i>
+                Gestion du Personnel
+            </a>
+        </li>
+        @endrole
+        <li>
+            <a href="{{ route('patients') }}">
+                <i class="bx bx-right-arrow-alt"></i>
+                Gestion des Patients
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('visites') }}">
+                <i class="bx bx-right-arrow-alt"></i>
+                Registre des Visiteurs
+            </a>
+        </li>
+    </ul>
+</li>
 
 
 
 
+                {{-- Module Suivi & Gestion Médicale --}}
                 <li>
                     <a href="javascript:;" class="has-arrow">
-                        <div class="parent-icon icon-color-5">
-                            <i class="bx bx-calendar-check"></i>
+                        <div class="parent-icon icon-color-4">
+                            <i class="ri-hospital-line"></i>
                         </div>
                         <div class="menu-title">
-                            Consultations & RDV
+                            Gestion Médicale
                         </div>
                     </a>
                     <ul>
                         <li>
-                            <a href="{{ route('consultations') }}">
+                            <a href="{{ route('dossiersmedicaux') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
-                                Liste des consultations
+                                Dossiers Médicaux
                             </a>
                         </li>
-
+                        <li>
+                            <a href="{{ route('consultations') }}">
+                                <i class="bx bx-right-arrow-alt"></i>
+                                Consultations
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('hospitalisations') }}">
+                                <i class="bx bx-right-arrow-alt"></i>
+                                Hospitalisations
+                            </a>
+                        </li>
                         <li>
                             <a href="{{ route('rendez-vous') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
-                                Liste des rendez-vous
+                                Rendez-vous
                             </a>
                         </li>
-
-
-
                     </ul>
                 </li>
+
+
+
+
+
+
+
+
+
+
+                {{-- 🔹 Menu Statistiques & Rapports --}}
+                @role('admin')
+                <li>
+                    <a href="{{ route('admin.statistiques') }}">
+                        <div class="parent-icon icon-color-6">
+                            <i class="ri-bar-chart-box-line"></i>
+                        </div>
+                        <div class="menu-title">
+                            Statistiques & Bilans
+                        </div>
+                    </a>
+                </li>
+                @endcan
+
 
 
                 @can('setting_view')

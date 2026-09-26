@@ -133,12 +133,25 @@
                                 <button wire:click="openShow({{ $rdv->id }})" class="btn btn-sm btn-outline-info me-1" title="Voir la fiche">
                                     <i class="bx bx-show"></i>
                                 </button>
+                                @if ($rdv->modifiable())
                                 <button wire:click="openEdit({{ $rdv->id }})" class="btn btn-sm btn-outline-primary me-1" title="Modifier">
                                     <i class="bx bx-edit"></i>
-                                </button>
-                                <button wire:click="delete({{ $rdv->id }})" wire:confirm="Êtes-vous sûr de vouloir supprimer ce rendez-vous ?" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                </button> @endif
+
+
+
+                                <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $rdv->id }})">
                                     <i class="bx bx-trash"></i>
                                 </button>
+
+                                <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $rdv->id }}"
+                                    wire:click="delete({{ $rdv->id }})">
+                                    <i class="bi bi-check-circle"></i>
+                                    <span class="hide-tablete">
+                                        Confirmer
+                                    </span>
+                                </button>
+
                             </td>
                         </tr>
                         @empty
@@ -251,7 +264,7 @@
                                         class="btn btn-link text-start text-decoration-none text-dark w-100 p-2 d-flex align-items-center justify-content-between">
                                         <div>
                                             <div class="fw-bold text-primary">Dr. {{ $m->nom }} {{ $m->prenom }}</div>
-                                            <small class="text-muted"><i class="bx bx-briefcase me-1"></i>{{ $m->specialite ?? 'Généraliste' }}</small>
+                                            <small class="text-muted"><i class="bx bx-briefcase me-1"></i>{{ $m->role ?? 'Généraliste' }}</small>
                                         </div>
                                         <span class="badge bg-light-primary text-primary">Sélectionner</span>
                                     </button>
@@ -664,7 +677,7 @@
                     </div>
                 </div>
             </div>
-<br><br><br>
+            <br><br><br>
             <div class="invoice-footer">
                 <div class="row text-center mb-3">
                     <div class="col-6">

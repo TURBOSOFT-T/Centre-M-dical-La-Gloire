@@ -129,4 +129,9 @@ class Consultation extends Model
     {
         return $this->belongsTo(DossierMedical::class, 'dossier_medical_id');
     }
+
+    public function demandesExamens()
+{
+    return $this->hasMany(DemandeExamen::class, 'consultation_id');
+}
 }

@@ -8,7 +8,6 @@ use App\Models\Patient;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\On;
 
 class GestionConsultations extends Component
 {
@@ -23,118 +22,95 @@ class GestionConsultations extends Component
     public $filtreDate = '';
     public $filtrePaiement = ''; // '' = Tous, '0' = Impayés, '1' = Payés
 
-    // Recherche dynamique spécifique au patient & médecin dans le Modal
+    // Recherche dynamique spécifique au patient dans le Modal
     public $searchPatient = '';
-    public $searchMedecin = '';
 
     // Formulaire Consultation / RDV
     public $consultation_id;
-    public $selectedConsultationId = null;
     public $patient_id;
     public $medecin_id;
-    public $dossier_medical_id;
     public $date_heure_rdv;
-    public $type = 'medecin_general';
+    public $type = 'consultation_generale';
     public $statut = 'programme';
     public $motif;
     public $examen_physique;
     public $diagnostic;
     public $ordonnance;
     public $notes_privees;
-    public $tarif_brut = 5000;
-    public $montantExamens = 0; // Total cumulé des examens prescrits
+    public $tarif_brut = 5000; // Tarif standard
     public $est_paye = false;
 
     // Constantes lors du RDV
     public $poids, $tension, $temperature, $pouls, $glycemie;
 
-    // Modales & Sélection
+    // Modales
     public $isModalOpen = false;
     public $isEditMode = false;
     public $selectedConsultation = null;
     public $isViewModalOpen = false;
-    public $typeConsultations = [];
-
+    public $typeConsultations;
+public $searchMedecin = '';
     protected function rules()
     {
         return [
-            'patient_id'      => 'required|exists:patients,id',
-            'medecin_id'      => 'nullable|exists:users,id',
-            'date_heure_rdv'  => 'required|date',
-            'type'            => 'required|string',
-            'statut'          => 'required|in:programme,en_attente,en_cours,termine,annule',
-            'motif'           => 'nullable|string',
+            'patient_id' => 'required|exists:patients,id',
+            'medecin_id' => 'nullable|exists:users,id',
+            'date_heure_rdv' => 'required|date',
+          //  'type' => 'required|in:consultation_generale,specialiste,suivi,urgence',
+            'statut' => 'required|in:programme,en_attente,en_cours,termine,annule',
+            'motif' => 'nullable|string',
             'examen_physique' => 'nullable|string',
-            'diagnostic'      => 'nullable|string',
-            'ordonnance'      => 'nullable|string',
-            'notes_privees'   => 'nullable|string',
-            'tarif_brut'      => 'required|numeric|min:0',
-            'est_paye'        => 'boolean',
+            'diagnostic' => 'nullable|string',
+            'ordonnance' => 'nullable|string',
+            'notes_privees' => 'nullable|string',
+            'tarif_brut' => 'required|numeric|min:0',
+            'est_paye' => 'boolean',
         ];
     }
 
     public function mount()
     {
         $this->date_heure_rdv = date('Y-m-d\TH:i');
-        $this->medecin_id = auth()->id();
     }
 
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingFiltreStatut() { $this->resetPage(); }
-    public function updatingFiltreDate() { $this->resetPage(); }
-    public function updatingFiltrePaiement() { $this->resetPage(); }
-
-    /**
-     * Écouteur déclenché lorsqu'un examen est prescrit, modifié ou supprimé
-     */
-    #[On('examenPrescrit')]
-    public function rafraichirConsultation()
+    public function updatingSearch()
     {
-        if ($this->selectedConsultationId) {
-            $consultation = Consultation::with('demandesExamens')->find($this->selectedConsultationId);
-            if ($consultation) {
-                $this->montantExamens = $consultation->demandesExamens->sum('tarif_brut');
-            }
-        }
-
-        if ($this->selectedConsultation) {
-            $this->selectedConsultation->load(['demandesExamens.examen', 'patient.assurance']);
-        }
+        $this->resetPage();
+    }
+    public function updatingFiltreStatut()
+    {
+        $this->resetPage();
+    }
+    public function updatingFiltreDate()
+    {
+        $this->resetPage();
+    }
+    public function updatingFiltrePaiement()
+    {
+        $this->resetPage();
     }
 
     /**
      * Sélectionne le patient dans la liste de recherche dynamique
-     * et pré-remplit le dossier médical et les constantes
+     * et auto-complète ses dernières constantes connues
      */
     public function selectPatient($id)
     {
         $this->patient_id = $id;
 
-        $patient = Patient::with('dossierMedical')->find($id);
-        if ($patient) {
-            $this->dossier_medical_id = $patient->dossierMedical?->id;
-
-            if (!empty($patient->parametres)) {
-                $params = $patient->parametres;
-                $this->poids = $params['poids'] ?? '';
-                $this->tension = $params['tension'] ?? '';
-                $this->glycemie = $params['glycemie'] ?? '';
-                $this->temperature = $params['temperature'] ?? '';
-                $this->pouls = $params['pouls'] ?? '';
-            }
+        $patient = Patient::find($id);
+        if ($patient && !empty($patient->parametres)) {
+            $params = $patient->parametres;
+            $this->poids = $params['poids'] ?? '';
+            $this->tension = $params['tension'] ?? '';
+            $this->glycemie = $params['glycemie'] ?? '';
+            $this->temperature = $params['temperature'] ?? '';
+            $this->pouls = $params['pouls'] ?? '';
         }
     }
 
     /**
-     * Sélectionne le médecin traitant
-     */
-    public function selectMedecin($medecinId)
-    {
-        $this->medecin_id = $medecinId;
-    }
-
-    /**
-     * Filtre rapide pour la caisse
+     * Action rapide Caisse : Filtre les consultations impayées
      */
     public function filtrerEnAttentePaiement()
     {
@@ -174,14 +150,11 @@ class GestionConsultations extends Component
     public function resetForm()
     {
         $this->consultation_id = null;
-        $this->selectedConsultationId = null;
         $this->patient_id = null;
-        $this->dossier_medical_id = null;
-        $this->searchPatient = '';
-        $this->searchMedecin = '';
+        $this->searchPatient = ''; // Réinitialiser le champ de recherche
         $this->medecin_id = auth()->id();
         $this->date_heure_rdv = date('Y-m-d\TH:i');
-        $this->type = 'medecin_general';
+        $this->type = 'consultation_generale';
         $this->statut = 'programme';
         $this->motif = '';
         $this->examen_physique = '';
@@ -189,7 +162,6 @@ class GestionConsultations extends Component
         $this->ordonnance = '';
         $this->notes_privees = '';
         $this->tarif_brut = 5000;
-        $this->montantExamens = 0;
         $this->est_paye = false;
         $this->poids = '';
         $this->tension = '';
@@ -204,49 +176,37 @@ class GestionConsultations extends Component
     {
         $validatedData = $this->validate();
 
-        // Récupérer automatiquement le dossier médical si non défini
-        if (!$this->dossier_medical_id && $this->patient_id) {
-            $patient = Patient::with('dossierMedical')->find($this->patient_id);
-            $this->dossier_medical_id = $patient?->dossierMedical?->id;
-        }
-
-        $validatedData['dossier_medical_id'] = $this->dossier_medical_id;
+        // Conversion explicite des chaînes vides pour éviter les exceptions SQL
         $validatedData['motif'] = $this->motif ?: null;
         $validatedData['examen_physique'] = $this->examen_physique ?: null;
-        $validatedData['type'] = $this->type ?: 'medecin_general';
+        $validatedData['type'] = $this->type ?: null;
         $validatedData['diagnostic'] = $this->diagnostic ?: null;
         $validatedData['ordonnance'] = $this->ordonnance ?: null;
         $validatedData['notes_privees'] = $this->notes_privees ?: null;
 
         $validatedData['constantes'] = [
-            'poids'       => $this->poids,
-            'tension'     => $this->tension,
+            'poids' => $this->poids,
+            'tension' => $this->tension,
             'temperature' => $this->temperature,
-            'pouls'       => $this->pouls,
-            'glycemie'    => $this->glycemie,
+            'pouls' => $this->pouls,
+            'glycemie' => $this->glycemie,
+
         ];
 
-        $consultation = Consultation::updateOrCreate(
-            ['id' => $this->consultation_id],
-            $validatedData
-        );
+        Consultation::updateOrCreate(['id' => $this->consultation_id], $validatedData);
 
-        $this->selectedConsultationId = $consultation->id;
-
-        session()->flash('message', $this->isEditMode ? 'Consultation mise à jour.' : 'Consultation enregistrée avec succès.');
+        session()->flash('message', $this->isEditMode ? 'Rendez-vous mis à jour.' : 'Rendez-vous / Consultation enregistré(e).');
         $this->closeModal();
     }
 
     public function editConsultation($id)
     {
-        $c = Consultation::with('demandesExamens')->findOrFail($id);
+        $c = Consultation::findOrFail($id);
         $this->consultation_id = $c->id;
-        $this->selectedConsultationId = $c->id;
         $this->patient_id = $c->patient_id;
-        $this->dossier_medical_id = $c->dossier_medical_id;
         $this->medecin_id = $c->medecin_id;
-        $this->date_heure_rdv = $c->date_heure_rdv ? $c->date_heure_rdv->format('Y-m-d\TH:i') : date('Y-m-d\TH:i');
-        $this->type = $c->type ?? 'medecin_general';
+        $this->date_heure_rdv = $c->date_heure_rdv->format('Y-m-d\TH:i');
+        $this->type = $c->type;
         $this->statut = $c->statut;
         $this->motif = $c->motif;
         $this->examen_physique = $c->examen_physique;
@@ -254,18 +214,16 @@ class GestionConsultations extends Component
         $this->ordonnance = $c->ordonnance;
         $this->notes_privees = $c->notes_privees;
         $this->tarif_brut = $c->tarif_brut;
-        $this->montantExamens = $c->demandesExamens->sum('tarif_brut');
         $this->est_paye = (bool) $c->est_paye;
 
+        // Si en mode édition, réinitialiser la recherche
         $this->searchPatient = '';
-        $this->searchMedecin = '';
 
         $constantes = $c->constantes ?? [];
         $this->poids = $constantes['poids'] ?? '';
         $this->tension = $constantes['tension'] ?? '';
         $this->temperature = $constantes['temperature'] ?? '';
         $this->pouls = $constantes['pouls'] ?? '';
-        $this->glycemie = $constantes['glycemie'] ?? '';
 
         $this->isEditMode = true;
         $this->isModalOpen = true;
@@ -273,12 +231,7 @@ class GestionConsultations extends Component
 
     public function showConsultation($id)
     {
-        $this->selectedConsultation = Consultation::with([
-            'patient.assurance', 
-            'medecin', 
-            'demandesExamens.examen'
-        ])->findOrFail($id);
-
+        $this->selectedConsultation = Consultation::with(['patient.assurance', 'medecin'])->findOrFail($id);
         $this->isViewModalOpen = true;
     }
 
@@ -298,9 +251,9 @@ class GestionConsultations extends Component
 
     public function render()
     {
-        // 1. Liste des consultations filtrées
+        // 1. Consultation avec filtres
         $consultations = Consultation::query()
-            ->with(['patient.assurance', 'medecin', 'demandesExamens'])
+            ->with(['patient.assurance', 'medecin'])
             ->when($this->search, function ($query) {
                 $query->whereHas('patient', function ($q) {
                     $q->where('nom', 'like', '%' . $this->search . '%')
@@ -321,7 +274,7 @@ class GestionConsultations extends Component
             ->orderBy('date_heure_rdv', 'desc')
             ->paginate(10);
 
-        // 2. Recherche dynamique des patients pour le modal
+        // 2. Recherche dynamique des patients pour le modal (Limité à 10 résultats)
         $patients = Patient::query()
             ->when($this->searchPatient, function ($q) {
                 $q->where('nom', 'like', '%' . $this->searchPatient . '%')
@@ -333,33 +286,31 @@ class GestionConsultations extends Component
             ->take(10)
             ->get();
 
-        // 3. Compteur des consultations impayées
+        // Compteur de consultations en attente de paiement
         $countEnAttentePaiement = Consultation::where('est_paye', false)->count();
 
-        // 4. Recherche dynamique des médecins
-        $medecins = User::query()
-            ->when($this->searchMedecin, function ($q) {
-                $q->where('name', 'like', '%' . $this->searchMedecin . '%')
-                  ->orWhere('email', 'like', '%' . $this->searchMedecin . '%');
-            })
-            ->take(10)
-            ->get();
-
-        $this->typeConsultations = $this->getTypeConsultations();
-
+       // Filtrer les médecins en fonction de la recherche
+    $medecins = User::where('role', 'medecin') // Ou selon votre logique d'identification des médecins
+        ->where(function($q) {
+            $q->where('nom', 'like', '%' . $this->searchMedecin . '%')
+            
+              ->orWhere('email', 'like', '%' . $this->searchMedecin . '%');
+        })
+        ->limit(10)
+        ->get();
+        $this->typeConsultations =  $this->getTypeConsultations();
         return view('livewire.consultations.gestion-consultations', compact(
             'consultations',
             'patients',
             'medecins',
-            'countEnAttentePaiement'
+            'countEnAttentePaiement',
+
         ));
     }
 
-     public function delete($id)
-    {
-        $dossier = Consultation::findOrFail($id);
-        $dossier->delete();
-
-        session()->flash('message', 'Consultation supprimée avec succès.');
-    }
+    // 3. Méthode pour sélectionner directement le médecin en cliquant dessus
+public function selectMedecin($medecinId)
+{
+    $this->medecin_id = $medecinId;
+}
 }

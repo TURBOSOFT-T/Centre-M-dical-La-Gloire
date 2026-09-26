@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
+    @php
+$config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
+
+// Détermination de l'image à utiliser pour le logo
+$logoPath = public_path('/icons/logo.jpg');
+if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
+$logoPath = storage_path('app/public/' . $config->logo);
+} elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
+$logoPath = storage_path('app/public/' . $config->icon);
+}
+
+$logoBase64 = '';
+if (file_exists($logoPath)) {
+$logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
+}
+@endphp
 <head>
     <meta charset="UTF-8">
     <title>Ordonnance Médicale - {{ $consultation->code_consultation }}</title>
@@ -112,6 +128,11 @@
                 <div class="clinic-name">Centre Médical La Gloire</div>
                 <div class="clinic-sub">Soins Généraux - Maternité - Soins Spécialisés</div>
             </td>
+             <td class="logo-cell">
+                        @if(!empty($logoBase64))
+                        <img src="{{ $logoBase64 }}" alt="logo" width="100" height="100" class="logo">
+                        @endif
+                    </td>
             <td class="clinic-contact">
                 <strong>Douala, Cameroun</strong><br>
                 Téléphone : +237 6xx xx xx xx<br>

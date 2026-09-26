@@ -69,7 +69,9 @@
                             </td>
                             <td>
                                 @if($v->date_heure_sortie)
-                                <small class="text-success font-weight-bold">{{ $v->date_heure_sortie->format('H:i') }}</small>
+                                <small class="text-success font-weight-bold">{{ $v->date_heure_sortie->format('d/m/Y') }}</small>
+                                  <div class="small text-muted">{{ $v->date_heure_sortie->format('H:i') }}</div>
+
                                 @else
                                 <span class="badge bg-warning text-dark"><i class="bx bx-time-five me-1"></i>En cours</span>
                                 @endif

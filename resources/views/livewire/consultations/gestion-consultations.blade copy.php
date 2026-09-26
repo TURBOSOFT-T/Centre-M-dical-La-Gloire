@@ -1,5 +1,4 @@
 <div class="container-fluid py-4">
-    @include('components.alert')
     @if (session()->has('message'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bx bx-check-circle me-1"></i> {{ session('message') }}
@@ -7,7 +6,7 @@
     </div>
     @endif
 
-    <!-- EN-TÊTE AVEC FILTRE RAPIDE CAISSE -->
+    <!-- Entête avec Filtre Rapide Caisse -->
     <div class="card mb-4 border-0 shadow-sm">
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
@@ -35,7 +34,7 @@
         </div>
     </div>
 
-    <!-- BARRE DE RECHERCHE & FILTRES -->
+    <!-- Barre de Recherche & Filtres -->
     <div class="card mb-4 border-0 shadow-sm">
         <div class="card-body">
             <div class="row g-3">
@@ -73,7 +72,7 @@
         </div>
     </div>
 
-    <!-- TABLEAU PRINCIPAL DES CONSULTATIONS -->
+    <!-- Tableau -->
     <div class="card border-0 shadow-sm radius-15 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -95,24 +94,18 @@
                         <tr>
                             <td><span class="badge bg-soft-primary text-primary font-weight-bold">{{ $c->code_consultation }}</span></td>
                             <td>
-                                <div class="font-weight-bold">{{ $c->date_heure_rdv ? $c->date_heure_rdv->format('d/m/Y') : '-' }}</div>
-                                <small class="text-muted"><i class="bx bx-time me-1"></i>{{ $c->date_heure_rdv ? $c->date_heure_rdv->format('H:i') : '' }}</small>
+                                <div class="font-weight-bold">{{ $c->date_heure_rdv->format('d/m/Y') }}</div>
+                                <small class="text-muted"><i class="bx bx-time me-1"></i>{{ $c->date_heure_rdv->format('H:i') }}</small>
                             </td>
                             <td>
                                 <div class="font-weight-bold">{{ $c->patient->nom_complet }}</div>
                                 <small class="text-muted">{{ $c->patient->telephone }}</small>
                             </td>
-                            <td>{{ $c->medecin?->nom ?? $c->medecin?->name ?? 'Non assigné' }}</td>
+                            <td>{{ $c->medecin?->nom ?? 'Non assigné' }}</td>
                             <td>
-                                @php
-                                $totalPrestations = ($c->tarif_brut ?? 5000) + ($c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0);
-                                @endphp
-                                <div class="font-weight-bold">{{ number_format($totalPrestations, 0, ',', ' ') }} FCFA</div>
-                                @if($c->demandesExamens && $c->demandesExamens->count() > 0)
-                                <small class="text-primary d-block">+ {{ $c->demandesExamens->count() }} examen(s)</small>
-                                @endif
-                                @if($c->patient && $c->patient->est_assure && $c->patient->assurance)
-                                <small class="text-success"><i class="bx bx-shield-quarter me-1"></i>{{ $c->patient->assurance->code }} ({{ $c->patient->taux_couverture }}%)</small>
+                                <div class="font-weight-bold">{{ number_format($c->tarif_brut ?? 5000, 0, ',', ' ') }} FCFA</div>
+                                @if($c->patient->est_assure && $c->patient->assurance)
+                                <small class="text-primary"><i class="bx bx-shield-quarter me-1"></i>{{ $c->patient->assurance->code }} ({{ $c->patient->taux_couverture }}%)</small>
                                 @endif
                             </td>
                             <td>
@@ -138,19 +131,10 @@
                                 </button>
                                 @endif
 
-                                {{-- Imprimer la Facture Globalisee --}}
                                 <a href="{{ route('consultations.facture.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1" title="Imprimer le reçu / facture">
                                     <i class="bx bx-receipt"></i>
                                 </a>
 
-                                {{-- Imprimer le Bulletin de demande d'examens (si examens prescrits) --}}
-                                @if($c->demandesExamens && $c->demandesExamens->count() > 0)
-                                <a href="{{ route('consultations.examens-labo.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-warning me-1" title="Imprimer le bulletin d'examens de laboratoire">
-                                    <i class="bx bx-test-tube"></i>
-                                </a>
-                                @endif
-
-                                {{-- Imprimer l'Ordonnance médicale --}}
                                 @if(!empty($c->ordonnance))
                                 <a href="{{ route('consultations.ordonnance.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="Imprimer l'ordonnance">
                                     <i class="bx bx-printer"></i>
@@ -161,23 +145,11 @@
                                 @if ($c->modifiable())
                                 <button wire:click="editConsultation({{ $c->id }})" class="btn btn-sm btn-outline-primary me-1" title="Modifier"><i class="bx bx-edit"></i></button>
                                 @endif
-
-                    <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $c->id }})">
-                                    <i class="bx bx-trash"></i>
-                                </button>
-
-                                <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $c->id }}"
-                                    wire:click="delete({{ $c->id }})">
-                                    <i class="bi bi-check-circle"></i>
-                                    <span class="hide-tablete">
-                                        Confirmer
-                                    </span>
-                                </button>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">Aucune consultation ou rendez-vous trouvé.</td>
+                            <td colspan="8" class="text-center py-4 text-muted">Aucun rendez-vous trouvé.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -196,7 +168,7 @@
             <div class="modal-content radius-15 border-0" style="max-height: 90vh;">
                 <div class="modal-header bg-light">
                     <h5 class="modal-title font-weight-bold text-primary">
-                        {{ $isEditMode ? 'Modifier Consultation' : 'Nouvelle Consultation' }}
+                        {{ $isEditMode ? 'Modifier Consultation' : 'Consultation' }}
                     </h5>
                     <button type="button" class="btn-close" wire:click="closeModal"></button>
                 </div>
@@ -259,6 +231,7 @@
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-calendar-check me-1"></i> Programmation & Attribution</h6>
                             </div>
 
+                            <!-- RECHERCHE & SÉLECTION DU MÉDECIN -->
                             <div class="col-md-6">
                                 <label class="form-label font-weight-bold">Médecin traitant</label>
 
@@ -312,7 +285,7 @@
                                     <select wire:model="type" class="form-select @error('type') is-invalid @enderror">
                                         <option value="">-- Sélectionner le type --</option>
                                         @foreach ($typeConsultations ?? [] as $typeOption)
-                                        <option value="{{ $typeOption }}">{{ ucfirst(str_replace('_', ' ', $typeOption)) }}</option>
+                                        <option value="{{ $typeOption }}">{{ $typeOption }}</option>
                                         @endforeach
                                     </select>
                                     @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -329,7 +302,7 @@
                                     </select>
                                 </div>
                             </div>
-
+                            @livewire('consultations.prescrire-examen', ['consultation' => $consultation], key($consultation->id))
                             <!-- SECTION 3 : CONSTANTES -->
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-pulse me-1"></i> Constantes lors du rendez-vous</h6>
@@ -347,32 +320,11 @@
                             <div class="col-md-6"><label class="form-label">Examen Physique</label><textarea wire:model="examen_physique" class="form-control" rows="2" placeholder="Examen physique..."></textarea></div>
                             <div class="col-md-6"><label class="form-label">Diagnostic</label><textarea wire:model="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic..."></textarea></div>
                             <div class="col-md-6"><label class="form-label">Ordonnance / Prescription</label><textarea wire:model="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea></div>
-
-                            <!-- SECTION 5 : PRESCRIPTION & SAISIE DES RÉSULTATS D'EXAMENS -->
-                            @if($isEditMode && isset($selectedConsultationId))
-                            @php
-                            $consultationActive = $consultations->find($selectedConsultationId);
-                            @endphp
-                            <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-test-tube me-1"></i> Prescription d'Examens & Analyses</h6>
-                                @livewire('consultations.prescrire-examen', ['consultation' => $consultationActive], key('prescrire-'.$selectedConsultationId))
-                            </div>
-
-                            @if($consultationActive && $consultationActive->demandesExamens->count() > 0)
-                            <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-vial me-1"></i> Saisie des Résultats d'Analyses Biologiques</h6>
-                                @foreach($consultationActive->demandesExamens as $demande)
-                                @livewire('consultations.saisir-resultats-examen', ['demandeExamen' => $demande], key('saisir-res-'.$demande->id))
-                                @endforeach
-                            </div>
-                            @endif
-                            @endif
-
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
                         <button type="button" class="btn btn-secondary px-4" wire:click="closeModal">Annuler</button>
-                        <button type="submit" class="btn btn-primary px-4" wire:click="isEditMode "><i class="bx bx-save me-1"></i>Enregistrer</button>
+                        <button type="submit" class="btn btn-primary px-4"><i class="bx bx-save me-1"></i>Enregistrer</button>
                     </div>
                 </form>
             </div>
@@ -380,7 +332,7 @@
     </div>
     @endif
 
-    <!-- MODALE FICHE DÉTAILLÉE DE LA CONSULTATION (RÉSULTATS D'ANALYSES DYNAMIQUES) -->
+    <!-- MODALE FICHE DÉTAILLÉE DE LA CONSULTATION -->
     @if($isViewModalOpen && $selectedConsultation)
     <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);" role="dialog">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -396,7 +348,7 @@
                                 Consultation N° {{ $selectedConsultation->code_consultation }}
                             </h5>
                             <small class="opacity-75">
-                                Date : {{ $selectedConsultation->date_heure_rdv ? $selectedConsultation->date_heure_rdv->format('d/m/Y à H:i') : '-' }} |
+                                Date : {{ $selectedConsultation->date_heure_rdv->format('d/m/Y à H:i') }} |
                                 Statut : <span class="badge bg-white text-primary">{{ ucfirst($selectedConsultation->statut) }}</span>
                             </small>
                         </div>
@@ -415,18 +367,18 @@
                                     </h6>
                                     <div class="row g-2">
                                         <div class="col-6"><strong>Nom complet :</strong></div>
-                                        <div class="col-6 text-end font-weight-bold">{{ $selectedConsultation->patient->nom_complet ?? '-' }}</div>
+                                        <div class="col-6 text-end font-weight-bold">{{ $selectedConsultation->patient->nom_complet }}</div>
 
                                         <div class="col-6"><strong>Code Dossier :</strong></div>
-                                        <div class="col-6 text-end"><span class="badge bg-soft-primary text-primary">{{ $selectedConsultation->patient->code_patient ?? '-' }}</span></div>
+                                        <div class="col-6 text-end"><span class="badge bg-soft-primary text-primary">{{ $selectedConsultation->patient->code_patient }}</span></div>
 
                                         <div class="col-6"><strong>Téléphone :</strong></div>
-                                        <div class="col-6 text-end">{{ $selectedConsultation->patient->telephone ?? '-' }}</div>
+                                        <div class="col-6 text-end">{{ $selectedConsultation->patient->telephone }}</div>
 
                                         <div class="col-6"><strong>Genre / Âge :</strong></div>
                                         <div class="col-6 text-end">
-                                            {{ ($selectedConsultation->patient?->genre === 'M') ? 'Masculin' : 'Féminin' }}
-                                            ({{ $selectedConsultation->patient?->date_naissance ? $selectedConsultation->patient->date_naissance->age . ' ans' : '-' }})
+                                            {{ $selectedConsultation->patient->genre === 'M' ? 'Masculin' : 'Féminin' }}
+                                            ({{ $selectedConsultation->patient->date_naissance ? $selectedConsultation->patient->date_naissance->age . ' ans' : '-' }})
                                         </div>
 
                                         <div class="col-12">
@@ -434,7 +386,7 @@
                                         </div>
 
                                         <div class="col-6"><strong>Médecin Traitant :</strong></div>
-                                        <div class="col-6 text-end font-weight-bold text-primary">{{ $selectedConsultation->medecin?->nom ?? $selectedConsultation->medecin?->name ?? 'Non assigné' }}</div>
+                                        <div class="col-6 text-end font-weight-bold text-primary">{{ $selectedConsultation->medecin?->nom ?? 'Non assigné' }}</div>
 
                                         <div class="col-6"><strong>Type de Consultation :</strong></div>
                                         <div class="col-6 text-end"><span class="badge bg-light text-dark">{{ ucfirst(str_replace('_', ' ', $selectedConsultation->type)) }}</span></div>
@@ -443,7 +395,7 @@
                             </div>
                         </div>
 
-                        <!-- CARTE 2 : FACTURATION RÉCAPITULATIVE (CONSULTATION + EXAMENS) -->
+                        <!-- CARTE 2 : FACTURATION -->
                         <div class="col-md-6">
                             <div class="card border-0 shadow-sm radius-12 h-100">
                                 <div class="card-body">
@@ -452,33 +404,18 @@
                                     </h6>
 
                                     @php
-                                    $tarifConsultation = $selectedConsultation->tarif_brut ?? 5000;
-                                    $tarifExamens = $selectedConsultation->demandesExamens ? $selectedConsultation->demandesExamens->sum('tarif_brut') : 0;
-                                    $totalGeneral = $tarifConsultation + $tarifExamens;
-
-                                    $tauxAssurance = ($selectedConsultation->patient?->est_assure && $selectedConsultation->patient?->assurance) ? $selectedConsultation->patient->taux_couverture : 0;
-                                    $partAssurance = round(($totalGeneral * $tauxAssurance) / 100);
-                                    $partPatient = $totalGeneral - $partAssurance;
+                                    $tarifBrut = $selectedConsultation->tarif_brut ?? 5000;
+                                    $tauxAssurance = ($selectedConsultation->patient->est_assure && $selectedConsultation->patient->assurance) ? $selectedConsultation->patient->taux_couverture : 0;
+                                    $partAssurance = round(($tarifBrut * $tauxAssurance) / 100);
+                                    $partPatient = $tarifBrut - $partAssurance;
                                     @endphp
 
                                     <div class="row g-2 mb-3">
-                                        <div class="col-6"><span>Acte de Consultation :</span></div>
-                                        <div class="col-6 text-end font-weight-bold">{{ number_format($tarifConsultation, 0, ',', ' ') }} FCFA</div>
-
-                                        @if($tarifExamens > 0)
-                                        <div class="col-6 text-primary"><span>Examens Prescrits ({{ $selectedConsultation->demandesExamens->count() }}) :</span></div>
-                                        <div class="col-6 text-end text-primary font-weight-bold">+ {{ number_format($tarifExamens, 0, ',', ' ') }} FCFA</div>
-                                        @endif
-
-                                        <div class="col-12">
-                                            <hr class="my-1">
-                                        </div>
-
-                                        <div class="col-6"><strong>Total Brut Général :</strong></div>
-                                        <div class="col-6 text-end font-weight-bold">{{ number_format($totalGeneral, 0, ',', ' ') }} FCFA</div>
+                                        <div class="col-6"><strong>Montant Brut :</strong></div>
+                                        <div class="col-6 text-end font-weight-bold">{{ number_format($tarifBrut, 0, ',', ' ') }} FCFA</div>
 
                                         @if($tauxAssurance > 0)
-                                        <div class="col-6 text-success"><span>Assurance ({{ $tauxAssurance }}%) :</span></div>
+                                        <div class="col-6 text-success"><strong>Assurance ({{ $tauxAssurance }}%) :</strong></div>
                                         <div class="col-6 text-end text-success font-weight-bold">- {{ number_format($partAssurance, 0, ',', ' ') }} FCFA</div>
                                         @endif
 
@@ -503,22 +440,21 @@
                             <div class="card border-0 shadow-sm radius-12">
                                 <div class="card-body">
                                     <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-pulse me-1"></i> Constantes Vitales</h6>
-                                    @php $constantes = $selectedConsultation->constantes ?? []; @endphp
                                     <div class="row text-center g-2">
-                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Poids</small><strong>{{ $constantes['poids'] ?? '-' }} kg</strong></div>
-                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Tension</small><strong>{{ $constantes['tension'] ?? '-' }} mmHg</strong></div>
-                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Température</small><strong>{{ $constantes['temperature'] ?? '-' }} °C</strong></div>
-                                        <div class="col-3 p-2"><small class="text-muted d-block">Pouls</small><strong>{{ $constantes['pouls'] ?? '-' }} bpm</strong></div>
+                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Poids</small><strong>{{ $selectedConsultation->poids ?? '-' }} kg</strong></div>
+                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Tension</small><strong>{{ $selectedConsultation->tension ?? '-' }} mmHg</strong></div>
+                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Température</small><strong>{{ $selectedConsultation->temperature ?? '-' }} °C</strong></div>
+                                        <div class="col-3 p-2"><small class="text-muted d-block">Pouls</small><strong>{{ $selectedConsultation->pouls ?? '-' }} bpm</strong></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CARTE 4 : CLINIQUE & TABLEAU DES RÉSULTATS DES ANALYSES -->
+                        <!-- CARTE 4 : CLINIQUE & EXAMENS -->
                         <div class="col-12">
                             <div class="card border-0 shadow-sm radius-12">
                                 <div class="card-body">
-                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-file me-1"></i> Bilan Médical & Traitements</h6>
+                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-file me-1"></i> Bilan Médical</h6>
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Motif / Plaintes :</strong>
                                         <p class="mb-0 text-muted">{{ $selectedConsultation->motif ?? 'Aucun motif renseigné' }}</p>
@@ -529,92 +465,17 @@
                                     </div>
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Diagnostic :</strong>
-                                        <p class="mb-0 text-muted">{{ $selectedConsultation->diagnostic ?? 'Aucun diagnostic renseigné' }}</p>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->diagnostic ?? 'Aucun diagnostic posé' }}</p>
                                     </div>
-                                    <div class="mb-3">
+                                    <div>
                                         <strong class="d-block text-dark">Ordonnance :</strong>
-                                        <p class="mb-0 text-muted">{{ $selectedConsultation->ordonnance ?? 'Aucune ordonnance renseignée' }}</p>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->ordonnance ?? 'Aucune prescription' }}</p>
                                     </div>
-
-                                    <!-- TABLEAU DYNAMIQUE DES RÉSULTATS D'ANALYSES PRESCRITES -->
-                                    @if($selectedConsultation->demandesExamens && $selectedConsultation->demandesExamens->count() > 0)
-                                    <div class="mt-4 border-top pt-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <strong class="text-dark"><i class="bx bx-vial me-1 text-primary"></i> Résultats des Examens Prescrits ({{ $selectedConsultation->demandesExamens->count() }}) :</strong>
-                                            <a href="{{ route('consultations.examens-labo.pdf', $selectedConsultation->id) }}" target="_blank" class="btn btn-sm btn-outline-warning radius-30">
-                                                <i class="bx bx-printer me-1"></i> Imprimer Bulletin Labo
-                                            </a>
-
-
-                                        </div>
-
-
-
-                                        @foreach($selectedConsultation->demandesExamens as $dEx)
-                                        <div class="card border mb-3">
-                                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                                <span class="font-weight-bold text-primary">
-                                                    <i class="bx bx-chevron-right me-1"></i> {{ $dEx->examen->nom ?? 'Examen' }} (Code: {{ $dEx->code_demande }})
-                                                </span>
-                                                <span class="badge {{ $dEx->statut_badge ?? 'bg-secondary' }}">{{ ucfirst($dEx->statut) }}</span>
-                                            </div>
-                                            <div class="card-body p-2">
-                                                <div class="table-responsive">
-                                                    <table class="table table-sm table-bordered align-middle mb-1">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th>Sous-analyse</th>
-                                                                <th class="text-center">Valeur / Résultat</th>
-                                                                <th class="text-center">Valeurs de Référence</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @if(is_array($dEx->analyses_demandees) && count($dEx->analyses_demandees) > 0)
-                                                            @foreach($dEx->analyses_demandees as $an)
-                                                            <tr>
-                                                                <td class="fw-bold">{{ $an['nom'] ?? '-' }}</td>
-                                                                <td class="text-center text-primary font-weight-bold">
-                                                                    {{ !empty($an['resultat']) ? $an['resultat'] : 'En attente' }}
-                                                                </td>
-                                                                <td class="text-center text-muted">
-                                                                    {{ !empty($an['norme']) ? $an['norme'] : '-' }}
-                                                                </td>
-                                                            </tr>
-                                                            @endforeach
-                                                            @else
-                                                            <tr>
-                                                                <td colspan="3" class="text-center text-muted">Aucune donnée disponible.</td>
-                                                            </tr>
-                                                            @endif
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                @if(!empty($dEx->conclusion))
-                                                <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
-                                                    <strong>Conclusion / Remarques :</strong> {{ $dEx->conclusion }}
-                                                </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                    <a href="{{ route('consultations.resultats-analyses.pdf', $selectedConsultation->id) }}"
-                                        target="_blank"
-                                        class="btn btn-sm btn-outline-success radius-30">
-                                        <i class="bx bx-printer me-1"></i> Imprimer les Résultats d'Analyses
-                                    </a>
-                                    @endif
                                 </div>
-
-
                             </div>
                         </div>
-
                     </div>
-
-
                 </div>
-
 
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary px-4" wire:click="closeViewModal">Fermer</button>

@@ -41,11 +41,11 @@ class SellerSeeder extends Seeder
         'visiteur_view',
         'visiteur_add',
         'visiteur_edit',
-        'visiteur_delete',  
+        'visiteur_delete',
 
         'assurance_view',
         'assurance_add',
-        'assurance_edit',   
+        'assurance_edit',
         'assurance_delete',
 
         'patient_view',
@@ -64,15 +64,20 @@ class SellerSeeder extends Seeder
         'rapport_delete',
 
 
+        'dossier_medical_view',
+        'dossier_medical_add',
+        'dossier_medical_edit',
+        'dossier_medical_delete',
+
+        'examen_view',
+        'examen_add',
+        'examen_edit',
+        'examen_delete',
 
 
 
-     
 
-        'famille_view',
-        'famille_add',
-        'famille_edit',
-        'famille_delete',
+
 
         'trasport_view',
         'trasport_add',

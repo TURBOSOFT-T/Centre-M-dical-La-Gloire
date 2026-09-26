@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
+    @php
+$config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
+
+// Détermination de l'image à utiliser pour le logo
+$logoPath = public_path('/icons/logo.jpg');
+if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
+$logoPath = storage_path('app/public/' . $config->logo);
+} elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
+$logoPath = storage_path('app/public/' . $config->icon);
+}
+
+$logoBase64 = '';
+if (file_exists($logoPath)) {
+$logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
+}
+@endphp
 <head>
     <meta charset="UTF-8">
     <title>Pass Visiteur - {{ $visite->code_visite }}</title>

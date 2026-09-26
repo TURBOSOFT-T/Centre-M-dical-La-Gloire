@@ -69,12 +69,15 @@ class DatabaseSeeder extends Seeder
 
 
 
-     
+      'dossier_medical_view',
+        'dossier_medical_add',
+        'dossier_medical_edit',
+        'dossier_medical_delete',
 
-        'famille_view',
-        'famille_add',
-        'famille_edit',
-        'famille_delete',
+        'examen_view',
+        'examen_add',
+        'examen_edit',
+        'examen_delete',
 
         'trasport_view',
         'trasport_add',
@@ -101,10 +104,7 @@ class DatabaseSeeder extends Seeder
         'marque_edit',
         'marque_delete',
 
-        'sponsor_view',
-        'sposor_add',
-        'sposor_edit',
-        'sponsor_delete',
+       
 
         'service_view',
         'service_add',

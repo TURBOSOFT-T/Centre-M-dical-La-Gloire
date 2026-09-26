@@ -47,6 +47,25 @@ use App\Http\Controllers\VisiteController;
 Route::get('/visites/{id}/pass-pdf', [VisiteController::class, 'imprimerPassPdf'])
     ->name('visites.pass.pdf')
     ->middleware('auth');
+
+
+    use App\Http\Controllers\FactureConsultationController;
+
+Route::get('/consultations/{id}/facture-pdf', [FactureConsultationController::class, 'imprimerFacture'])
+    ->name('consultations.facture.pdf')
+    ->middleware(['auth']);
+
+    use App\Http\Controllers\ExamenLaboratoirePdfController;
+
+Route::get('/consultations/{id}/examens-labo-pdf', [ExamenLaboratoirePdfController::class, 'imprimerBulletinLabo'])
+    ->name('consultations.examens-labo.pdf')
+    ->middleware(['auth']);
+
+    use App\Http\Controllers\ResultatsExamenPdfController;
+
+Route::get('/consultations/{id}/resultats-analyses-pdf', [ResultatsExamenPdfController::class, 'imprimerResultats'])
+    ->name('consultations.resultats-analyses.pdf')
+    ->middleware(['auth']);
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -197,6 +216,9 @@ Route::middleware(['auth'])->group(function () {
     /////////////////////////Les marques//////////////////////////////////////
     Route::get('/admin/laboratoires', [AdminController::class, 'marques'])
         ->name('laboratoires');
+
+         Route::get('/examens', [AdminController::class, 'examens'])->name('examens');
+
    Route::get('/assurances', [AdminController::class, 'assurances'])->name('assurances');
 
     Route::get('/visites', [AdminController::class, 'visites'])->name('visites');

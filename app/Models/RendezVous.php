@@ -36,7 +36,14 @@ class RendezVous extends Model
             default      => ucfirst($this->statut),
         };
     }
-
+    public function modifiable()
+    {
+        if ($this->statut === 'honore' || $this->statut === 'annule') {
+            return false;
+        } else {
+            return true;
+        }
+    }
     /**
      * Classes Tailwind pour le badge de statut.
      */

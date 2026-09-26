@@ -325,16 +325,26 @@ class RendezVousManager extends Component
         if (strlen(trim($this->searchMedecin)) >= 2 && !$this->medecin_id) {
             $cleanSearch = '%' . trim(str_replace(['Dr.', 'Dr '], '', $this->searchMedecin)) . '%';
             $medecinsFound = User::where(function ($q) {
-                $q->where('role', 'medecin')
-                    ->orWhere('role', 'like', '%medecin%');
+               // $q->where('role', 'medecin')
+                   /// ->orWhere('role', 'like', '%medecin%');
             })
                 ->where(function ($query) use ($cleanSearch) {
                     $query->where('email', 'like', $cleanSearch)
                         ->orWhere('nom', 'like', $cleanSearch)
+                        ->orWhere('role', 'like', $cleanSearch)
                         ->orWhere('prenom', 'like', $cleanSearch);
                 })
                 ->take(5)
                 ->get();
+
+                 // 4. Recherche dynamique des médecins
+        /* $medecins = User::query()
+            ->when($this->searchMedecin, function ($q) {
+                $q->where('name', 'like', '%' . $this->searchMedecin . '%')
+                  ->orWhere('email', 'like', '%' . $this->searchMedecin . '%');
+            })
+            ->take(10)
+            ->get(); */
         }
 
         $rendezVousList = RendezVous::with(['patient', 'medecin'])

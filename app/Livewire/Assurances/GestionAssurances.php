@@ -108,7 +108,7 @@ class GestionAssurances extends Component
         session()->flash('message', 'Statut de la compagnie modifié.');
     }
 
-    public function deleteAssurance($id)
+    public function delete($id)
     {
         $assurance = Assurance::findOrFail($id);
         
