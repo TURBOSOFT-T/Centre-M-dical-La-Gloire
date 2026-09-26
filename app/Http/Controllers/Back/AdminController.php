@@ -157,7 +157,7 @@ class AdminController extends Controller
         foreach ($total_commandes as $command) {
             $totalDesCommandes += $command->montant();
         }
-        $totalUser = User::whereBetween('created_at', [$date_debut, $date_fin])->count();
+        $totalUser = Patient::whereBetween('created_at', [$date_debut, $date_fin])->count();
 
         $totalVisitors = Visitor::count();
         $todayVisitors = Visitor::whereDate('created_at', today())->count();
