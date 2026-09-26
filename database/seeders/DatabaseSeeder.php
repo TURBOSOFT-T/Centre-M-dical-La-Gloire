@@ -170,8 +170,8 @@ class DatabaseSeeder extends Seeder
 
         // Profil Client / Patient
         $dev = new User();
-        $dev->nom = "Patient";
-        $dev->prenom = 'Test';
+        $dev->nom = "Accueil";
+        $dev->prenom = 'Home';
         $dev->email = 'client@centremedicallagloire.com';
         $dev->role = "accueil";
         $dev->adresse = 'Douala, Cameroun';
