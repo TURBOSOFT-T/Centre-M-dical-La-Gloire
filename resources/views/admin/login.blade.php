@@ -1,5 +1,18 @@
 @php
-$config = DB::table('configs')->select('icon','logo')->first();
+$config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
+
+// Détermination de l'image à utiliser pour le logo
+$logoPath = public_path('/icons/logo.jpg');
+if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
+$logoPath = storage_path('app/public/' . $config->logo);
+} elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
+$logoPath = storage_path('app/public/' . $config->icon);
+}
+
+$logoBase64 = '';
+if (file_exists($logoPath)) {
+$logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
+}
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -50,11 +63,14 @@ $config = DB::table('configs')->select('icon','logo')->first();
 								</div>
 							</div>
 							<div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
-								<img src="{{ Storage::url($config->logo) }}"
-									class="img-fluid d-none d-sm-block"
+								
+									 @if(!empty($logoBase64))
+                        <img src="{{ $logoBase64 }}" class="img-fluid d-none d-sm-block"
 									alt="Illustration Stratégie CRM"
 									loading="lazy">
+                        @endif
 							</div>
+							
 							<!-- <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
 								<img src="https://blog.comexplorer.com/hubfs/strate%CC%81gie-crm-1.webp" class="img-fluid  d-none d-sm-block" alt="..." >
 							</div>  -->
