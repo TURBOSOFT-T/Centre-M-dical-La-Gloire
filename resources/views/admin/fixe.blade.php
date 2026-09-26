@@ -126,8 +126,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         <div class="sidebar-wrapper" data-simplebar="true">
             <div class="sidebar-header">
                 <div class="">
-                    <img src="{{ Storage::url($config->icon) }}" class="logo-icon-2" alt="" />
-
+                   
                      @if(!empty($logoBase64))
                         <img src="{{ $logoBase64 }}" alt="logo" class="logo-icon-2">
                         @endif
