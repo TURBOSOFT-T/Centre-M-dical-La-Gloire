@@ -111,20 +111,18 @@ class DossierMedicalManager extends Component
         session()->flash('message', 'Dossier médical créé avec succès (Code : ' . $codeDossier . ').');
         $this->backToIndex();
     }
+public function openShow($id)
+{
+    $this->selectedDossier = DossierMedical::with([
+        'patient.assurance',
+        'consultations.demandesExamens.examen', // Charge correctement les examens via les consultations
+        'hospitalisations',
+        'rendezVous',
+    ])->findOrFail($id);
 
-    public function openShow($id)
-    {
-        $this->selectedDossier = DossierMedical::with([
-            'patient.assurance',
-            'consultations.demandesExamens.examen',
-            'hospitalisations',
-            'rendezVous',
-            'demandesExamens.examen', // Chargement direct des examens du dossier
-        ])->findOrFail($id);
-
-        $this->activeTab = 'apercu';
-        $this->mode = 'show';
-    }
+    $this->activeTab = 'apercu';
+    $this->mode = 'show';
+}
 
     public function openEdit($id)
     {

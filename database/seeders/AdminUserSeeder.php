@@ -58,6 +58,8 @@ class AdminUserSeeder extends Seeder
         $user1->syncRoles([$adminRole]);
         $user2->syncRoles([$adminRole]);
 
+        
+
         $this->command->info("L'utilisateur {$user1->email} a été créé et possède toutes les permissions !");
         $this->command->info("L'utilisateur {$user2->email} a été créé et possède toutes les permissions !");
     }

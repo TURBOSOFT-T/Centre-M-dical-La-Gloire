@@ -113,4 +113,21 @@ class DemandeExamen extends Model
     {
         return $this->belongsTo(User::class, 'realise_par');
     }
+
+   
+
+public function validerPaiementExamen($demandeId)
+{
+    $demande = DemandeExamen::findOrFail($demandeId);
+
+    // 1. Enregistrement du paiement / transaction caisse
+    $demande->update([
+        'est_paye' => true,
+        // Optionnel : enregistrer la date et l'agent qui a encaissé
+        'paye_le' => now(),
+        'paye_par' => auth()->id(),
+    ]);
+
+    session()->flash('message', 'Paiement enregistré avec succès pour la demande N° ' . $demande->code_demande);
+}
 }

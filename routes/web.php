@@ -66,6 +66,16 @@ Route::get('/consultations/{id}/examens-labo-pdf', [ExamenLaboratoirePdfControll
 Route::get('/consultations/{id}/resultats-analyses-pdf', [ResultatsExamenPdfController::class, 'imprimerResultats'])
     ->name('consultations.resultats-analyses.pdf')
     ->middleware(['auth']);
+
+    use App\Http\Controllers\ExamenPdfController;
+
+
+
+Route::middleware(['auth'])->group(function () {
+    // Route d'impression du rapport de résultat d'examen
+    Route::get('/examens/demandes/{demande}/pdf', [ExamenPdfController::class, 'genererPdf'])
+        ->name('examens.resultat-pdf');
+});
 /*
 |--------------------------------------------------------------------------
 | Web Routes

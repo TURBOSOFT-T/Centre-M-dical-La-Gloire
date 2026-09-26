@@ -95,7 +95,7 @@ class HospitalisationManager extends Component
                 ->get();
         }
 
-        $medecins = User::whereIn('role', ['medecin', 'doctor'])->get();
+        $medecins = User::all();
 
         return view('livewire.hospitalisation-manager', [
             'hospitalisations' => $hospitalisations,

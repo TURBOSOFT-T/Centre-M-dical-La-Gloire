@@ -45,7 +45,7 @@
                             <th>Allergies</th>
                             <th>Statut</th>
                             <th>Créé le</th>
-                            <th class="text-end">Actions</th>
+                            <th class="text-end px-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -94,21 +94,20 @@
                             <td>
                                 <small class="text-muted">{{ $dossier->created_at ? $dossier->created_at->format('d/m/Y') : '-' }}</small>
                             </td>
-                            <td class="text-end">
+                            <td class="text-end px-4">
                                 <div class="btn-group btn-group-sm">
                                     <button wire:click="openShow({{ $dossier->id }})" class="btn btn-outline-info" title="Consulter le dossier">
-                                   Détails
+                                        Détails
                                     </button>
-                                     @if ($dossier->modifiable())
+                                    @if ($dossier->modifiable())
                                     <button wire:click="openEdit({{ $dossier->id }})" class="btn btn-outline-primary" title="Modifier">
-                                      Modifier
+                                        Modifier
                                     </button>
-
                                     @endif
                                     <button wire:click="delete({{ $dossier->id }})"
                                         wire:confirm="Êtes-vous sûr de vouloir supprimer ce dossier médical ?"
                                         class="btn btn-outline-danger" title="Supprimer">
-                                      Supprimer
+                                        Supprimer
                                     </button>
                                 </div>
                             </td>
@@ -253,7 +252,7 @@
     </div>
     @endif
 
-    {{-- ==================== MODE SHOW (CONSULTATION) ==================== --}}
+    {{-- ==================== MODE SHOW (DOSSIER COMPLET) ==================== --}}
     @if($mode === 'show' && $selectedDossier)
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
@@ -338,11 +337,10 @@
                         <span class="badge bg-info text-dark ms-1">{{ $selectedDossier->rendezVous->count() }}</span>
                     </button>
                 </li>
-
-                 <li class="nav-item">
-                    <button class="nav-link {{ $activeTab === 'examens' ? 'active fw-bold' : '' }}" wire:click="switchTab('rendezvous')">
-                        <i class="bi bi-calendar-event me-1"></i> Examens
-                        <span class="badge bg-info text-dark ms-1"></span>
+                <li class="nav-item">
+                    <button class="nav-link {{ $activeTab === 'examens' ? 'active fw-bold' : '' }}" wire:click="switchTab('examens')">
+                        <i class="bi bi-vial me-1"></i> Examens Biol.
+                        <span class="badge bg-warning text-dark ms-1">{{ $selectedDossier->demandesExamens->count() }}</span>
                     </button>
                 </li>
             </ul>
@@ -390,8 +388,6 @@
                 <h6 class="fw-bold text-primary mb-0"><i class="bi bi-stethoscope me-1"></i> Historique des Consultations</h6>
                 <span class="badge bg-light text-dark border">Total : {{ $selectedDossier->consultations->count() }}</span>
             </div>
-
-            
 
             @forelse($selectedDossier->consultations as $c)
             <div class="card mb-3 border shadow-sm">
@@ -485,7 +481,6 @@
             {{-- TAB 4: RENDEZ-VOUS DU PATIENT --}}
             @if($activeTab === 'rendezvous')
             @php
-            // Récupération des rendez-vous directement via la relation du Patient
             $rendezVousList = $selectedDossier->patient->rendezVous ?? collect();
             @endphp
 
@@ -499,7 +494,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle border">
+                <table class="table table-hover align-middle border mb-0">
                     <thead class="table-light">
                         <tr>
                             <th>Date & Heure</th>
@@ -563,8 +558,8 @@
                         @empty
                         <tr>
                             <td colspan="5" class="text-center py-4 text-muted">
-                                <i class="bi bi-calendar-x display-6 d-block mb-2 text-secondary"></i>
-                                Aucun rendez-vous enregistré pour ce patient.
+                                <i class="bi bi-calendar-x display-6 d-block mb-2"></i>
+                                Aucun rendez-vous enregistré.
                             </td>
                         </tr>
                         @endforelse
@@ -573,6 +568,127 @@
             </div>
             @endif
 
+            {{-- TAB 5: EXAMENS BIOLOGIQUES DU PATIENT --}}
+            @if($activeTab === 'examens')
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-primary mb-0"><i class="bi bi-vial me-1"></i> Historique des Examens Biologiques & Laboratoire</h6>
+                <span class="badge bg-light text-dark border">Total : {{ $selectedDossier->demandesExamens->count() }}</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle border mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code Demande</th>
+                            <th>Examen</th>
+                            <th>Prescrit le</th>
+                            <th>Statut</th>
+                           
+                            <th class="text-end px-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($selectedDossier->demandesExamens as $demande)
+                        <tr>
+                            <td class="fw-bold text-primary">{{ $demande->code_demande }}</td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ $demande->examen->nom ?? 'Examen inconnu' }}</div>
+                            </td>
+                            <td><small class="text-muted">{{ $demande->created_at ? $demande->created_at->format('d/m/Y H:i') : '-' }}</small></td>
+                            <td>
+                                @if($demande->statut === 'termine')
+                                <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>Disponible</span>
+                                @elseif($demande->statut === 'en_cours')
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-hourglass-split me-1"></i>En cours</span>
+                                @else
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">En attente</span>
+                                @endif
+                            </td>
+                            
+                            <td class="text-end px-4">
+                                @if($demande->statut === 'termine')
+                                <button wire:click="voirResultatsExamen({{ $demande->id }})" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-file-text me-1"></i> Résultats
+                                </button>
+                                @else
+                                <span class="text-muted small">Résultats en attente</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-vial-x display-6 d-block mb-2"></i>
+                                Aucun examen biologique prescrit dans ce dossier.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @endif
+
+        </div>
+    </div>
+    @endif
+
+    {{-- MODALE DE VISUALISATION DES RÉSULTATS D'EXAMEN --}}
+    @if($isModalResultatsOpen && $selectedDemandeExamen)
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-file-earmark-medical me-2"></i> Résultats d'Examen : {{ $selectedDemandeExamen->examen->nom ?? '' }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" wire:click="fermerModalResultats"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3 border-bottom pb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted d-block">Examen</small>
+                            <span class="fw-bold text-dark">{{ $selectedDemandeExamen->examen->nom ?? 'N/A' }}</span>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small class="text-muted d-block">Réalisé le</small>
+                            <span class="fw-semibold text-dark">{{ $selectedDemandeExamen->date_realisation ? \Carbon\Carbon::parse($selectedDemandeExamen->date_realisation)->format('d/m/Y à H:i') : '-' }}</span>
+                        </div>
+                    </div>
+
+                    {{-- Tableau des sous-analyses et résultats --}}
+                    <h6 class="fw-bold text-primary mb-2">Détails des Analyses</h6>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Paramètre / Sous-analyse</th>
+                                    <th>Résultat Obtenu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($selectedDemandeExamen->analyses_demandees ?? [] as $item)
+                                <tr>
+                                    <td class="fw-semibold">{{ $item['nom'] ?? 'Paramètre' }}</td>
+                                    <td class="fw-bold text-primary">{{ $item['resultat'] ?? 'N/A' }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">Aucun paramètre saisi.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if($selectedDemandeExamen->conclusion)
+                    <div class="p-3 bg-light rounded border border-start border-4 border-primary">
+                        <strong class="text-primary d-block mb-1"><i class="bi bi-chat-left-quote me-1"></i> Conclusion du Biologiste :</strong>
+                        <p class="mb-0 text-dark">{{ $selectedDemandeExamen->conclusion }}</p>
+                    </div>
+                    @endif
+                </div>
+                
+            </div>
         </div>
     </div>
     @endif

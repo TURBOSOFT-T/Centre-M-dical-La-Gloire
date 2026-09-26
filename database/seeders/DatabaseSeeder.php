@@ -3,11 +3,12 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\{User, config, Marque, Service, Category};
+use App\Models\{User, config, Marque, Service, Category, Shop};
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -43,11 +44,11 @@ class DatabaseSeeder extends Seeder
         'visiteur_view',
         'visiteur_add',
         'visiteur_edit',
-        'visiteur_delete',  
+        'visiteur_delete',
 
         'assurance_view',
         'assurance_add',
-        'assurance_edit',   
+        'assurance_edit',
         'assurance_delete',
 
         'patient_view',
@@ -69,7 +70,7 @@ class DatabaseSeeder extends Seeder
 
 
 
-      'dossier_medical_view',
+        'dossier_medical_view',
         'dossier_medical_add',
         'dossier_medical_edit',
         'dossier_medical_delete',
@@ -104,7 +105,7 @@ class DatabaseSeeder extends Seeder
         'marque_edit',
         'marque_delete',
 
-       
+
 
         'service_view',
         'service_add',
@@ -155,6 +156,25 @@ class DatabaseSeeder extends Seeder
         foreach ($this->permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
+      
+        $this->call([
+            CategorieSeeder::class,
+            MarqueSeeder::class,
+            AssuranceSeeder::class,
+            PatientSeeder::class,
+            VisiteurSeeder::class,
+
+            // 4. Visites (dépend des patients, visiteurs et users)
+            VisiteSeeder::class,
+
+            ExamenSeeder::class,
+          
+            AdminUserSeeder::class
+        ]);
+
+
+
+
 
         // Administrateur Général - Centre Médical La Gloire
         $user = new User();
@@ -193,6 +213,36 @@ class DatabaseSeeder extends Seeder
 
         Role::firstOrCreate(['name' => 'personnel']);
 
+
+
+        
+         // 1. Créer ou récupérer le rôle pour le guard 'seller'
+        $roleSeller = Role::findOrCreate('seller', 'seller');
+
+        // 2. Créer et synchroniser les permissions du guard 'seller'
+        foreach ($this->permissions as $permissionName) {
+            $permission = Permission::findOrCreate($permissionName, 'seller');
+            // Associe directement la permission au rôle
+            $roleSeller->givePermissionTo($permission);
+        }
+
+        // 3. Créer un compte de test partenaire/prestataire pour le Centre Médical La Gloire
+        $shop = Shop::updateOrCreate(
+            ['email' => 'partenaire@centremedicallagloire.com'],
+            [
+                'name' => 'Centre Médical La Gloire - Unité Principale',
+                'description' => 'Espace de gestion des soins et prestations de santé',
+                'phone' => '682840743',
+                'adresse' => 'Douala, Cameroun',
+                'role' => 'seller',
+                'active' => true,
+                'statut' => 'disponible',
+                'password' => Hash::make('123456789'),
+            ]
+        );
+
+        // 4. Assigner le rôle au vendeur/prestataire connecté sur le guard 'seller'
+        $shop->assignRole($roleSeller);
         // Configuration Générale de l'Établissement    
         $cat = new config();
 
