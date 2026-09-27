@@ -269,6 +269,10 @@
                 @endif
             </div>
             <div class="d-flex gap-2">
+
+            <a href="{{ route('dossier-medical.rapport-pdf', $selectedDossier->id) }}" target="_blank" class="btn btn-success btn-sm me-2">
+        <i class="bi bi-file-earmark-pdf-fill me-1"></i> Imprimer Rapport / Bilan Médical
+    </a>
                 <button wire:click="openEdit({{ $selectedDossier->id }})" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-pencil me-1"></i> Modifier
                 </button>

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Consultation extends Model
 {
@@ -13,7 +14,7 @@ class Consultation extends Model
 
     protected $table = 'consultations';
 
-    protected $fillable = [
+   protected $fillable = [
         'code_consultation',
         'patient_id',
         'medecin_id',
@@ -21,30 +22,88 @@ class Consultation extends Model
         'date_heure_rdv',
         'type',
         'statut',
-        'motif',
-        'examen_physique',
-        'diagnostic',
-        'ordonnance',
-        'notes_privees',
-        'constantes',
         'tarif_brut',
+        'montant_paye',
+        'historique_paiements',
         'est_paye',
+
+        // Anamnèse & Motif
+        'motif',
+        'historique_maladie',
+        'antecedents_maladie',
+        'mode_de_vie',
+
+        // Examens Cliniques & Diagnostics
+        'examen_physique',
+        'examen_general',
+        'hypothese_diagnostique',
+        'diagnostic',
+        'resultats_analyses',
+
+        // Traitements & Prescriptions
+        'ordonnance',
+        'traitement',
+        'traitement_sortie',
+        'notes_privees',
+
+        // Données JSON / Structurées
+        'constantes',
+        'evaluations',
+        'visite_medicale_journaliere',
     ];
 
-    protected $casts = [
-        'date_heure_rdv' => 'datetime',
-        'constantes'      => 'array',
-        'est_paye'        => 'boolean',
-        'tarif_brut'      => 'decimal:2',
+   protected $casts = [
+        'date_heure_rdv'              => 'datetime',
+        'tarif_brut'                  => 'decimal:2',
+        'montant_paye'                => 'decimal:2',
+        'est_paye'                    => 'boolean',
+        'constantes'                  => 'array',
+        'evaluations'                 => 'array',
+        'visite_medicale_journaliere' => 'array',
+        'historique_paiements'        => 'array',
     ];
+    /**
+     * Calcul du montant total cumulé (Consultation + Examens prescrits)
+     */
 
-      public function modifiable()
+    public function getResteAPayerAttribute(): float
     {
-        if ($this->statut === 'termine' || $this->statut === 'annule') {
-            return false;
-        } else {
-            return true;
+        $total = $this->tarif_brut + ($this->demandesExamens ? $this->demandesExamens->sum('tarif_brut') : 0);
+        return max(0, $total - $this->montant_paye);
+    }
+    public function getTotalFactureAttribute(): float
+    {
+        $tarifConsultation = (float) ($this->tarif_brut ?? 0);
+        $tarifExamens = $this->demandesExamens ? (float) $this->demandesExamens->sum('tarif_brut') : 0;
+
+        return $tarifConsultation + $tarifExamens;
+    }
+
+    /**
+     * Calcul du reste à payer par le patient
+     */
+    public function getResteAPayerAttribute2(): float
+    {
+        $total = $this->total_facture;
+
+        // Si le patient a une assurance, calcul du reste à charge
+        if ($this->patient && $this->patient->est_assure && $this->patient->assurance) {
+            $taux = (float) $this->patient->taux_couverture;
+            $partAssurance = round(($total * $taux) / 100);
+            $total = $total - $partAssurance;
         }
+
+        $reste = $total - (float) ($this->montant_paye ?? 0);
+
+        return max($reste, 0);
+    }
+
+    /**
+     * Vérifie si la consultation est modifiable.
+     */
+    public function modifiable(): bool
+    {
+        return !in_array($this->statut, ['termine', 'annule']);
     }
 
     protected static function boot()
@@ -70,11 +129,12 @@ class Consultation extends Model
     public function getStatutLabelAttribute(): string
     {
         return match ($this->statut) {
-            'en_attente'  => 'En attente',
-            'en_cours'    => 'En cours',
-            'terminee'    => 'Terminée',
-            'annulee'     => 'Annulée',
-            default       => ucfirst($this->statut ?? 'Non défini'),
+            'programme'  => 'Programmé',
+            'en_attente' => 'En attente',
+            'en_cours'   => 'En cours',
+            'termine'    => 'Terminée',
+            'annule'     => 'Annulée',
+            default      => ucfirst($this->statut ?? 'Non défini'),
         };
     }
 
@@ -84,11 +144,12 @@ class Consultation extends Model
     public function getStatutBadgeClassesAttribute(): string
     {
         return match ($this->statut) {
-            'en_attente'  => 'bg-warning text-dark',
-            'en_cours'    => 'bg-info text-white',
-            'terminee'    => 'bg-success text-white',
-            'annulee'     => 'bg-danger text-white',
-            default       => 'bg-secondary text-white',
+            'programme'  => 'bg-primary text-white',
+            'en_attente' => 'bg-warning text-dark',
+            'en_cours'   => 'bg-info text-white',
+            'termine'    => 'bg-success text-white',
+            'annule'     => 'bg-danger text-white',
+            default      => 'bg-secondary text-white',
         };
     }
 
@@ -98,6 +159,14 @@ class Consultation extends Model
     public function getConstante(string $key, $default = null)
     {
         return $this->constantes[$key] ?? $default;
+    }
+
+    /**
+     * Helper pour récupérer une valeur d'évaluation clinique.
+     */
+    public function getEvaluation(string $key, $default = null)
+    {
+        return $this->evaluations[$key] ?? $default;
     }
 
     /*
@@ -130,8 +199,11 @@ class Consultation extends Model
         return $this->belongsTo(DossierMedical::class, 'dossier_medical_id');
     }
 
-    public function demandesExamens()
-{
-    return $this->hasMany(DemandeExamen::class, 'consultation_id');
-}
+    /**
+     * Demandes d'examens biologiques ou d'imagerie associées.
+     */
+    public function demandesExamens(): HasMany
+    {
+        return $this->hasMany(DemandeExamen::class, 'consultation_id');
+    }
 }

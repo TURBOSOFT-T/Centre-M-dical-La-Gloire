@@ -9,24 +9,22 @@ class Examen extends Model
 {
     use HasFactory;
 
- protected $table="examens";
+    protected $table = "examens";
 
-    protected $primaryKey="id";
+    protected $primaryKey = "id";
 
-    protected $fillable=[ 'nom', 'caracteristiques'];
+    protected $fillable = [
+        'nom',
+        'caracteristiques',
+        'user_id',
+    ];
 
-      protected $casts = [
-     
+    protected $casts = [
         'caracteristiques' => 'array',
     ];
 
-
-
-public function user()
-{
-    return $this->belongsTo(User::class , 'user_id', 'id');
-}
-
-
-
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

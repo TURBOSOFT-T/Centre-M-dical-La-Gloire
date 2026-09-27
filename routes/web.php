@@ -76,7 +76,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/examens/demandes/{demande}/pdf', [ExamenPdfController::class, 'genererPdf'])
         ->name('examens.resultat-pdf');
 });
-/*
+
+use App\Http\Controllers\DossierMedicalPdfController;
+
+Route::middleware(['auth'])->group(function () {
+    // Route de génération du bilan / rapport médical du patient
+    Route::get('/dossier-medical/{dossier}/rapport-pdf', [DossierMedicalPdfController::class, 'genererRapportPdf'])
+        ->name('dossier-medical.rapport-pdf');
+});
+
+use App\Http\Controllers\ExamenExportController;
+
+Route::get('/examens/export-sql', [ExamenExportController::class, 'export'])->name('examens.export.sql');
+Route::post('/examens/import-sql', [ExamenExportController::class, 'import'])->name('examens.import.sql');/*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------

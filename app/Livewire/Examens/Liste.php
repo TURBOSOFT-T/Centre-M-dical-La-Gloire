@@ -28,4 +28,6 @@ class Liste extends Component
             session()->flash('info', 'Examen supprimée avec succès');
         }
     }
+
+    
 }

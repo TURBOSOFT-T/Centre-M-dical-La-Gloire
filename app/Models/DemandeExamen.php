@@ -50,6 +50,13 @@ class DemandeExamen extends Model
                 $demande->code_demande = 'EXM-' . date('Y') . '-' . strtoupper(uniqid());
             }
         });
+
+        static::saved(function ($demandeExamen) {$demandeExamen->recalculerStatutPaiementConsultation();
+        });
+
+        // Exécuté après la suppression d'un examen
+        static::deleted(function ($demandeExamen) {$demandeExamen->recalculerStatutPaiementConsultation();
+        });
     }
 
     /*
@@ -68,6 +75,25 @@ class DemandeExamen extends Model
             'annule'              => 'bg-danger text-white',
             default               => 'bg-secondary text-white',
         };
+    }
+
+    public function recalculerStatutPaiementConsultation(): void
+    {
+        $consultation =$this->consultation;
+
+        if ($consultation) {
+            // Total = Tarif de base de la consultation + Total des examens prescrits
+            $totalExamens = $consultation->demandesExamens()->sum('tarif_brut');$totalGeneral = $consultation->tarif_brut +$totalExamens;
+
+            // Déterminer si le montant déjà versé couvre le nouveau total
+            $montantPaye =$consultation->montant_paye ?? 0;
+            $estTotalementPaye = ($montantPaye >=$totalGeneral);
+
+            // Mise à jour automatique de la consultation
+            $consultation->update([
+                'est_paye' => $estTotalementPaye,
+            ]);
+        }
     }
 
     /*

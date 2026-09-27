@@ -397,7 +397,7 @@ public function savePatient()
         $this->isModalOpen = true;
     }
 
-    public function deletePatient($id)
+    public function delete($id)
     {
         Patient::findOrFail($id)->delete();
         session()->flash('message', 'Dossier patient archivé avec succès.');

@@ -8,7 +8,7 @@
     @endif
 
     <!-- EN-TÊTE AVEC FILTRE RAPIDE CAISSE -->
-    <div class="card mb-4 border-0 shadow-sm">
+    <div class="card mb-4 border-0 shadow-sm radius-12">
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
                 <h4 class="mb-0 font-weight-bold text-primary">
@@ -36,7 +36,7 @@
     </div>
 
     <!-- BARRE DE RECHERCHE & FILTRES -->
-    <div class="card mb-4 border-0 shadow-sm">
+    <div class="card mb-4 border-0 shadow-sm radius-12">
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-3">
@@ -80,8 +80,6 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Code</th>
-                            <th>Date & Heure</th>
                             <th>Patient</th>
                             <th>Médecin</th>
                             <th>Tarif / Couverture</th>
@@ -93,14 +91,9 @@
                     <tbody>
                         @forelse($consultations ?? [] as $c)
                         <tr>
-                            <td><span class="badge bg-soft-primary text-primary font-weight-bold">{{ $c->code_consultation }}</span></td>
-                            <td>
-                                <div class="font-weight-bold">{{ $c->date_heure_rdv ? $c->date_heure_rdv->format('d/m/Y') : '-' }}</div>
-                                <small class="text-muted"><i class="bx bx-time me-1"></i>{{ $c->date_heure_rdv ? $c->date_heure_rdv->format('H:i') : '' }}</small>
-                            </td>
                             <td>
                                 <div class="font-weight-bold">{{ $c->patient->nom_complet }}</div>
-                                <small class="text-muted">{{ $c->patient->telephone }}</small>
+                                <small class="text-muted"><i class="bx bx-phone me-1"></i>{{ $c->patient->telephone }} | Code: {{ $c->patient->code_patient }}</small>
                             </td>
                             <td>{{ $c->medecin?->nom ?? $c->medecin?->name ?? 'Non assigné' }}</td>
                             <td>
@@ -116,10 +109,18 @@
                                 @endif
                             </td>
                             <td>
-                                @if($c->est_paye)
-                                <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>Payé</span>
+                                @php
+                                $totalD = ($c->tarif_brut ?? 5000) + ($c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0);
+                                $resteD = max(0, $totalD - ($c->montant_paye ?? 0));
+                                @endphp
+
+                                @if($c->est_paye || $resteD == 0)
+                                <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>Payé (100%)</span>
+                                @elseif(($c->montant_paye ?? 0) > 0)
+                                <span class="badge bg-info text-dark"><i class="bx bx-pie-chart-alt-2 me-1"></i>Partiel ({{ number_format($c->montant_paye, 0, ',', ' ') }} FCFA)</span>
+                                <small class="text-danger d-block font-weight-bold">Reste: {{ number_format($resteD, 0, ',', ' ') }} F</small>
                                 @else
-                                <span class="badge bg-warning text-dark"><i class="bx bx-time-five me-1"></i>En attente</span>
+                                <span class="badge bg-warning text-dark"><i class="bx bx-time-five me-1"></i>Impayé</span>
                                 @endif
                             </td>
                             <td>
@@ -132,9 +133,9 @@
                                 @endswitch
                             </td>
                             <td class="text-end px-4">
-                                @if(!$c->est_paye)
-                                <button wire:click="marquerCommePaye({{ $c->id }})" class="btn btn-sm btn-success me-1" title="Encaisser à la caisse">
-                                    <i class="bx bx-dollar-circle"></i>
+                                @if(!$c->est_paye && $resteD > 0)
+                                <button wire:click="openPaiementModal({{ $c->id }})" class="btn btn-sm btn-success me-1 radius-30" title="Encaisser ou Versement partiel">
+                                    <i class="bx bx-dollar-circle me-1"></i>Encaisser
                                 </button>
                                 @endif
 
@@ -158,26 +159,23 @@
                                 @endif
 
                                 <button wire:click="showConsultation({{ $c->id }})" class="btn btn-sm btn-outline-info me-1" title="Voir la fiche"><i class="bx bx-show"></i></button>
-                                @if ($c->modifiable())
+
+                                @if (method_exists($c, 'modifiable') ? $c->modifiable() : true)
                                 <button wire:click="editConsultation({{ $c->id }})" class="btn btn-sm btn-outline-primary me-1" title="Modifier"><i class="bx bx-edit"></i></button>
                                 @endif
 
-                    <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $c->id }})">
+                                <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $c->id }})">
                                     <i class="bx bx-trash"></i>
                                 </button>
 
-                                <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $c->id }}"
-                                    wire:click="delete({{ $c->id }})">
-                                    <i class="bi bi-check-circle"></i>
-                                    <span class="hide-tablete">
-                                        Confirmer
-                                    </span>
+                                <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $c->id }}" wire:click="delete({{ $c->id }})">
+                                    <i class="bx bx-check-circle"></i> Confirmer
                                 </button>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">Aucune consultation ou rendez-vous trouvé.</td>
+                            <td colspan="6" class="text-center py-4 text-muted">Aucune consultation ou rendez-vous trouvé.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -189,69 +187,214 @@
         @endif
     </div>
 
-    <!-- MODALE FORMULAIRE DE CRÉATION / ÉDITION -->
+    <!-- MODALE D'ENCAISSEMENT PARTIEL ET TOTAL -->
+    @if($isPaymentModalOpen && $consultationEnPaiement)
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6);" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content radius-15 border-0 shadow-lg">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title font-weight-bold text-white">
+                        <i class="bx bx-receipt me-2"></i>Règlement / Acompte Caisse
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" wire:click="closePaiementModal"></button>
+                </div>
+
+                <form wire:submit.prevent="enregistrerVersement">
+                    <div class="modal-body p-4">
+
+                        {{-- Récapitulatif Financier du Patient --}}
+                        @php
+                        $totalFacture = $consultationEnPaiement->tarif_brut + ($consultationEnPaiement->demandesExamens ? $consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0);
+                        $dejaPaye = $consultationEnPaiement->montant_paye ?? 0;
+                        $resteAEncaisser = max(0, $totalFacture - $dejaPaye);
+                        @endphp
+
+                        <div class="card bg-light border-0 p-3 mb-3 radius-10">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Total Prestations :</span>
+                                <strong class="text-dark">{{ number_format($totalFacture, 0, ',', ' ') }} FCFA</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Déjà Réglé :</span>
+                                <strong class="text-success">{{ number_format($dejaPaye, 0, ',', ' ') }} FCFA</strong>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between fs-6">
+                                <strong class="text-danger">Reste Net à Payer :</strong>
+                                <strong class="text-danger fs-5">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</strong>
+                            </div>
+                        </div>
+
+                        {{-- Formulaire de Versement --}}
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Montant du versement (FCFA) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number"
+                                    wire:model="montantEncaissement"
+                                    max="{{ $resteAEncaisser }}"
+                                    min="1"
+                                    class="form-control fs-5 font-weight-bold text-primary @error('montantEncaissement') is-invalid @enderror">
+                                <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    wire:click="$set('montantEncaissement', {{ $resteAEncaisser }})">
+                                    Tout Régler
+                                </button>
+                            </div>
+                            @error('montantEncaissement') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Mode de paiement</label>
+                            <select wire:model="modePaiement" class="form-select">
+                                <option value="Espèces">Espèces</option>
+                                <option value="Mobile Money">Mobile Money (MTN / Orange)</option>
+                                <option value="Carte Bancaire">Carte Bancaire</option>
+                                <option value="Chèque">Chèque</option>
+                                <option value="Prise en charge Assurance">Prise en charge Assurance</option>
+                            </select>
+                        </div>
+
+                        {{-- Historique des tranches déjà versées --}}
+                        @if(!empty($consultationEnPaiement->historique_paiements))
+                        <div class="mt-3">
+                            <small class="fw-bold text-muted d-block mb-1">Historique des versements :</small>
+                            <div class="border rounded p-2 bg-white" style="max-height: 120px; overflow-y: auto;">
+                                <ul class="list-unstyled mb-0 small">
+                                    @foreach($consultationEnPaiement->historique_paiements as $p)
+                                    <li class="d-flex justify-content-between border-bottom py-1">
+                                        <span>{{ $p['date'] ?? '' }} ({{ $p['mode'] ?? 'Espèces' }})</span>
+                                        <strong class="text-success">+{{ number_format($p['montant'] ?? 0, 0, ',', ' ') }} FCFA</strong>
+                                    </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                        @endif
+
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary px-4 radius-30" wire:click="closePaiementModal">Annuler</button>
+                        <button type="submit" class="btn btn-success px-4 radius-30">
+                            <i class="bx bx-check-circle me-1"></i> Valider l'Encaissement
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- MODALE FORMULAIRE DE CRÉATION / ÉDITION DE CONSULTATION -->
     @if($isModalOpen)
     <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);" role="dialog">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content radius-15 border-0" style="max-height: 90vh;">
+
                 <div class="modal-header bg-light">
                     <h5 class="modal-title font-weight-bold text-primary">
                         {{ $isEditMode ? 'Modifier Consultation' : 'Nouvelle Consultation' }}
                     </h5>
                     <button type="button" class="btn-close" wire:click="closeModal"></button>
                 </div>
+
                 <form wire:submit.prevent="saveConsultation" class="d-flex flex-column" style="overflow: hidden;">
                     <div class="modal-body p-4" style="overflow-y: auto; max-height: calc(90vh - 130px);">
                         <div class="row g-3">
 
-                            <!-- SECTION 1 : RECHERCHE PATIENT -->
+                            <!-- SECTION 1 : SELECTION & MODIFICATION DU PATIENT -->
                             <div class="col-12">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-user me-1"></i> Patient à consulter</h6>
-                            </div>
+                                <label class="form-label font-weight-bold text-primary">
+                                    <i class="bx bx-user me-1"></i> Patient concerné par la consultation <span class="text-danger">*</span>
+                                </label>
 
-                            <div class="col-md-12">
-                                <label class="form-label font-weight-bold">Rechercher & Sélectionner le Patient <span class="text-danger">*</span></label>
+                                @php
+                                $patientActuel = $patients->firstWhere('id', $patient_id) ?? $selectedConsultation?->patient;
+                                @endphp
 
-                                <div class="input-group mb-2">
-                                    <span class="input-group-text bg-white"><i class="bx bx-search-alt text-primary"></i></span>
-                                    <input type="text"
-                                        wire:model.live.debounce.300ms="searchPatient"
-                                        class="form-control @error('patient_id') is-invalid @enderror"
-                                        placeholder="Tapez le nom, prénom, code ou téléphone du patient...">
-                                </div>
-                                @error('patient_id') <div class="invalid-feedback d-block mb-2">{{ $message }}</div> @enderror
-
-                                <div class="border radius-10 p-2 bg-light" style="max-height: 180px; overflow-y: auto;">
-                                    <div class="list-group list-group-flush">
-                                        @forelse($patients ?? [] as $p)
-                                        <button type="button"
-                                            wire:click="selectPatient({{ $p->id }})"
-                                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center radius-8 mb-1 py-2 {{ $patient_id == $p->id ? 'active text-white bg-primary' : 'bg-white' }}">
-                                            <div>
-                                                <div class="font-weight-bold" style="font-size: 0.9rem;">
-                                                    {{ $p->nom_complet }}
-                                                </div>
-                                                <small class="{{ $patient_id == $p->id ? 'text-white-50' : 'text-muted' }}">
-                                                    <i class="bx bx-phone me-1"></i>{{ $p->telephone }} | Code: {{ $p->code_patient }}
-                                                    @if($p->est_assure && $p->assurance)
-                                                    | <span class="badge {{ $patient_id == $p->id ? 'bg-white text-primary' : 'bg-success' }}">{{ $p->assurance->code }} ({{ $p->taux_couverture }}%)</span>
-                                                    @endif
-                                                </small>
+                                @if($patientActuel && empty($searchPatient))
+                                <!-- BLOC AFFICHAGE DU PATIENT SÉLECTIONNÉ AVEC BOUTON DE CHANGEMENT -->
+                                <div class="card border-0 bg-primary text-white p-3 radius-10 shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-md bg-white text-primary rounded-circle me-3 d-flex align-items-center justify-content-center font-weight-bold shadow-sm" style="width: 48px; height: 48px; font-size: 1.3rem;">
+                                                <i class="bx bx-user"></i>
                                             </div>
-                                            @if($patient_id == $p->id)
-                                            <span class="badge bg-white text-primary font-weight-bold"><i class="bx bx-check me-1"></i>Sélectionné</span>
-                                            @else
-                                            <span class="badge bg-light text-dark border">Choisir</span>
-                                            @endif
-                                        </button>
-                                        @empty
-                                        <div class="text-center py-3 text-muted small">
-                                            <i class="bx bx-user-x fs-4 d-block mb-1"></i>
-                                            Aucun patient trouvé pour "{{ $searchPatient }}".
+                                            <div>
+                                                <h5 class="mb-1 font-weight-bold text-white">
+                                                    {{ $patientActuel->nom_complet }}
+                                                </h5>
+                                                <div class="text-white-50 small">
+                                                    Code : <strong class="text-white">{{ $patientActuel->code_patient }}</strong> |
+                                                    Tél : <strong class="text-white">{{ $patientActuel->telephone }}</strong> |
+                                                    Genre : <strong class="text-white">{{ ($patientActuel->genre === 'M') ? 'Masculin' : 'Féminin' }}</strong>
+                                                    @if($patientActuel->est_assure && $patientActuel->assurance)
+                                                    | <span class="badge bg-success text-white border border-light px-2 ms-1">{{ $patientActuel->assurance->code }} ({{ $patientActuel->taux_couverture }}%)</span>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
-                                        @endforelse
+
+                                        <button type="button" wire:click="$set('searchPatient', ' ')" class="btn btn-light btn-sm text-primary font-weight-bold radius-30 px-3">
+                                            <i class="bx bx-refresh me-1"></i> Changer de patient
+                                        </button>
                                     </div>
                                 </div>
+                                @endif
+
+                                <!-- BARRE DE RECHERCHE & LISTE DE SÉLECTION -->
+                                @if(!$patientActuel || !empty($searchPatient))
+                                <div class="card border p-3 radius-10 bg-light">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-white"><i class="bx bx-search-alt text-primary"></i></span>
+                                        <input type="text"
+                                            wire:model.live.debounce.300ms="searchPatient"
+                                            class="form-control @error('patient_id') is-invalid @elseif($patient_id) is-valid @enderror"
+                                            placeholder="Saisissez le nom, téléphone ou code du bon patient...">
+
+                                        @if($patientActuel)
+                                        <button type="button" class="btn btn-outline-secondary" wire:click="$set('searchPatient', '')">
+                                            Annuler
+                                        </button>
+                                        @endif
+                                    </div>
+                                    @error('patient_id') <div class="invalid-feedback d-block mb-2"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
+
+                                    <div class="border radius-10 p-2 bg-white" style="max-height: 200px; overflow-y: auto;">
+                                        <div class="list-group list-group-flush">
+                                            @forelse($patients ?? [] as $p)
+                                            <button type="button"
+                                                wire:click="changerPatient({{ $p->id }})"
+                                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center radius-8 mb-1 py-2 {{ $patient_id == $p->id ? 'active text-white bg-primary' : 'bg-white' }}">
+                                                <div>
+                                                    <div class="font-weight-bold" style="font-size: 0.9rem;">
+                                                        {{ $p->nom_complet }}
+                                                    </div>
+                                                    <small class="{{ $patient_id == $p->id ? 'text-white-50' : 'text-muted' }}">
+                                                        <i class="bx bx-phone me-1"></i>{{ $p->telephone }} | Code: {{ $p->code_patient }}
+                                                        @if($p->est_assure && $p->assurance)
+                                                        | <span class="badge {{ $patient_id == $p->id ? 'bg-white text-primary' : 'bg-success' }}">{{ $p->assurance->code }} ({{ $p->taux_couverture }}%)</span>
+                                                        @endif
+                                                    </small>
+                                                </div>
+                                                @if($patient_id == $p->id)
+                                                <span class="badge bg-white text-primary font-weight-bold"><i class="bx bx-check me-1"></i>Sélectionné</span>
+                                                @else
+                                                <span class="badge bg-light text-dark border">Attribuer cette consultation</span>
+                                                @endif
+                                            </button>
+                                            @empty
+                                            <div class="text-center py-3 text-muted small">
+                                                <i class="bx bx-user-x fs-4 d-block mb-1"></i>
+                                                Aucun patient trouvé pour "{{ $searchPatient }}".
+                                            </div>
+                                            @endforelse
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
 
                             <!-- SECTION 2 : PROGRAMMATION & MÉDECIN -->
@@ -291,9 +434,7 @@
                                             @endif
                                         </button>
                                         @empty
-                                        <div class="text-center py-2 text-muted small">
-                                            Aucun médecin trouvé.
-                                        </div>
+                                        <div class="text-center py-2 text-muted small">Aucun médecin trouvé.</div>
                                         @endforelse
                                     </div>
                                 </div>
@@ -302,31 +443,45 @@
 
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Date & Heure <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" wire:model="date_heure_rdv" class="form-control @error('date_heure_rdv') is-invalid @enderror">
-                                    @error('date_heure_rdv') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    <label class="form-label font-weight-bold">Date & Heure <span class="text-danger">*</span></label>
+                                    <input type="datetime-local"
+                                        wire:model.live="date_heure_rdv"
+                                        class="form-control @error('date_heure_rdv') is-invalid @elseif(!empty($date_heure_rdv) && !$errors->has('date_heure_rdv')) is-valid @enderror">
+                                    @error('date_heure_rdv') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Type de consultation <span class="text-danger">*</span></label>
-                                    <select wire:model="type" class="form-select @error('type') is-invalid @enderror">
+                                    <label class="form-label font-weight-bold">Type de consultation <span class="text-danger">*</span></label>
+                                    <select wire:model.live="type" class="form-select @error('type') is-invalid @elseif(!empty($type) && !$errors->has('type')) is-valid @enderror">
                                         <option value="">-- Sélectionner le type --</option>
                                         @foreach ($typeConsultations ?? [] as $typeOption)
                                         <option value="{{ $typeOption }}">{{ ucfirst(str_replace('_', ' ', $typeOption)) }}</option>
                                         @endforeach
                                     </select>
-                                    @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    @error('type') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
                                 </div>
 
-                                <div>
-                                    <label class="form-label">Statut Médical</label>
-                                    <select wire:model="statut" class="form-select">
+                                <div class="mb-3">
+                                    <label class="form-label font-weight-bold">Statut Médical <span class="text-danger">*</span></label>
+                                    <select wire:model.live="statut" class="form-select @error('statut') is-invalid @enderror">
                                         <option value="programme">Programmé</option>
                                         <option value="en_attente">En salle d'attente</option>
                                         <option value="en_cours">En cours</option>
                                         <option value="termine">Terminé</option>
                                         <option value="annule">Annulé</option>
                                     </select>
+                                    @error('statut')
+                                    <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="form-label font-weight-bold">Tarif de base (FCFA) <span class="text-danger">*</span></label>
+                                    <input type="number"
+                                        wire:model.live="tarif_brut"
+                                        class="form-control @error('tarif_brut') is-invalid @elseif($tarif_brut !== null && !$errors->has('tarif_brut')) is-valid @enderror"
+                                        placeholder="5000">
+                                    @error('tarif_brut') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
                                 </div>
                             </div>
 
@@ -334,21 +489,168 @@
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-pulse me-1"></i> Constantes lors du rendez-vous</h6>
                             </div>
-                            <div class="col-md-3"><label class="form-label">Poids (kg)</label><input type="text" wire:model="poids" class="form-control" placeholder="70"></div>
-                            <div class="col-md-3"><label class="form-label">Tension (mmHg)</label><input type="text" wire:model="tension" class="form-control" placeholder="12/8"></div>
-                            <div class="col-md-3"><label class="form-label">Température (°C)</label><input type="text" wire:model="temperature" class="form-control" placeholder="37"></div>
-                            <div class="col-md-3"><label class="form-label">Pouls (bpm)</label><input type="text" wire:model="pouls" class="form-control" placeholder="75"></div>
+                            <div class="col-md-2 col-6"><label class="form-label">Poids (kg)</label><input type="text" wire:model="poids" class="form-control" placeholder="70"></div>
+                            <div class="col-md-2 col-6"><label class="form-label">Tension (mmHg)</label><input type="text" wire:model="tension" class="form-control" placeholder="12/8"></div>
+                            <div class="col-md-3 col-6"><label class="form-label">Température (°C)</label><input type="text" wire:model="temperature" class="form-control" placeholder="37"></div>
+                            <div class="col-md-2 col-6"><label class="form-label">Pouls (bpm)</label><input type="text" wire:model="pouls" class="form-control" placeholder="75"></div>
+                            <div class="col-md-3 col-12"><label class="form-label">Glycémie (g/L)</label><input type="text" wire:model="glycemie" class="form-control" placeholder="0.95"></div>
 
-                            <!-- SECTION 4 : EXAMEN & DIAGNOSTIC -->
+                            <!-- SECTION 4 : ANAMNÈSE & HISTORIQUE -->
                             <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-stethoscope me-1"></i> Bilan Médical & Diagnostic</h6>
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Anamnèse & Historique de la Maladie</h6>
                             </div>
-                            <div class="col-md-6"><label class="form-label">Motif / Plaintes</label><textarea wire:model="motif" class="form-control" rows="2" placeholder="Motif de consultation..."></textarea></div>
-                            <div class="col-md-6"><label class="form-label">Examen Physique</label><textarea wire:model="examen_physique" class="form-control" rows="2" placeholder="Examen physique..."></textarea></div>
-                            <div class="col-md-6"><label class="form-label">Diagnostic</label><textarea wire:model="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic..."></textarea></div>
-                            <div class="col-md-6"><label class="form-label">Ordonnance / Prescription</label><textarea wire:model="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea></div>
+                           <div class="col-md-3">
+    <label class="form-label font-weight-bold">Motif / Plaintes</label>
+    <textarea wire:model.live.debounce.500ms="motif" class="form-control" rows="3" placeholder="Motif de consultation..."></textarea>
+</div>
+<div class="col-md-3">
+    <label class="form-label font-weight-bold">Historique de la maladie</label>
+    <textarea wire:model.live.debounce.500ms="historique_maladie" class="form-control" rows="3" placeholder="Évolution des symptômes..."></textarea>
+</div>
+<div class="col-md-3">
+    <label class="form-label font-weight-bold">Antécédents de la maladie</label>
+    <textarea wire:model.live.debounce.500ms="antecedents_maladie" class="form-control" rows="3" placeholder="Antécédents spécifiques..."></textarea>
+</div>
+<div class="col-md-3">
+    <label class="form-label font-weight-bold">Mode de vie</label>
+    <textarea wire:model.live.debounce.500ms="mode_de_vie" class="form-control" rows="3" placeholder="Alimentation, tabac, alcool, sport..."></textarea>
+</div>
+                            <!-- SECTION 5 : EXAMENS, DIAGNOSTIC & TRAITEMENT -->
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-stethoscope me-1"></i> Bilan Médical, Diagnostic & Traitement</h6>
+                            </div>
+                            <div class="col-md-4">
+    <label class="form-label font-weight-bold">Examen Général</label>
+    <textarea wire:model.live.debounce.500ms="examen_general" class="form-control" rows="2" placeholder="État général, faciès, état nutritionnel..."></textarea>
+</div>
+<div class="col-md-4">
+    <label class="form-label font-weight-bold">Examen Physique</label>
+    <textarea wire:model.live.debounce.500ms="examen_physique" class="form-control" rows="2" placeholder="Examen physique détaillé..."></textarea>
+</div>
+<div class="col-md-4">
+    <label class="form-label font-weight-bold">Hypothèse Diagnostique</label>
+    <textarea wire:model.live.debounce.500ms="hypothese_diagnostique" class="form-control" rows="2" placeholder="Hypothèse / Diagnostic différentiel..."></textarea>
+</div>
 
-                            <!-- SECTION 5 : PRESCRIPTION & SAISIE DES RÉSULTATS D'EXAMENS -->
+<div class="col-md-6">
+    <label class="form-label font-weight-bold">Diagnostic Confirmé / Final</label>
+    <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
+</div>
+<div class="col-md-6">
+    <label class="form-label font-weight-bold">Résultats des Analyses Biologiques/Imagerie</label>
+    <textarea wire:model.live.debounce.500ms="resultats_analyses" class="form-control" rows="2" placeholder="Synthèse des examens..."></textarea></div>
+
+<div class="col-md-4">
+    <label class="form-label font-weight-bold">Ordonnance / Prescription</label>
+    <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea>
+</div>
+<div class="col-md-4">
+    <label class="form-label font-weight-bold">Traitement Administré sur place</label>
+    <textarea wire:model.live.debounce.500ms="traitement" class="form-control" rows="2" placeholder="Protocoles appliqués sur place..."></textarea>
+</div>
+<div class="col-md-4">
+    <label class="form-label font-weight-bold">Traitement de Sortie & Recommandations</label>
+    <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
+</div>
+                            <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2">
+                                    <i class="bx bx-clipboard me-1"></i> Évaluations Cliniques & Examens Spécifiques
+                                </h6>
+
+                                <div class="card bg-light border-0 p-3 mb-3">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-md-5">
+                                            <input type="text"
+                                                wire:model="nouvelleEvaluationNom"
+                                                class="form-control @error('nouvelleEvaluationNom') is-invalid @enderror"
+                                                placeholder="Paramètre / Critère (ex: Score EVA, Glasgow...)">
+                                            @error('nouvelleEvaluationNom') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        </div>
+
+                                        <div class="col-md-5">
+                                            <input type="text"
+                                                wire:model="nouvelleEvaluationValeur"
+                                                class="form-control @error('nouvelleEvaluationValeur') is-invalid @enderror"
+                                                placeholder="Résultat / Constatation (ex: 7/10, Normal...)">
+                                            @error('nouvelleEvaluationValeur') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <button type="button" wire:click="ajouterEvaluation" class="btn btn-primary w-100">
+                                                <i class="bx bx-plus me-1"></i> Ajouter
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if(!empty($evaluations))
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm align-middle bg-white mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Critère / Évaluation</th>
+                                                <th>Valeur / Observation</th>
+                                                <th class="text-center" style="width: 60px;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($evaluations as $nom => $valeur)
+                                            <tr>
+                                                <td class="fw-bold text-dark">{{ $nom }}</td>
+                                                <td class="text-primary font-weight-bold">{{ $valeur }}</td>
+                                                <td class="text-center">
+                                                    <button type="button"
+                                                        wire:click="supprimerEvaluation('{{ addslashes($nom) }}')"
+                                                        class="btn btn-sm btn-outline-danger py-0 px-1"
+                                                        title="Supprimer">
+                                                        <i class="bx bx-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @else
+                                <small class="text-muted d-block text-center py-2">Aucune évaluation enregistrée.</small>
+                                @endif
+                            </div>
+
+                            <!-- SECTION 7 : JOURNAL DE VISITE MÉDICALE JOURNALIÈRE -->
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-time-five me-1"></i> Visite Médicale Journalière (Journal de Suivi)</h6>
+
+                                <div class="card bg-light border-0 p-3 mb-3">
+                                    <div class="input-group">
+                                        <input type="text" wire:model="nouvelleVisiteNote" class="form-control" placeholder="Saisir l'observation ou l'évolution du jour...">
+                                        <button type="button" wire:click="ajouterNoteVisite" class="btn btn-primary px-3">
+                                            <i class="bx bx-plus me-1"></i> Ajouter la note
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if(!empty($visite_medicale_journaliere))
+                                <div class="position-relative ps-3 my-3" style="border-left: 2px solid #0d6efd;">
+                                    @foreach(array_reverse($visite_medicale_journaliere) as $note)
+                                    <div class="position-relative mb-3 ps-3">
+                                        <span class="position-absolute bg-primary rounded-circle" style="width: 10px; height: 10px; left: -21px; top: 6px;"></span>
+                                        <div class="bg-white p-2 rounded border shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small class="fw-bold text-primary">{{ $note['medecin'] ?? 'Praticien' }}</small>
+                                                <small class="text-muted fs-7">{{ $note['date_heure'] ?? '' }}</small>
+                                            </div>
+                                            <p class="mb-0 text-dark small">{{ $note['observation'] ?? '' }}</p>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @else
+                                <small class="text-muted d-block text-center py-2">Aucune note de visite journalière enregistrée.</small>
+                                @endif
+                            </div>
+
+                            <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
                             @if($isEditMode && isset($selectedConsultationId))
                             @php
                             $consultationActive = $consultations->find($selectedConsultationId);
@@ -358,7 +660,7 @@
                                 @livewire('consultations.prescrire-examen', ['consultation' => $consultationActive], key('prescrire-'.$selectedConsultationId))
                             </div>
 
-                            @if($consultationActive && $consultationActive->demandesExamens->count() > 0)
+                            @if($consultationActive && $consultationActive->demandesExamens && $consultationActive->demandesExamens->count() > 0)
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-vial me-1"></i> Saisie des Résultats d'Analyses Biologiques</h6>
                                 @foreach($consultationActive->demandesExamens as $demande)
@@ -370,17 +672,31 @@
 
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary px-4" wire:click="closeModal">Annuler</button>
-                        <button type="submit" class="btn btn-primary px-4" wire:click="isEditMode "><i class="bx bx-save me-1"></i>Enregistrer</button>
+
+                    <!-- PIED DE MODALE ET BOUTON D'ENREGISTREMENT -->
+                    <div class="modal-footer bg-light d-flex justify-content-between align-items-center">
+                        <button type="button" class="btn btn-secondary px-4 radius-30" wire:click="closeModal">
+                            <i class="bx bx-x me-1"></i> Annuler
+                        </button>
+
+                        <button type="submit" class="btn btn-primary px-4 radius-30" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="saveConsultation">
+                                <i class="bx bx-save me-1"></i> {{ $isEditMode ? 'Mettre à jour la consultation' : 'Enregistrer la consultation' }}
+                            </span>
+                            <span wire:loading wire:target="saveConsultation">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Enregistrement en cours...
+                            </span>
+                        </button>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
     @endif
 
-    <!-- MODALE FICHE DÉTAILLÉE DE LA CONSULTATION (RÉSULTATS D'ANALYSES DYNAMIQUES) -->
+    <!-- MODALE FICHE DÉTAILLÉE DE LA CONSULTATION -->
     @if($isViewModalOpen && $selectedConsultation)
     <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);" role="dialog">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -406,7 +722,7 @@
 
                 <div class="modal-body p-4" style="overflow-y: auto; background-color: #f8f9fa;">
                     <div class="row g-3">
-                        <!-- CARTE 1 : INFORMATIONS PATIENT & MÉDECIN -->
+                        <!-- IDENTITÉ PATIENT & MÉDECIN -->
                         <div class="col-md-6">
                             <div class="card border-0 shadow-sm radius-12 h-100">
                                 <div class="card-body">
@@ -423,12 +739,6 @@
                                         <div class="col-6"><strong>Téléphone :</strong></div>
                                         <div class="col-6 text-end">{{ $selectedConsultation->patient->telephone ?? '-' }}</div>
 
-                                        <div class="col-6"><strong>Genre / Âge :</strong></div>
-                                        <div class="col-6 text-end">
-                                            {{ ($selectedConsultation->patient?->genre === 'M') ? 'Masculin' : 'Féminin' }}
-                                            ({{ $selectedConsultation->patient?->date_naissance ? $selectedConsultation->patient->date_naissance->age . ' ans' : '-' }})
-                                        </div>
-
                                         <div class="col-12">
                                             <hr class="my-2">
                                         </div>
@@ -443,12 +753,12 @@
                             </div>
                         </div>
 
-                        <!-- CARTE 2 : FACTURATION RÉCAPITULATIVE (CONSULTATION + EXAMENS) -->
+                        <!-- FACTURATION ET SOLDE -->
                         <div class="col-md-6">
                             <div class="card border-0 shadow-sm radius-12 h-100">
                                 <div class="card-body">
                                     <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3">
-                                        <i class="bx bx-receipt me-1"></i> Facturation & Prise en Charge
+                                        <i class="bx bx-receipt me-1"></i> Facturation & Caisse
                                     </h6>
 
                                     @php
@@ -459,6 +769,7 @@
                                     $tauxAssurance = ($selectedConsultation->patient?->est_assure && $selectedConsultation->patient?->assurance) ? $selectedConsultation->patient->taux_couverture : 0;
                                     $partAssurance = round(($totalGeneral * $tauxAssurance) / 100);
                                     $partPatient = $totalGeneral - $partAssurance;
+                                    $resteAEncaisser = max(0, $partPatient - ($selectedConsultation->montant_paye ?? 0));
                                     @endphp
 
                                     <div class="row g-2 mb-3">
@@ -466,161 +777,79 @@
                                         <div class="col-6 text-end font-weight-bold">{{ number_format($tarifConsultation, 0, ',', ' ') }} FCFA</div>
 
                                         @if($tarifExamens > 0)
-                                        <div class="col-6 text-primary"><span>Examens Prescrits ({{ $selectedConsultation->demandesExamens->count() }}) :</span></div>
-                                        <div class="col-6 text-end text-primary font-weight-bold">+ {{ number_format($tarifExamens, 0, ',', ' ') }} FCFA</div>
+                                        <div class="col-6 text-primary"><span>Examens Prescrits :</span></div>
+                                        <div class="col-6 text-end font-weight-bold text-primary">+ {{ number_format($tarifExamens, 0, ',', ' ') }} FCFA</div>
                                         @endif
 
                                         <div class="col-12">
                                             <hr class="my-1">
                                         </div>
 
-                                        <div class="col-6"><strong>Total Brut Général :</strong></div>
-                                        <div class="col-6 text-end font-weight-bold">{{ number_format($totalGeneral, 0, ',', ' ') }} FCFA</div>
+                                        <div class="col-6 font-weight-bold fs-6"><span>Total Général :</span></div>
+                                        <div class="col-6 text-end font-weight-bold fs-6 text-dark">{{ number_format($totalGeneral, 0, ',', ' ') }} FCFA</div>
 
                                         @if($tauxAssurance > 0)
-                                        <div class="col-6 text-success"><span>Assurance ({{ $tauxAssurance }}%) :</span></div>
-                                        <div class="col-6 text-end text-success font-weight-bold">- {{ number_format($partAssurance, 0, ',', ' ') }} FCFA</div>
+                                        <div class="col-6 text-success"><small>Couverture Assurance ({{ $tauxAssurance }}%) :</small></div>
+                                        <div class="col-6 text-end text-success"><small>- {{ number_format($partAssurance, 0, ',', ' ') }} FCFA</small></div>
+
+                                        <div class="col-6 font-weight-bold text-dark"><span>Reste Patient :</span></div>
+                                        <div class="col-6 text-end font-weight-bold text-dark">{{ number_format($partPatient, 0, ',', ' ') }} FCFA</div>
                                         @endif
 
-                                        <div class="col-6"><strong>Net à Payer (Patient) :</strong></div>
-                                        <div class="col-6 text-end fs-5 font-weight-bold text-primary">{{ number_format($partPatient, 0, ',', ' ') }} FCFA</div>
+                                        <div class="col-6 text-success font-weight-bold"><span>Total Encaissé :</span></div>
+                                        <div class="col-6 text-end font-weight-bold text-success">{{ number_format($selectedConsultation->montant_paye ?? 0, 0, ',', ' ') }} FCFA</div>
 
-                                        <div class="col-6"><strong>Statut Caisse :</strong></div>
-                                        <div class="col-6 text-end">
-                                            @if($selectedConsultation->est_paye)
-                                            <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>PAYÉ</span>
-                                            @else
-                                            <span class="badge bg-warning text-dark"><i class="bx bx-time-five me-1"></i>EN ATTENTE</span>
-                                            @endif
-                                        </div>
+                                        <div class="col-6 font-weight-bold text-danger"><span>Solde Impayé :</span></div>
+                                        <div class="col-6 text-end font-weight-bold text-danger">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- CARTE 3 : CONSTANTES PRISES -->
-                        <div class="col-12">
-                            <div class="card border-0 shadow-sm radius-12">
-                                <div class="card-body">
-                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-pulse me-1"></i> Constantes Vitales</h6>
-                                    @php $constantes = $selectedConsultation->constantes ?? []; @endphp
-                                    <div class="row text-center g-2">
-                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Poids</small><strong>{{ $constantes['poids'] ?? '-' }} kg</strong></div>
-                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Tension</small><strong>{{ $constantes['tension'] ?? '-' }} mmHg</strong></div>
-                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Température</small><strong>{{ $constantes['temperature'] ?? '-' }} °C</strong></div>
-                                        <div class="col-3 p-2"><small class="text-muted d-block">Pouls</small><strong>{{ $constantes['pouls'] ?? '-' }} bpm</strong></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARTE 4 : CLINIQUE & TABLEAU DES RÉSULTATS DES ANALYSES -->
-                        <div class="col-12">
-                            <div class="card border-0 shadow-sm radius-12">
-                                <div class="card-body">
-                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-file me-1"></i> Bilan Médical & Traitements</h6>
-                                    <div class="mb-3">
-                                        <strong class="d-block text-dark">Motif / Plaintes :</strong>
-                                        <p class="mb-0 text-muted">{{ $selectedConsultation->motif ?? 'Aucun motif renseigné' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <strong class="d-block text-dark">Examen Physique :</strong>
-                                        <p class="mb-0 text-muted">{{ $selectedConsultation->examen_physique ?? 'Aucun examen physique renseigné' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <strong class="d-block text-dark">Diagnostic :</strong>
-                                        <p class="mb-0 text-muted">{{ $selectedConsultation->diagnostic ?? 'Aucun diagnostic renseigné' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <strong class="d-block text-dark">Ordonnance :</strong>
-                                        <p class="mb-0 text-muted">{{ $selectedConsultation->ordonnance ?? 'Aucune ordonnance renseignée' }}</p>
-                                    </div>
-
-                                    <!-- TABLEAU DYNAMIQUE DES RÉSULTATS D'ANALYSES PRESCRITES -->
-                                    @if($selectedConsultation->demandesExamens && $selectedConsultation->demandesExamens->count() > 0)
-                                    <div class="mt-4 border-top pt-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <strong class="text-dark"><i class="bx bx-vial me-1 text-primary"></i> Résultats des Examens Prescrits ({{ $selectedConsultation->demandesExamens->count() }}) :</strong>
-                                            <a href="{{ route('consultations.examens-labo.pdf', $selectedConsultation->id) }}" target="_blank" class="btn btn-sm btn-outline-warning radius-30">
-                                                <i class="bx bx-printer me-1"></i> Imprimer Bulletin Labo
-                                            </a>
-
-
-                                        </div>
-
-
-
-                                        @foreach($selectedConsultation->demandesExamens as $dEx)
-                                        <div class="card border mb-3">
-                                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                                                <span class="font-weight-bold text-primary">
-                                                    <i class="bx bx-chevron-right me-1"></i> {{ $dEx->examen->nom ?? 'Examen' }} (Code: {{ $dEx->code_demande }})
-                                                </span>
-                                                <span class="badge {{ $dEx->statut_badge ?? 'bg-secondary' }}">{{ ucfirst($dEx->statut) }}</span>
-                                            </div>
-                                            <div class="card-body p-2">
-                                                <div class="table-responsive">
-                                                    <table class="table table-sm table-bordered align-middle mb-1">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th>Sous-analyse</th>
-                                                                <th class="text-center">Valeur / Résultat</th>
-                                                                <th class="text-center">Valeurs de Référence</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @if(is_array($dEx->analyses_demandees) && count($dEx->analyses_demandees) > 0)
-                                                            @foreach($dEx->analyses_demandees as $an)
-                                                            <tr>
-                                                                <td class="fw-bold">{{ $an['nom'] ?? '-' }}</td>
-                                                                <td class="text-center text-primary font-weight-bold">
-                                                                    {{ !empty($an['resultat']) ? $an['resultat'] : 'En attente' }}
-                                                                </td>
-                                                                <td class="text-center text-muted">
-                                                                    {{ !empty($an['norme']) ? $an['norme'] : '-' }}
-                                                                </td>
-                                                            </tr>
-                                                            @endforeach
-                                                            @else
-                                                            <tr>
-                                                                <td colspan="3" class="text-center text-muted">Aucune donnée disponible.</td>
-                                                            </tr>
-                                                            @endif
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                @if(!empty($dEx->conclusion))
-                                                <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
-                                                    <strong>Conclusion / Remarques :</strong> {{ $dEx->conclusion }}
-                                                </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                    <a href="{{ route('consultations.resultats-analyses.pdf', $selectedConsultation->id) }}"
-                                        target="_blank"
-                                        class="btn btn-sm btn-outline-success radius-30">
-                                        <i class="bx bx-printer me-1"></i> Imprimer les Résultats d'Analyses
-                                    </a>
-                                    @endif
-                                </div>
-
-
                             </div>
                         </div>
 
                     </div>
-
-
                 </div>
 
-
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary px-4" wire:click="closeViewModal">Fermer</button>
+                <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-secondary px-4 radius-30" wire:click="closeViewModal">Fermer</button>
                 </div>
             </div>
         </div>
     </div>
     @endif
 </div>
+
+<!-- SCRIPTS JS : SCROLL AUTOMATIQUE ET CONFIRMATION -->
+<script>
+    function toggle_confirmation(id) {
+        const btn = document.getElementById('confirmBtn' + id);
+        if (btn) {
+            btn.classList.toggle('d-none');
+        }
+    }
+</script>
+
+@script
+<script>
+    // Écoute les erreurs de validation émises par Livewire après soumission
+    Livewire.hook('commit', ({
+        component,
+        commit,
+        respond,
+        succeed,
+        fail
+    }) => {
+        succeed(() => {
+            setTimeout(() => {
+                const firstInvalidInput = document.querySelector('.modal-body .is-invalid');
+                if (firstInvalidInput) {
+                    firstInvalidInput.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    firstInvalidInput.focus();
+                }
+            }, 100);
+        });
+    });
+</script>
+@endscript

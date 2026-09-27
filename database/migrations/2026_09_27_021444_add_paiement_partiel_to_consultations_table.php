@@ -6,24 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('consultations', function (Blueprint $table) {
-            //
-                 $table->boolean('est_assure')->default(false);
+           
+            $table->text('historique_paiements')->nullable()->after('montant_paye'); // Journal JSON des règlements
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('consultations', function (Blueprint $table) {
-            //
+            $table->dropColumn(['historique_paiements']);
         });
     }
 };

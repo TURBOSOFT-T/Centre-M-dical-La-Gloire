@@ -46,6 +46,7 @@ return new class extends Migration
             
             $table->text('indication_medicale')->nullable(); // Ex: Suspicion d'anémie
             $table->text('conclusion_biologiste')->nullable(); // Remarques du labo
+             $table->text('conclusion')->nullable();
 
             // Statuts & Dates
             $table->enum('statut', ['prescrit', 'en_attente_paiement', 'en_cours', 'termine', 'annule'])->default('prescrit');
