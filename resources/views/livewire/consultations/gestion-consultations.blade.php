@@ -499,59 +499,60 @@
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Anamnèse & Historique de la Maladie</h6>
                             </div>
-                           <div class="col-md-3">
-    <label class="form-label font-weight-bold">Motif / Plaintes</label>
-    <textarea wire:model.live.debounce.500ms="motif" class="form-control" rows="3" placeholder="Motif de consultation..."></textarea>
-</div>
-<div class="col-md-3">
-    <label class="form-label font-weight-bold">Historique de la maladie</label>
-    <textarea wire:model.live.debounce.500ms="historique_maladie" class="form-control" rows="3" placeholder="Évolution des symptômes..."></textarea>
-</div>
-<div class="col-md-3">
-    <label class="form-label font-weight-bold">Antécédents de la maladie</label>
-    <textarea wire:model.live.debounce.500ms="antecedents_maladie" class="form-control" rows="3" placeholder="Antécédents spécifiques..."></textarea>
-</div>
-<div class="col-md-3">
-    <label class="form-label font-weight-bold">Mode de vie</label>
-    <textarea wire:model.live.debounce.500ms="mode_de_vie" class="form-control" rows="3" placeholder="Alimentation, tabac, alcool, sport..."></textarea>
-</div>
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-bold">Motif / Plaintes</label>
+                                <textarea wire:model.live.debounce.500ms="motif" class="form-control" rows="3" placeholder="Motif de consultation..."></textarea>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-bold">Historique de la maladie</label>
+                                <textarea wire:model.live.debounce.500ms="historique_maladie" class="form-control" rows="3" placeholder="Évolution des symptômes..."></textarea>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-bold">Antécédents de la maladie</label>
+                                <textarea wire:model.live.debounce.500ms="antecedents_maladie" class="form-control" rows="3" placeholder="Antécédents spécifiques..."></textarea>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-bold">Mode de vie</label>
+                                <textarea wire:model.live.debounce.500ms="mode_de_vie" class="form-control" rows="3" placeholder="Alimentation, tabac, alcool, sport..."></textarea>
+                            </div>
                             <!-- SECTION 5 : EXAMENS, DIAGNOSTIC & TRAITEMENT -->
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-stethoscope me-1"></i> Bilan Médical, Diagnostic & Traitement</h6>
                             </div>
                             <div class="col-md-4">
-    <label class="form-label font-weight-bold">Examen Général</label>
-    <textarea wire:model.live.debounce.500ms="examen_general" class="form-control" rows="2" placeholder="État général, faciès, état nutritionnel..."></textarea>
-</div>
-<div class="col-md-4">
-    <label class="form-label font-weight-bold">Examen Physique</label>
-    <textarea wire:model.live.debounce.500ms="examen_physique" class="form-control" rows="2" placeholder="Examen physique détaillé..."></textarea>
-</div>
-<div class="col-md-4">
-    <label class="form-label font-weight-bold">Hypothèse Diagnostique</label>
-    <textarea wire:model.live.debounce.500ms="hypothese_diagnostique" class="form-control" rows="2" placeholder="Hypothèse / Diagnostic différentiel..."></textarea>
-</div>
+                                <label class="form-label font-weight-bold">Examen Général</label>
+                                <textarea wire:model.live.debounce.500ms="examen_general" class="form-control" rows="2" placeholder="État général, faciès, état nutritionnel..."></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label font-weight-bold">Examen Physique</label>
+                                <textarea wire:model.live.debounce.500ms="examen_physique" class="form-control" rows="2" placeholder="Examen physique détaillé..."></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label font-weight-bold">Hypothèse Diagnostique</label>
+                                <textarea wire:model.live.debounce.500ms="hypothese_diagnostique" class="form-control" rows="2" placeholder="Hypothèse / Diagnostic différentiel..."></textarea>
+                            </div>
 
-<div class="col-md-6">
-    <label class="form-label font-weight-bold">Diagnostic Confirmé / Final</label>
-    <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
-</div>
-<div class="col-md-6">
-    <label class="form-label font-weight-bold">Résultats des Analyses Biologiques/Imagerie</label>
-    <textarea wire:model.live.debounce.500ms="resultats_analyses" class="form-control" rows="2" placeholder="Synthèse des examens..."></textarea></div>
+                            <div class="col-md-6">
+                                <label class="form-label font-weight-bold">Diagnostic Confirmé / Final</label>
+                                <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label font-weight-bold">Résultats des Analyses Biologiques/Imagerie</label>
+                                <textarea wire:model.live.debounce.500ms="resultats_analyses" class="form-control" rows="2" placeholder="Synthèse des examens..."></textarea>
+                            </div>
 
-<div class="col-md-4">
-    <label class="form-label font-weight-bold">Ordonnance / Prescription</label>
-    <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea>
-</div>
-<div class="col-md-4">
-    <label class="form-label font-weight-bold">Traitement Administré sur place</label>
-    <textarea wire:model.live.debounce.500ms="traitement" class="form-control" rows="2" placeholder="Protocoles appliqués sur place..."></textarea>
-</div>
-<div class="col-md-4">
-    <label class="form-label font-weight-bold">Traitement de Sortie & Recommandations</label>
-    <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
-</div>
+                            <div class="col-md-4">
+                                <label class="form-label font-weight-bold">Ordonnance / Prescription</label>
+                                <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label font-weight-bold">Traitement Administré sur place</label>
+                                <textarea wire:model.live.debounce.500ms="traitement" class="form-control" rows="2" placeholder="Protocoles appliqués sur place..."></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label font-weight-bold">Traitement de Sortie & Recommandations</label>
+                                <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
+                            </div>
                             <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2">
@@ -803,6 +804,119 @@
                                         <div class="col-6 text-end font-weight-bold text-danger">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        
+                        <!-- CARTE 3 : CONSTANTES PRISES -->
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm radius-12">
+                                <div class="card-body">
+                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-pulse me-1"></i> Constantes Vitales</h6>
+                                    @php $constantes = $selectedConsultation->constantes ?? []; @endphp
+                                    <div class="row text-center g-2">
+                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Poids</small><strong>{{ $constantes['poids'] ?? '-' }} kg</strong></div>
+                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Tension</small><strong>{{ $constantes['tension'] ?? '-' }} mmHg</strong></div>
+                                        <div class="col-3 p-2 border-end"><small class="text-muted d-block">Température</small><strong>{{ $constantes['temperature'] ?? '-' }} °C</strong></div>
+                                        <div class="col-3 p-2"><small class="text-muted d-block">Pouls</small><strong>{{ $constantes['pouls'] ?? '-' }} bpm</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARTE 4 : CLINIQUE & TABLEAU DES RÉSULTATS DES ANALYSES -->
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm radius-12">
+                                <div class="card-body">
+                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-file me-1"></i> Bilan Médical & Traitements</h6>
+                                    <div class="mb-3">
+                                        <strong class="d-block text-dark">Motif / Plaintes :</strong>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->motif ?? 'Aucun motif renseigné' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong class="d-block text-dark">Examen Physique :</strong>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->examen_physique ?? 'Aucun examen physique renseigné' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong class="d-block text-dark">Diagnostic :</strong>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->diagnostic ?? 'Aucun diagnostic renseigné' }}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong class="d-block text-dark">Ordonnance :</strong>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->ordonnance ?? 'Aucune ordonnance renseignée' }}</p>
+                                    </div>
+
+                                    <!-- TABLEAU DYNAMIQUE DES RÉSULTATS D'ANALYSES PRESCRITES -->
+                                    @if($selectedConsultation->demandesExamens && $selectedConsultation->demandesExamens->count() > 0)
+                                    <div class="mt-4 border-top pt-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <strong class="text-dark"><i class="bx bx-vial me-1 text-primary"></i> Résultats des Examens Prescrits ({{ $selectedConsultation->demandesExamens->count() }}) :</strong>
+                                            <a href="{{ route('consultations.examens-labo.pdf', $selectedConsultation->id) }}" target="_blank" class="btn btn-sm btn-outline-warning radius-30">
+                                                <i class="bx bx-printer me-1"></i> Imprimer Bulletin Labo
+                                            </a>
+
+
+                                        </div>
+
+
+
+                                        @foreach($selectedConsultation->demandesExamens as $dEx)
+                                        <div class="card border mb-3">
+                                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                                <span class="font-weight-bold text-primary">
+                                                    <i class="bx bx-chevron-right me-1"></i> {{ $dEx->examen->nom ?? 'Examen' }} (Code: {{ $dEx->code_demande }})
+                                                </span>
+                                                <span class="badge {{ $dEx->statut_badge ?? 'bg-secondary' }}">{{ ucfirst($dEx->statut) }}</span>
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered align-middle mb-1">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>Sous-analyse</th>
+                                                                <th class="text-center">Valeur / Résultat</th>
+                                                                <th class="text-center">Valeurs de Référence</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @if(is_array($dEx->analyses_demandees) && count($dEx->analyses_demandees) > 0)
+                                                            @foreach($dEx->analyses_demandees as $an)
+                                                            <tr>
+                                                                <td class="fw-bold">{{ $an['nom'] ?? '-' }}</td>
+                                                                <td class="text-center text-primary font-weight-bold">
+                                                                    {{ !empty($an['resultat']) ? $an['resultat'] : 'En attente' }}
+                                                                </td>
+                                                                <td class="text-center text-muted">
+                                                                    {{ !empty($an['norme']) ? $an['norme'] : '-' }}
+                                                                </td>
+                                                            </tr>
+                                                            @endforeach
+                                                            @else
+                                                            <tr>
+                                                                <td colspan="3" class="text-center text-muted">Aucune donnée disponible.</td>
+                                                            </tr>
+                                                            @endif
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                @if(!empty($dEx->conclusion))
+                                                <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
+                                                    <strong>Conclusion / Remarques :</strong> {{ $dEx->conclusion }}
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    <a href="{{ route('consultations.resultats-analyses.pdf', $selectedConsultation->id) }}"
+                                        target="_blank"
+                                        class="btn btn-sm btn-outline-success radius-30">
+                                        <i class="bx bx-printer me-1"></i> Imprimer les Résultats d'Analyses
+                                    </a>
+                                    @endif
+                                </div>
+
+
                             </div>
                         </div>
 
