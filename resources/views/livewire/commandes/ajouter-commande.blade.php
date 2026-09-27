@@ -163,8 +163,8 @@
 
                         <div class="col-sm-6 mb-3">
                             <label class="form-label">Numéro de téléphone *</label>
-                            <input type="tel" placeholder="Numéro de téléphone" wire:model="phone" class="form-control">
-                            @error('phone')
+                            <input type="tel" placeholder="Numéro de téléphone" wire:model="telephone" class="form-control">
+                            @error('telephone')
                             <span class="small text-danger" role="alert"> {{ $message }} </span>
                             @enderror
                         </div>
@@ -194,7 +194,7 @@
                             <tbody>
                                 @forelse ($clients ?? [] as $client)
                                 <tr>
-                                    <td>{{ $client->phone }}</td>
+                                    <td>{{ $client->telephone }}</td>
                                     <td>{{ $client->nom }}</td>
                                     <td>{{ $client->prenom }}</td>
                                     <td class="text-end">

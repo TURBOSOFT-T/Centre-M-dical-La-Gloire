@@ -96,5 +96,9 @@ class Patient extends Model
         return $this->hasMany(Consultation::class, 'patient_id');
     }
 
+     public function commandes(){
+        return $this->hasMany(commandes::class,"phone");
+    }
+
 
 }

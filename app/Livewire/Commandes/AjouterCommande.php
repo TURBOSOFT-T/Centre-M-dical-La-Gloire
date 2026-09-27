@@ -8,6 +8,7 @@ use App\Models\commandes;
 use App\Models\config;
 use App\Models\contenu_commande;
 use App\Models\packs;
+use App\Models\Patient;
 use App\Models\produits;
 use App\Models\Shop;
 use App\Models\User;
@@ -18,7 +19,7 @@ use Livewire\Component;
 
 class AjouterCommande extends Component
 {
-    public $key, $nom, $pays, $prenom, $frais, $adresse, $gouvernorat, $phone, $recherche, $clients = [];
+    public $key, $nom, $pays, $prenom, $frais, $adresse, $gouvernorat, $phone, $telephone, $recherche, $clients = [];
     public $quantites = [];
     public $produits = [];
     public $panier, $gouvernoratsTunisie;
@@ -46,9 +47,9 @@ class AjouterCommande extends Component
     public function updatedRecherche($recherche)
     {
         if (strlen($recherche) > 0) {
-            $this->clients = clients::where('nom', 'like', '%' . $recherche . '%')
+            $this->clients = Patient::where('nom', 'like', '%' . $recherche . '%')
                 ->orWhere('prenom', 'like', '%' . $recherche . '%')
-                ->orWhere('phone', 'like', '%' . $recherche . '%')
+                ->orWhere('telephone', 'like', '%' . $recherche . '%')
                 ->take(10)
                 ->get();
         } else {
@@ -58,13 +59,13 @@ class AjouterCommande extends Component
 public function import($clientId)
 {
     // Si $clientId est un entier, on récupère le modèle Client
-    $client = clients::find($clientId);
+    $client = Patient::find($clientId);
 
     if ($client) {
         $this->nom = $client->nom;
         $this->prenom = $client->prenom;
         $this->adresse = $client->adresse;
-        $this->phone = $client->phone;
+        $this->telephone = $client->telephone;
 
         $this->recherche = "";
         $this->clients = [];
@@ -77,7 +78,7 @@ public function import($clientId)
         $this->nom = $client["nom"];
         $this->prenom = $client["prenom"];
         $this->adresse = $client["adresse"];
-        $this->phone = $client["phone"];
+        $this->telephone = $client["telephone"];
 
         $this->recherche = "";
         $this->clients = [];
@@ -237,7 +238,7 @@ public function import($clientId)
             'nom' => 'required|string|max:100',
             'prenom' => 'nullable|string|max:100',
             'adresse' => 'nullable|string|max:150',
-            'phone' => 'required|string|max:100',
+            'telephone' => 'required|string|max:100',
             'pays' => 'nullable|string|max:100',
             'gouvernorat' => 'nullable|string|max:12',
             'frais' => 'nullable',
@@ -249,8 +250,8 @@ public function import($clientId)
         $final_shop_id = $this->shop_id;
 
         // Gestion du client
-        $client = clients::updateOrCreate(
-            ['phone' => $this->phone],
+        $client = Patient::updateOrCreate(
+            ['telephone' => $this->telephone],
             ['nom' => $this->nom]
         );
 
@@ -281,7 +282,7 @@ public function import($clientId)
             $commande->user_id = $user_id;
             $commande->client_id = $client->id;
             $commande->reference = $reference;
-            $commande->phone = $this->phone;
+            $commande->phone = $this->telephone;
             $commande->caisse_id = $caisse_id;
             $commande->shop_id = $final_shop_id;
             $commande->frais = $fraisMontant > 0 ? $config->frais : null;
@@ -320,83 +321,5 @@ public function import($clientId)
             session()->flash('warning', 'Votre panier est vide.');
         }
     }
-    public function order2()
-    {
-        $this->validate([
-            'nom' => 'required|string|max:100',
-            'prenom' => 'nullable|string|max:100',
-            'adresse' => 'nullable|string|max:150',
-            'phone' => 'required|string|max:100',
-            'pays' => 'nullable|string|max:100',
-            'gouvernorat' => 'nullable|string|max:12',
-            'frais' => 'nullable',
-            'shop_id' => 'required',
-        ]);
-
-        $user_id = Auth::check() ? Auth::id() : null;
-        $caisse_id = Auth::id();
-        $final_shop_id = $this->shop_id;
-
-        $client = clients::where('phone', $this->phone)->first();
-
-        if ($client) {
-            $client->update(
-                ['phone' => $this->phone],
-                ['nom' => $this->nom]
-            );
-        } else {
-            $client = clients::create([
-                'nom' => $this->nom,
-                'phone' => $this->phone,
-            ]);
-        }
-
-        $reference = 'CMG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-        $panier = session()->get('panier', []);
-
-        if ($panier) {
-            $config = config::first();
-            $commande = new commandes();
-            $commande->nom = $this->nom;
-            $commande->user_id = $user_id;
-            $commande->client_id = $client->id;
-            $commande->reference = $reference;
-            $commande->phone = $this->phone;
-            $commande->caisse_id = $caisse_id;
-            $commande->shop_id = $final_shop_id;
-            $commande->frais = $this->frais ? $config->frais : null;
-
-            if ($commande->save()) {
-                foreach ($panier as $item) {
-                    $type = $item["type"];
-                    $quantite = intval($item["quantite"]);
-
-                    if ($type == "produit") {
-                        $article = produits::find($item["id"]);
-                        if ($article) {
-                            $contenu = new contenu_commande();
-                            $contenu->id_commande = $commande->id;
-                            $contenu->id_produit = $article->id;
-                            $contenu->shop_id = $final_shop_id; // <-- Enregistrement du shop associé sur chaque ligne du contenu
-                            $contenu->quantite = $quantite;
-                            $contenu->type = $type;
-                            $contenu->prix_unitaire = $article->getPrice();
-                            $contenu->benefice = ($article->getPrice() - $article->prix_achat) * $quantite;
-                            $contenu->save();
-
-                            // On passe maintenant explicitement le shop pour déduire le stock au bon endroit
-                            $article->diminuer_stock($quantite, $final_shop_id);
-                        }
-                    }
-                }
-
-                session()->forget('panier');
-                return redirect()->route('details_commande', ["id" => $commande->id])->with("success", "Votre commande a été enregistrée");
-            } else {
-                session()->flash('warning', 'Échec de la création de la commande.');
-            }
-        } else {
-            session()->flash('warning', 'Votre panier est vide.');
-        }
-    }
+   
 }

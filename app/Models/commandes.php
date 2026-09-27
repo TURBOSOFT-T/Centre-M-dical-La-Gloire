@@ -121,6 +121,11 @@ class commandes extends Model
 
     public function client()
     {
-        return $this->belongsTo(clients::class, 'client_id');
+        return $this->belongsTo(Patient::class, 'client_id');
+    }
+
+     public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'client_id');
     }
 }
