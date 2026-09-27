@@ -88,7 +88,11 @@ Route::middleware(['auth'])->group(function () {
 use App\Http\Controllers\ExamenExportController;
 
 Route::get('/examens/export-sql', [ExamenExportController::class, 'export'])->name('examens.export.sql');
-Route::post('/examens/import-sql', [ExamenExportController::class, 'import'])->name('examens.import.sql');/*
+Route::post('/examens/import-sql', [ExamenExportController::class, 'import'])->name('examens.import.sql');
+Route::get('/database/export-sql', [ExamenExportController::class, 'exportDatabase'])->name('database.export.sql');
+Route::post('/database/import-sql', [ExamenExportController::class, 'importDatabase'])->name('database.import.sql');
+Route::get('/database/email-sql', [ExamenExportController::class, 'exportAndEmailDatabase'])->name('database.email.sql');
+/*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
