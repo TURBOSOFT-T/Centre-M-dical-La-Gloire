@@ -197,7 +197,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 </li>
                 @endcan
 
-                @role('admin')
+               <!--  @role('admin')
                 <li>
                     <a href="{{ route('shops') }}">
                         <div class="parent-icon icon-color-6">
@@ -209,7 +209,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                     </a>
                 </li>
                 @endrole
-
+ -->
 
 
                 <li>

@@ -33,6 +33,7 @@ return new class extends Migration
             $table->enum('type', [
                 'consultation_generale',
                 'medecin_general',
+                  'sage_femme',
                 'specialiste',
                 'suivi',
                 'urgence',

@@ -87,31 +87,31 @@ class GestionConsultations extends Component
     public $modePaiement = 'Espèces';
 
     protected function rules()
-{
-    return [
-        'patient_id'             => 'required|exists:patients,id',
-        'medecin_id'             => 'nullable|exists:users,id',
-        'date_heure_rdv'         => 'required',
-        'type'                   => 'required|string',
-        // S'assurer que tous les statuts du select figurent dans in:...
-        'statut'                 => 'required|in:programme,en_attente,en_cours,termine,annule', 
-        'motif'                  => 'nullable|string',
-        'historique_maladie'     => 'nullable|string',
-        'antecedents_maladie'    => 'nullable|string',
-        'mode_de_vie'            => 'nullable|string',
-        'examen_physique'        => 'nullable|string',
-        'examen_general'         => 'nullable|string',
-        'hypothese_diagnostique' => 'nullable|string',
-        'diagnostic'             => 'nullable|string',
-        'resultats_analyses'     => 'nullable|string',
-        'ordonnance'             => 'nullable|string',
-        'traitement'             => 'nullable|string',
-        'traitement_sortie'      => 'nullable|string',
-        'notes_privees'          => 'nullable|string',
-        'tarif_brut'             => 'required|numeric|min:0',
-        'est_paye'               => 'boolean',
-    ];
-}
+    {
+        return [
+            'patient_id'             => 'required|exists:patients,id',
+            'medecin_id'             => 'nullable|exists:users,id',
+            'date_heure_rdv'         => 'required',
+            'type'                   => 'nullable|string',
+            // S'assurer que tous les statuts du select figurent dans in:...
+            'statut'                 => 'required|in:programme,en_attente,en_cours,termine,annule',
+            'motif'                  => 'nullable|string',
+            'historique_maladie'     => 'nullable|string',
+            'antecedents_maladie'    => 'nullable|string',
+            'mode_de_vie'            => 'nullable|string',
+            'examen_physique'        => 'nullable|string',
+            'examen_general'         => 'nullable|string',
+            'hypothese_diagnostique' => 'nullable|string',
+            'diagnostic'             => 'nullable|string',
+            'resultats_analyses'     => 'nullable|string',
+            'ordonnance'             => 'nullable|string',
+            'traitement'             => 'nullable|string',
+            'traitement_sortie'      => 'nullable|string',
+            'notes_privees'          => 'nullable|string',
+            'tarif_brut'             => 'required|numeric|min:0',
+            'est_paye'               => 'boolean',
+        ];
+    }
 
     public function mount()
     {
@@ -408,7 +408,9 @@ class GestionConsultations extends Component
         $this->medecin_id = $c->medecin_id;
 
         $this->date_heure_rdv = $c->date_heure_rdv ? $c->date_heure_rdv->format('Y-m-d\TH:i') : date('Y-m-d\TH:i');
-        $this->type = $c->type ?? 'specialiste';
+        // $this->type = $c->type ?? 'specialiste';
+        // Avant l'enregistrement dans saveConsultation() :
+        $this->type = str_replace(' ', '_', strtolower(trim($this->type)));
         $this->statut = $c->statut ?? 'programme';
 
         // Anamnèse & Historique
@@ -457,61 +459,63 @@ class GestionConsultations extends Component
     /**
      * SAUVEGARDE ET MISE À JOUR EXHAUSTIVE DE TOUS LES CHAMPS
      */
-   public function saveConsultation()
-{
-    $validatedData = $this->validate();
+    public function saveConsultation()
+    {
+        $validatedData = $this->validate();
 
-    if (!$this->dossier_medical_id && $this->patient_id) {
-        $patient = Patient::find($this->patient_id);
-        $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
+        if (!$this->dossier_medical_id && $this->patient_id) {
+            $patient = Patient::find($this->patient_id);
+            $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
+        }
+
+        $dataToSave = [
+            'patient_id'                  => $this->patient_id,
+            'medecin_id'                  => $this->medecin_id,
+            'dossier_medical_id'          => $this->dossier_medical_id,
+            'date_heure_rdv'              => $this->date_heure_rdv,
+            //  'type'                        => $this->type ?: 'specialiste',
+            // Avant l'enregistrement dans saveConsultation() :
+            'type' => str_replace(' ', '_', strtolower(trim($this->type))),
+            'statut'                      => $this->statut, // <--- S'ASSAURER QUE LE STATUT EST MENTIONNÉ ICI
+            'tarif_brut'                  => $this->tarif_brut,
+
+            'motif'                       => $this->motif ?: null,
+            'historique_maladie'          => $this->historique_maladie ?: null,
+            'antecedents_maladie'         => $this->antecedents_maladie ?: null,
+            'mode_de_vie'                 => $this->mode_de_vie ?: null,
+
+            'examen_physique'             => $this->examen_physique ?: null,
+            'examen_general'              => $this->examen_general ?: null,
+            'hypothese_diagnostique'      => $this->hypothese_diagnostique ?: null,
+            'diagnostic'                  => $this->diagnostic ?: null,
+            'resultats_analyses'          => $this->resultats_analyses ?: null,
+
+            'ordonnance'                  => $this->ordonnance ?: null,
+            'traitement'                  => $this->traitement ?: null,
+            'traitement_sortie'           => $this->traitement_sortie ?: null,
+            'notes_privees'               => $this->notes_privees ?: null,
+
+            'constantes'                  => [
+                'poids'       => $this->poids,
+                'tension'     => $this->tension,
+                'temperature' => $this->temperature,
+                'pouls'       => $this->pouls,
+                'glycemie'    => $this->glycemie,
+            ],
+            'evaluations'                 => !empty($this->evaluations) ? $this->evaluations : null,
+            'visite_medicale_journaliere' => !empty($this->visite_medicale_journaliere) ? $this->visite_medicale_journaliere : null,
+        ];
+
+        $consultation = Consultation::updateOrCreate(
+            ['id' => $this->consultation_id],
+            $dataToSave
+        );
+
+        $this->selectedConsultationId = $consultation->id;
+
+        session()->flash('message', $this->isEditMode ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
+        $this->closeModal();
     }
-
-    $dataToSave = [
-        'patient_id'                  => $this->patient_id,
-        'medecin_id'                  => $this->medecin_id,
-        'dossier_medical_id'          => $this->dossier_medical_id,
-        'date_heure_rdv'              => $this->date_heure_rdv,
-        'type'                        => $this->type ?: 'specialiste',
-        'statut'                      => $this->statut, // <--- S'ASSAURER QUE LE STATUT EST MENTIONNÉ ICI
-        'tarif_brut'                  => $this->tarif_brut,
-        
-        'motif'                       => $this->motif ?: null,
-        'historique_maladie'          => $this->historique_maladie ?: null,
-        'antecedents_maladie'         => $this->antecedents_maladie ?: null,
-        'mode_de_vie'                 => $this->mode_de_vie ?: null,
-        
-        'examen_physique'             => $this->examen_physique ?: null,
-        'examen_general'              => $this->examen_general ?: null,
-        'hypothese_diagnostique'      => $this->hypothese_diagnostique ?: null,
-        'diagnostic'                  => $this->diagnostic ?: null,
-        'resultats_analyses'          => $this->resultats_analyses ?: null,
-        
-        'ordonnance'                  => $this->ordonnance ?: null,
-        'traitement'                  => $this->traitement ?: null,
-        'traitement_sortie'           => $this->traitement_sortie ?: null,
-        'notes_privees'               => $this->notes_privees ?: null,
-        
-        'constantes'                  => [
-            'poids'       => $this->poids,
-            'tension'     => $this->tension,
-            'temperature' => $this->temperature,
-            'pouls'       => $this->pouls,
-            'glycemie'    => $this->glycemie,
-        ],
-        'evaluations'                 => !empty($this->evaluations) ? $this->evaluations : null,
-        'visite_medicale_journaliere' => !empty($this->visite_medicale_journaliere) ? $this->visite_medicale_journaliere : null,
-    ];
-
-    $consultation = Consultation::updateOrCreate(
-        ['id' => $this->consultation_id],
-        $dataToSave
-    );
-
-    $this->selectedConsultationId = $consultation->id;
-
-    session()->flash('message', $this->isEditMode ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
-    $this->closeModal();
-}
 
     public function showConsultation($id)
     {
