@@ -802,6 +802,21 @@
 
                                         <div class="col-6 font-weight-bold text-danger"><span>Solde Impayé :</span></div>
                                         <div class="col-6 text-end font-weight-bold text-danger">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</div>
+
+                                         <div class="col-6"><strong>Statut Caisse :</strong></div>
+                                        <div class="col-6 text-end">
+                                            @if($selectedConsultation->est_paye)
+                                            <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>PAYÉ</span>
+                                            @else
+                                            <span class="badge bg-warning text-dark"><i class="bx bx-time-five me-1"></i>EN ATTENTE</span>
+                                            @endif
+                                        </div>
+
+
+                                        <tr style="border-top: 1px solid #0d6efd; font-weight: bold; font-size: 12px;">
+                <td style="padding-top: 4px; color: #d9534f;">Reste à Payer :</td>
+                <td style="text-align: right; padding-top: 4px; color: #d9534f;">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</td>
+            </tr>
                                     </div>
                                 </div>
                             </div>
