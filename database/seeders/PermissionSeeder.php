@@ -37,6 +37,7 @@ class PermissionSeeder extends Seeder
         'consultation_add_exam',
         'consultation_add_bilan',
           'consultation_pay',
+            'consultation_caisse',
         'consultation_notifications',
         
 
