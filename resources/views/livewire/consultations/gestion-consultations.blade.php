@@ -20,20 +20,20 @@
             <div class="d-flex align-items-center gap-2">
 
                 @php
-    $countModificationsNonVues = \App\Models\Consultation::where('est_modifie', true)->where('vu_par_responsable', false)->count();
-@endphp
-@can('consultation_notifications')
-<button wire:click="filtrerEnAttenteNouvellesModifications" class="btn {{ $filtreModificationsAlerte ? 'btn-danger' : 'btn-outline-danger' }} position-relative me-2 radius-30">
-    <i class="bx bx-history me-1"></i> Modifications Récentes
-    @if($countModificationsNonVues > 0)
-    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-        {{ $countModificationsNonVues }}
-    </span>
-    @endif
-</button>
-@endcan
+                $countModificationsNonVues = \App\Models\Consultation::where('est_modifie', true)->where('vu_par_responsable', false)->count();
+                @endphp
+                @can('consultation_notifications')
+                <button wire:click="filtrerEnAttenteNouvellesModifications" class="btn {{ $filtreModificationsAlerte ? 'btn-danger' : 'btn-outline-danger' }} position-relative me-2 radius-30">
+                    <i class="bx bx-history me-1"></i> Modifications Récentes
+                    @if($countModificationsNonVues > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ $countModificationsNonVues }}
+                    </span>
+                    @endif
+                </button>
+                @endcan
                 <!-- Filtre Rapide Caisse : Consultations Impayées -->
-                 @can('consultation_pay')
+                @can('consultation_pay')
                 <button wire:click="filtrerEnAttentePaiement" class="btn btn-outline-danger position-relative me-2 radius-30">
                     <i class="bx bx-receipt me-1"></i> Impayés à la Caisse
                     @if(isset($countEnAttentePaiement) && $countEnAttentePaiement > 0)
@@ -99,7 +99,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>Patient</th>
-                           
+
                             <th>Tarif / Couverture</th>
                             <th>Paiement Caisse</th>
                             <th>Statut Médical</th>
@@ -114,7 +114,7 @@
                                 <div class="font-weight-bold">{{ $c->patient->nom_complet }}</div>
                                 <small class="text-muted"><i class="bx bx-phone me-1"></i>{{ $c->patient->telephone }} | Code: {{ $c->patient->code_patient }}</small>
                             </td>
-                              <td>
+                            <td>
                                 @php
                                 $totalPrestations = ($c->tarif_brut ?? 5000) + ($c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0);
                                 @endphp
@@ -151,29 +151,41 @@
                                 @endswitch
 
                                 {{-- Badge de modification --}}
-  
+
                             </td>
                             <td>
-                                  @if($c->est_modifie)
-        @if(!$c->vu_par_responsable)
-            <span class="badge bg-danger text-white d-block mt-1" title="Modifié - En attente de validation responsable">
-                <i class="bx bx-edit me-1"></i> Modifié (Non validé)
-            </span>
-        @else
-            <span class="badge bg-success text-white d-block mt-1" title="Modifié et validé par un responsable">
-                <i class="bx bx-check-double me-1"></i> Validé (Resp.)
-            </span>
-        @endif
+
+                            {{-- Bouton pour voir uniquement les champs modifiés --}}
+@if($c->est_modifie)
+<button wire:click="voirModifications({{ $c->id }})" class="btn btn-sm btn-outline-warning me-1 position-relative" title="Voir les champs modifiés">
+  Visualiser
+    @if(!$c->vu_par_responsable)
+    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
     @endif
+</button>
+@endif
+                                @if($c->est_modifie)
+                                @if(!$c->vu_par_responsable)
+                                <span class="badge bg-danger text-white d-block mt-1" title="Modifié - En attente de validation responsable">
+                                    <i class="bx bx-edit me-1"></i> Modifié (Non validé)
+                                </span>
+                                @else
+                                <span class="badge bg-success text-white d-block mt-1" title="Modifié et validé par un responsable">
+                                    <i class="bx bx-check-double me-1"></i> Validé (Resp.)
+                                </span>
+                                @endif
+                                @endif
                             </td>
                             <td class="text-end px-4">
 
-                            {{-- Bouton pour marquer comme vu par le responsable (Visible si modifié et non encore validé, ou selon vos rôles) --}}
-@if($c->est_modifie && !$c->vu_par_responsable)
-    <button wire:click="marquerVuParResponsable({{ $c->id }})" class="btn btn-sm btn-outline-success me-1" title="Marquer comme vu par le responsable">
-        <i class="bx bx-check-shield"></i> Valider Modif.
-    </button>
-@endif
+
+
+                                {{-- Bouton pour marquer comme vu par le responsable (Visible si modifié et non encore validé, ou selon vos rôles) --}}
+                                @if($c->est_modifie && !$c->vu_par_responsable)
+                                <button wire:click="marquerVuParResponsable({{ $c->id }})" class="btn btn-sm btn-outline-success me-1" title="Marquer comme vu par le responsable">
+                                    <i class="bx bx-check-shield"></i> Valider Modif.
+                                </button>
+                                @endif
                                 @can('consultation_caisse')
                                 @if(!$c->est_paye && $resteD > 0)
                                 <button wire:click="openPaiementModal({{ $c->id }})" class="btn btn-sm btn-success me-1 radius-30" title="Encaisser ou Versement partiel">
@@ -913,6 +925,8 @@
                             </div>
                         </div>
 
+                        
+
                         <!-- CARTE 4 : CLINIQUE & TABLEAU DES RÉSULTATS DES ANALYSES -->
                         <div class="col-12">
                             <div class="card border-0 shadow-sm radius-12">
@@ -1024,6 +1038,134 @@
         </div>
     </div>
     @endif
+
+
+    <!-- SECTION : APERÇU DES MODIFICATIONS DYNAMIQUES POUR LE RESPONSABLE -->
+    @if(isset($selectedConsultation) && $selectedConsultation->est_modifie && !empty($selectedConsultation->modifications_historique))
+    <div class="card border-danger bg-light mb-4 radius-12">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 text-white"><i class="bx bx-history me-2"></i>Détails des modifications apportées (En attente de validation)</h6>
+            <span class="badge bg-white text-danger">Modifié récemment</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered bg-white align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Champ Modifié</th>
+                            <th>Ancienne Valeur</th>
+                            <th>Nouvelle Valeur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($selectedConsultation->modifications_historique as $cle => $diff)
+                        <tr>
+                            <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
+                            <td><span class="text-danger text-decoration-line-through">{{ $diff['ancien'] }}</span></td>
+                            <td><span class="text-success fw-bold">{{ $diff['nouveau'] }}</span></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Bouton direct pour valider en tant que responsable depuis la vue --}}
+            @if(!$selectedConsultation->vu_par_responsable)
+            <div class="mt-3 text-end">
+                <button wire:click="marquerVuParResponsable({{ $selectedConsultation->id }})" class="btn btn-success btn-sm radius-30">
+                    <i class="bx bx-check-shield me-1"></i> Marquer comme vérifié et validé
+                </button>
+            </div>
+            @else
+            <div class="mt-2 text-success small text-end">
+                <i class="bx bx-check-double me-1"></i> Validé par le responsable le {{ \Carbon\Carbon::parse($selectedConsultation->date_vu_responsable)->format('d/m/Y à H:i') }}
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
+    <!-- MODALE DE PRÉVISUALISATION DES CHAMPS MODIFIÉS -->
+@if($isModificationsModalOpen && $consultationModificationsDetails)
+<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6);" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content radius-15 border-0 shadow-lg">
+
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title font-weight-bold">
+                    <i class="bx bx-history me-2"></i>Détails des modifications (Patient : {{ $consultationModificationsDetails->patient?->nom_complet }})
+                </h5>
+                <button type="button" class="btn-close" wire:click="closeModificationsModal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                @if(!empty($consultationModificationsDetails->modifications_historique))
+                    <p class="text-muted small mb-3">Voici la liste exacte des champs qui ont été modifiés par le praticien :</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0 bg-white">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 30%;">Champ concerné</th>
+                                    <th style="width: 35%;">Ancienne valeur</th>
+                                    <th style="width: 35%;">Nouvelle valeur modifiée</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($consultationModificationsDetails->modifications_historique as $cle => $diff)
+                                <tr>
+                                    <td class="fw-bold text-primary">
+                                        <i class="bx bx-chevron-right me-1"></i>{{ $diff['libelle'] ?? $cle }}
+                                    </td>
+                                    <td>
+                                        <span class="text-danger text-decoration-line-through bg-light px-2 py-1 rounded d-block">
+                                            {{ $diff['ancien'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-success fw-bold bg-light px-2 py-1 rounded d-block">
+                                            {{ $diff['nouveau'] }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-4 text-muted">
+                        <i class="bx bx-info-circle fs-3 d-block mb-1"></i>
+                        Aucun détail d'historique de modification disponible pour cette fiche.
+                    </div>
+                @endif
+            </div>
+
+            <div class="modal-footer bg-light d-flex justify-content-between align-items-center">
+                <div>
+                    @if(!$consultationModificationsDetails->vu_par_responsable)
+                    <span class="badge bg-danger">En attente de validation responsable</span>
+                    @else
+                    <span class="badge bg-success"><i class="bx bx-check me-1"></i>Validé par le responsable</span>
+                    @endif
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary px-3 radius-30" wire:click="closeModificationsModal">Fermer</button>
+                    
+                    @can('consultation_edit') {{-- ou votre permission de responsable --}}
+                        @if(!$consultationModificationsDetails->vu_par_responsable)
+                        <button type="button" wire:click="marquerVuParResponsable({{ $consultationModificationsDetails->id }}); closeModificationsModal();" class="btn btn-success px-4 radius-30">
+                            <i class="bx bx-check-shield me-1"></i> Valider ces modifications
+                        </button>
+                        @endif
+                    @endcan
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@endif
 </div>
 
 <!-- SCRIPTS JS : SCROLL AUTOMATIQUE ET CONFIRMATION -->

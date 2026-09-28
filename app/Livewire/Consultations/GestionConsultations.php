@@ -98,6 +98,25 @@ class GestionConsultations extends Component
     public $listeExamensImagerie = [];
     public $filtreModificationsAlerte = false; // Pour filtrer les modifications non vues
 
+    // Propriétés à ajouter dans le composant
+public $isModificationsModalOpen = false;
+public $consultationModificationsDetails = null;
+
+// Méthode pour ouvrir la modale des modifications
+public function voirModifications($id)
+{
+    $consultation = Consultation::findOrFail($id);
+    $this->consultationModificationsDetails = $consultation;
+    $this->isModificationsModalOpen = true;
+}
+
+// Méthode pour fermer cette modale
+public function closeModificationsModal()
+{
+    $this->isModificationsModalOpen = false;
+    $this->consultationModificationsDetails = null;
+}
+
     protected function rules()
     {
         return [
@@ -491,66 +510,92 @@ class GestionConsultations extends Component
     /**
      * SAUVEGARDE ET MISE À JOUR EXHAUSTIVE DE TOUS LES CHAMPS
      */
-    public function saveConsultation()
-    {
-        $validatedData = $this->validate();
+   public function saveConsultation()
+{
+    $validatedData = $this->validate();
 
-        if (!$this->dossier_medical_id && $this->patient_id) {
-            $patient = Patient::find($this->patient_id);
-            $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
-        }
-        $isEditing = !empty($this->consultation_id);
-        $dataToSave = [
-            'patient_id'                  => $this->patient_id,
-            'medecin_id'                  => $this->medecin_id,
-            'dossier_medical_id'          => $this->dossier_medical_id,
-            'date_heure_rdv'              => $this->date_heure_rdv,
-            //  'type'                        => $this->type ?: 'specialiste',
-            // Avant l'enregistrement dans saveConsultation() :
-            'type' => str_replace(' ', '_', strtolower(trim($this->type))),
-            'statut'                      => $this->statut, // <--- S'ASSAURER QUE LE STATUT EST MENTIONNÉ ICI
-            'tarif_brut'                  => $this->tarif_brut,
-
-            'motif'                       => $this->motif ?: null,
-            'historique_maladie'          => $this->historique_maladie ?: null,
-            'antecedents_maladie'         => $this->antecedents_maladie ?: null,
-            'mode_de_vie'                 => $this->mode_de_vie ?: null,
-
-            'examen_physique'             => $this->examen_physique ?: null,
-            'examen_general'              => $this->examen_general ?: null,
-            'hypothese_diagnostique'      => $this->hypothese_diagnostique ?: null,
-            'diagnostic'                  => $this->diagnostic ?: null,
-            'resultats_analyses'          => $this->resultats_analyses ?: null,
-
-            'ordonnance'                  => $this->ordonnance ?: null,
-            'traitement'                  => $this->traitement ?: null,
-            'traitement_sortie'           => $this->traitement_sortie ?: null,
-            'notes_privees'               => $this->notes_privees ?: null,
-            'est_modifie'        => $isEditing ? true : false,
-            'vu_par_responsable' => $isEditing ? false : true,
-
-            'constantes'                  => [
-                'poids'       => $this->poids,
-                'tension'     => $this->tension,
-                'temperature' => $this->temperature,
-                'pouls'       => $this->pouls,
-                'glycemie'    => $this->glycemie,
-            ],
-            'evaluations'                 => !empty($this->evaluations) ? $this->evaluations : null,
-            'visite_medicale_journaliere' => !empty($this->visite_medicale_journaliere) ? $this->visite_medicale_journaliere : null,
-        ];
-
-        $consultation = Consultation::updateOrCreate(
-            ['id' => $this->consultation_id],
-            $dataToSave
-        );
-
-        $this->selectedConsultationId = $consultation->id;
-
-        session()->flash('message', $this->isEditMode ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
-        $this->closeModal();
+    if (!$this->dossier_medical_id && $this->patient_id) {
+        $patient = Patient::find($this->patient_id);
+        $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
     }
 
+    $dataToSave = [
+        'patient_id'                  => $this->patient_id,
+        'medecin_id'                  => $this->medecin_id,
+        'dossier_medical_id'          => $this->dossier_medical_id,
+        'date_heure_rdv'              => $this->date_heure_rdv,
+        'type'                        => str_replace(' ', '_', strtolower(trim($this->type))),
+        'statut'                      => $this->statut,
+        'tarif_brut'                  => $this->tarif_brut,
+        'motif'                       => $this->motif ?: null,
+        'historique_maladie'          => $this->historique_maladie ?: null,
+        'antecedents_maladie'         => $this->antecedents_maladie ?: null,
+        'mode_de_vie'                 => $this->mode_de_vie ?: null,
+        'terrain'                     => $this->terrain ?: null,
+        'examen_physique'             => $this->examen_physique ?: null,
+        'examen_general'              => $this->examen_general ?: null,
+        'hypothese_diagnostique'      => $this->hypothese_diagnostique ?: null,
+        'diagnostic'                  => $this->diagnostic ?: null,
+        'resultats_analyses'          => $this->resultats_analyses ?: null,
+        'resultats'                   => $this->resultats ?: null,
+        'ordonnance'                  => $this->ordonnance ?: null,
+        'traitement'                  => $this->traitement ?: null,
+        'traitement_sortie'           => $this->traitement_sortie ?: null,
+        'notes_privees'               => $this->notes_privees ?: null,
+        'constantes'                  => [
+            'poids'       => $this->poids,
+            'tension'     => $this->tension,
+            'temperature' => $this->temperature,
+            'pouls'       => $this->pouls,
+            'glycemie'    => $this->glycemie,
+        ],
+        'evaluations'                 => !empty($this->evaluations) ? $this->evaluations : null,
+        'visite_medicale_journaliere' => !empty($this->visite_medicale_journaliere) ? $this->visite_medicale_journaliere : null,
+        'bilan'                       => !empty($this->bilan) ? $this->bilan : null,
+    ];
+
+    // --- LOGIQUE DE DÉTECTION DES MODIFICATIONS ---
+    if ($this->consultation_id) {
+        $ancienneConsultation = Consultation::find($this->consultation_id);
+        $changements = [];
+
+        // Liste des champs à surveiller
+        $champsASuivre = [
+            'motif' => 'Motif', 'diagnostic' => 'Diagnostic', 'ordonnance' => 'Ordonnance',
+            'terrain' => 'Terrain', 'tarif_brut' => 'Tarif Brut', 'statut' => 'Statut',
+            'type' => 'Type de consultation', 'resultats' => 'Résultats'
+        ];
+
+        foreach ($champsASuivre as $champ => $libelle) {
+            $valeurAncienne = $ancienneConsultation->$champ ?? '';
+            $valeurNouvelle = $dataToSave[$champ] ?? '';
+
+            if ((string)$valeurAncienne !== (string)$valeurNouvelle) {
+                $changements[$champ] = [
+                    'libelle' => $libelle,
+                    'ancien'  => $valeurAncienne ?: '(Vide)',
+                    'nouveau' => $valeurNouvelle ?: '(Vide)',
+                ];
+            }
+        }
+
+        if (!empty($changements)) {
+            $dataToSave['est_modifie'] = true;
+            $dataToSave['vu_par_responsable'] = false; // Exige une nouvelle validation
+            $dataToSave['modifications_historique'] = $changements; // Enregistre le diff dynamique
+        }
+    }
+
+    $consultation = Consultation::updateOrCreate(
+        ['id' => $this->consultation_id],
+        $dataToSave
+    );
+
+    $this->selectedConsultationId = $consultation->id;
+
+    session()->flash('message', $this->isEditMode ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
+    $this->closeModal();
+}
     public function showConsultation($id)
     {
         $this->selectedConsultation = Consultation::with([
