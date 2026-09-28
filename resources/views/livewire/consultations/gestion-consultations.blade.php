@@ -166,6 +166,7 @@
                                 @if (method_exists($c, 'modifiable') ? $c->modifiable() : true)
                                 <button wire:click="editConsultation({{ $c->id }})" class="btn btn-sm btn-outline-primary me-1" title="Modifier"><i class="bx bx-edit"></i></button>
                                 @endif
+                                @endcan
                                 @can('consultation_delete')
                                 <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $c->id }})">
                                     <i class="bx bx-trash"></i>
