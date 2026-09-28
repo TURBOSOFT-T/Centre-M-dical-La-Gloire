@@ -50,6 +50,13 @@ class Consultation extends Model
         'constantes',
         'evaluations',
         'visite_medicale_journaliere',
+        'bilan',
+    'terrain',
+    'resultats',
+    'est_modifie',
+    'vu_par_responsable',
+    'date_vu_responsable',
+    'responsable_id',
     ];
 
    protected $casts = [
@@ -61,6 +68,7 @@ class Consultation extends Model
         'evaluations'                 => 'array',
         'visite_medicale_journaliere' => 'array',
         'historique_paiements'        => 'array',
+        'bilan' => 'array',
     ];
     /**
      * Calcul du montant total cumulé (Consultation + Examens prescrits)

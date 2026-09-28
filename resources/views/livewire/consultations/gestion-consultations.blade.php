@@ -18,7 +18,22 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
+
+                @php
+    $countModificationsNonVues = \App\Models\Consultation::where('est_modifie', true)->where('vu_par_responsable', false)->count();
+@endphp
+@can('consultation_notifications')
+<button wire:click="filtrerEnAttenteNouvellesModifications" class="btn {{ $filtreModificationsAlerte ? 'btn-danger' : 'btn-outline-danger' }} position-relative me-2 radius-30">
+    <i class="bx bx-history me-1"></i> Modifications Récentes
+    @if($countModificationsNonVues > 0)
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ $countModificationsNonVues }}
+    </span>
+    @endif
+</button>
+@endcan
                 <!-- Filtre Rapide Caisse : Consultations Impayées -->
+                 @can('consultation_pay')
                 <button wire:click="filtrerEnAttentePaiement" class="btn btn-outline-danger position-relative me-2 radius-30">
                     <i class="bx bx-receipt me-1"></i> Impayés à la Caisse
                     @if(isset($countEnAttentePaiement) && $countEnAttentePaiement > 0)
@@ -27,6 +42,7 @@
                     </span>
                     @endif
                 </button>
+                @endcan
                 @can('consultation_add')
                 <button wire:click="openModal" class="btn btn-primary px-4 radius-30">
                     <i class="bx bx-plus me-1"></i> Nouvelle consultation
@@ -62,6 +78,7 @@
                     </select>
                 </div>
 
+
                 <!-- Filtre Caisse / Paiement -->
                 <div class="col-md-3">
                     <select wire:model.live="filtrePaiement" class="form-select">
@@ -82,10 +99,11 @@
                     <thead class="table-light">
                         <tr>
                             <th>Patient</th>
-                            <th>Médecin</th>
+                           
                             <th>Tarif / Couverture</th>
                             <th>Paiement Caisse</th>
                             <th>Statut Médical</th>
+                            <th>Modifications</th>
                             <th class="text-end px-4">Actions</th>
                         </tr>
                     </thead>
@@ -96,8 +114,7 @@
                                 <div class="font-weight-bold">{{ $c->patient->nom_complet }}</div>
                                 <small class="text-muted"><i class="bx bx-phone me-1"></i>{{ $c->patient->telephone }} | Code: {{ $c->patient->code_patient }}</small>
                             </td>
-                            <td>{{ $c->medecin?->nom ?? $c->medecin?->name ?? 'Non assigné' }}</td>
-                            <td>
+                              <td>
                                 @php
                                 $totalPrestations = ($c->tarif_brut ?? 5000) + ($c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0);
                                 @endphp
@@ -132,8 +149,31 @@
                                 @case('termine') <span class="badge bg-success">Terminé</span> @break
                                 @case('annule') <span class="badge bg-danger">Annulé</span> @break
                                 @endswitch
+
+                                {{-- Badge de modification --}}
+  
+                            </td>
+                            <td>
+                                  @if($c->est_modifie)
+        @if(!$c->vu_par_responsable)
+            <span class="badge bg-danger text-white d-block mt-1" title="Modifié - En attente de validation responsable">
+                <i class="bx bx-edit me-1"></i> Modifié (Non validé)
+            </span>
+        @else
+            <span class="badge bg-success text-white d-block mt-1" title="Modifié et validé par un responsable">
+                <i class="bx bx-check-double me-1"></i> Validé (Resp.)
+            </span>
+        @endif
+    @endif
                             </td>
                             <td class="text-end px-4">
+
+                            {{-- Bouton pour marquer comme vu par le responsable (Visible si modifié et non encore validé, ou selon vos rôles) --}}
+@if($c->est_modifie && !$c->vu_par_responsable)
+    <button wire:click="marquerVuParResponsable({{ $c->id }})" class="btn btn-sm btn-outline-success me-1" title="Marquer comme vu par le responsable">
+        <i class="bx bx-check-shield"></i> Valider Modif.
+    </button>
+@endif
                                 @can('consultation_caisse')
                                 @if(!$c->est_paye && $resteD > 0)
                                 <button wire:click="openPaiementModal({{ $c->id }})" class="btn btn-sm btn-success me-1 radius-30" title="Encaisser ou Versement partiel">
@@ -529,7 +569,7 @@
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Anamnèse & Historique de la Maladie</h6>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label font-weight-bold">Motif / Plaintes</label>
+                                <label class="form-label font-weight-bold">Motif de consultation</label>
                                 <textarea wire:model.live.debounce.500ms="motif" class="form-control" rows="3" placeholder="Motif de consultation..."></textarea>
                             </div>
                             <div class="col-md-3">
@@ -544,9 +584,14 @@
                                 <label class="form-label font-weight-bold">Mode de vie</label>
                                 <textarea wire:model.live.debounce.500ms="mode_de_vie" class="form-control" rows="3" placeholder="Alimentation, tabac, alcool, sport..."></textarea>
                             </div>
+
+                            <div class="mb-3">
+                                <label class="form-label font-weight-bold">Terrain </label>
+                                <textarea wire:model="terrain" class="form-control" rows="2" placeholder="Ex: Patient hypertendu, allergie à la pénicilline..."></textarea>
+                            </div>
                             <!-- SECTION 5 : EXAMENS, DIAGNOSTIC & TRAITEMENT -->
                             <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-stethoscope me-1"></i> Bilan Médical, Diagnostic & Traitement</h6>
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-stethoscope me-1"></i> Examen Clinique</h6>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label font-weight-bold">Examen Général</label>
@@ -562,11 +607,11 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label font-weight-bold">Diagnostic Confirmé / Final</label>
+                                <label class="form-label font-weight-bold">Diagnostic positif</label>
                                 <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label font-weight-bold">Résultats des Analyses Biologiques/Imagerie</label>
+                                <label class="form-label font-weight-bold">Résultats</label>
                                 <textarea wire:model.live.debounce.500ms="resultats_analyses" class="form-control" rows="2" placeholder="Synthèse des examens..."></textarea>
                             </div>
 
@@ -585,7 +630,7 @@
                             <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2">
-                                    <i class="bx bx-clipboard me-1"></i> Évaluations Cliniques & Examens Spécifiques
+                                    <i class="bx bx-clipboard me-1"></i> Évaluation du patient
                                 </h6>
 
                                 <div class="card bg-light border-0 p-3 mb-3">
@@ -872,10 +917,15 @@
                         <div class="col-12">
                             <div class="card border-0 shadow-sm radius-12">
                                 <div class="card-body">
-                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-file me-1"></i> Bilan Médical & Traitements</h6>
+                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-file me-1"></i> Examen Clinique</h6>
                                     <div class="mb-3">
-                                        <strong class="d-block text-dark">Motif / Plaintes :</strong>
+                                        <strong class="d-block text-dark">Motif de consultation :</strong>
                                         <p class="mb-0 text-muted">{{ $selectedConsultation->motif ?? 'Aucun motif renseigné' }}</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong class="d-block text-dark">Examen Général :</strong>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->examen_general ?? 'Aucun examen physique renseigné' }}</p>
                                     </div>
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Examen Physique :</strong>

@@ -17,7 +17,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('dossiers_medicaux')
                 ->onDelete('cascade');
-                
+
             $table->foreignId('patient_id')
                 ->constrained('patients')
                 ->onDelete('cascade');
@@ -29,11 +29,11 @@ return new class extends Migration
 
             // Planning & Statuts
             $table->dateTime('date_heure_rdv')->index();
-            
+
             $table->enum('type', [
                 'consultation_generale',
                 'medecin_general',
-                  'sage_femme',
+                'sage_femme',
                 'specialiste',
                 'suivi',
                 'urgence',
@@ -48,7 +48,7 @@ return new class extends Migration
                 'psychiatrie',
                 'radiologie',
                 'chirurgie',
-                'dentisterie', 
+                'dentisterie',
                 'traumatologie',
                 'orl',
                 'kinesitherapie',
@@ -57,10 +57,10 @@ return new class extends Migration
             ])->default('specialiste');
 
             $table->enum('statut', [
-                'programme', 
-                'en_attente', 
-                'en_cours', 
-                'termine', 
+                'programme',
+                'en_attente',
+                'en_cours',
+                'termine',
                 'annule'
             ])->default('programme')->index();
 
@@ -78,7 +78,14 @@ return new class extends Migration
             $table->text('resultats_analyses')->nullable();
             $table->text('ordonnance')->nullable();
             $table->text('notes_privees')->nullable();
+            $table->json('bilan')->nullable(); // Stockage des examens à cocher
+            $table->text('terrain')->nullable(); // Particularités / Allergies / Terrain
+            $table->text('resultats')->nullable(); // Résultats tex
 
+            $table->boolean('est_modifie')->default(false); // Indique si la fiche a été modifiée
+            $table->boolean('vu_par_responsable')->default(false); // Validé par le responsable
+            $table->dateTime('date_vu_responsable')->nullable();
+            $table->foreignId('responsable_id')->nullable()->constrained('users')->onDelete('set null')->after('date_vu_responsable');
             // Traitements
             $table->text('traitement')->nullable();
             $table->text('traitement_sortie')->nullable();
@@ -91,13 +98,13 @@ return new class extends Migration
             // Facturation
             $table->decimal('tarif_brut', 10, 2)->default(0.00);
             $table->boolean('est_paye')->default(false)->index();
-             $table->decimal('montant_paye', 10, 2)->default(0.00);
+            $table->decimal('montant_paye', 10, 2)->default(0.00);
 
-           
+
             $table->text('historique_paiements')->nullable();
             // 'non_paye', 'partiel', 'paye'
             $table->enum('statut_paiement', ['non_paye', 'partiel', 'paye'])->default('non_paye');
-    
+
 
             $table->timestamps();
             $table->softDeletes();

@@ -86,6 +86,18 @@ class GestionConsultations extends Component
     public $montantEncaissement = 0;
     public $modePaiement = 'Espèces';
 
+    public $terrain;
+    public $resultats;
+
+    public $bilan = [
+        'biologie' => [], // Contiendra les IDs ou noms des examens biologiques cochés
+        'imagerie' => [], // Contiendra les IDs ou noms des examens d'imagerie cochés
+    ];
+
+    public $listeExamensBiologie = [];
+    public $listeExamensImagerie = [];
+    public $filtreModificationsAlerte = false; // Pour filtrer les modifications non vues
+
     protected function rules()
     {
         return [
@@ -275,6 +287,26 @@ class GestionConsultations extends Component
         $this->resetPage();
         $this->filtrePaiement = '0';
         $this->filtreStatut = '';
+    }
+
+    public function filtrerEnAttenteNouvellesModifications()
+    {
+        $this->resetPage();
+        $this->filtreModificationsAlerte = !$this->filtreModificationsAlerte; // Bascule le filtre
+        $this->filtrePaiement = '';
+        $this->filtreStatut = '';
+    }
+
+    public function marquerVuParResponsable($id)
+    {
+        $consultation = Consultation::findOrFail($id);
+        $consultation->update([
+            'vu_par_responsable'  => true,
+            'date_vu_responsable' => now(),
+            'responsable_id'      => auth()->id(),
+        ]);
+
+        session()->flash('message', 'Consultation marquée comme vue par le responsable.');
     }
 
     public function reinitialiserFiltrePaiement()
@@ -467,7 +499,7 @@ class GestionConsultations extends Component
             $patient = Patient::find($this->patient_id);
             $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
         }
-
+        $isEditing = !empty($this->consultation_id);
         $dataToSave = [
             'patient_id'                  => $this->patient_id,
             'medecin_id'                  => $this->medecin_id,
@@ -494,6 +526,8 @@ class GestionConsultations extends Component
             'traitement'                  => $this->traitement ?: null,
             'traitement_sortie'           => $this->traitement_sortie ?: null,
             'notes_privees'               => $this->notes_privees ?: null,
+            'est_modifie'        => $isEditing ? true : false,
+            'vu_par_responsable' => $isEditing ? false : true,
 
             'constantes'                  => [
                 'poids'       => $this->poids,
@@ -571,8 +605,13 @@ class GestionConsultations extends Component
             ->when($this->filtrePaiement !== '', function ($query) {
                 $query->where('est_paye', $this->filtrePaiement);
             })
+            ->when($this->filtreModificationsAlerte, function ($query) {
+                $query->where('est_modifie', true)->where('vu_par_responsable', false);
+            })
             ->orderBy('date_heure_rdv', 'desc')
             ->paginate(10);
+
+
 
         $patients = Patient::query()
             ->when($this->searchPatient, function ($q) {

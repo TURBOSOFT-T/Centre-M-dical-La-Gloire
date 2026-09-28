@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('examens', function (Blueprint $table) {
             $table->id();
             $table->string('nom')->nullable();
+            $table->string('type')->nullable()->index();
              $table->json('caracteristiques')->nullable();
             $table->timestamps();
         });

@@ -180,6 +180,20 @@
                                     </td>
                                 </tr>
 
+                                  <tr>
+                                    <td>
+                                        <b>Salle d'attente</b>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_notifications" @checked($personnel->hasPermissionTo('consultation_notifications'))>Voir notifications
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_pay" @checked($personnel->hasPermissionTo('consultation_pay'))> Notification caisse
+                                    </td>
+                                    
+                                </tr>
+
                                  <tr>
                                     <td>
                                         <b>Hospitalisations</b>

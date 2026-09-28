@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
         'consultation_add_bilan',
         'consultation_caisse',
         'consultation_pay',
+         'consultation_notifications',
 
         'boutique_view',
         'boutique_add',
