@@ -286,7 +286,7 @@ public function closeModificationsModal()
             'date'    => date('d/m/Y H:i'),
             'montant' => $this->montantEncaissement,
             'mode'    => $this->modePaiement,
-            'caissier' => auth()->user()->name ?? 'Caisse',
+            'caissier' => auth()->user()->nom ?? 'Caisse',
         ];
 
         $estPayeComplet = $nouveauMontantPaye >= $totalDu;
@@ -436,7 +436,7 @@ public function closeModificationsModal()
         $journal = $this->visite_medicale_journaliere ?? [];
         $journal[] = [
             'date_heure'  => date('d/m/Y H:i'),
-            'medecin'     => auth()->user()->name ?? 'Praticien',
+            'medecin'     => auth()->user()->nom ?? 'Praticien',
             'observation' => trim($this->nouvelleVisiteNote),
         ];
 
@@ -717,7 +717,7 @@ public function closeModificationsModal()
 
         $medecins = User::query()
             ->when($this->searchMedecin, function ($q) {
-                $q->where('name', 'like', '%' . $this->searchMedecin . '%')
+                $q->where('nom', 'like', '%' . $this->searchMedecin . '%')
                     ->orWhere('email', 'like', '%' . $this->searchMedecin . '%');
             })
             ->take(10)

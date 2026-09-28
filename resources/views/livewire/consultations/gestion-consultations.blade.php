@@ -155,15 +155,15 @@
                             </td>
                             <td>
 
-                            {{-- Bouton pour voir uniquement les champs modifiés --}}
-@if($c->est_modifie)
-<button wire:click="voirModifications({{ $c->id }})" class="btn btn-sm btn-outline-warning me-1 position-relative" title="Voir les champs modifiés">
-  Visualiser
-    @if(!$c->vu_par_responsable)
-    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-    @endif
-</button>
-@endif
+                                {{-- Bouton pour voir uniquement les champs modifiés --}}
+                                @if($c->est_modifie)
+                                <button wire:click="voirModifications({{ $c->id }})" class="btn btn-sm btn-outline-warning me-1 position-relative" title="Voir les champs modifiés">
+                                    Visualiser
+                                    @if(!$c->vu_par_responsable)
+                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                                    @endif
+                                </button>
+                                @endif
                                 @if($c->est_modifie)
                                 @if(!$c->vu_par_responsable)
                                 <span class="badge bg-danger text-white d-block mt-1" title="Modifié - En attente de validation responsable">
@@ -502,7 +502,7 @@
                                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center radius-8 mb-1 py-2 {{ $medecin_id == $m->id ? 'active text-white bg-primary' : 'bg-white' }}">
                                             <div>
                                                 <div class="font-weight-bold" style="font-size: 0.88rem;">
-                                                    {{ $m->name ?? $m->nom }}
+                                                    {{  $m->nom }}
                                                 </div>
                                                 <small class="{{ $medecin_id == $m->id ? 'text-white-50' : 'text-muted' }}">
                                                     {{ $m->email ?? 'Médecin' }}
@@ -831,7 +831,7 @@
                                         </div>
 
                                         <div class="col-6"><strong>Médecin Traitant :</strong></div>
-                                        <div class="col-6 text-end font-weight-bold text-primary">{{ $selectedConsultation->medecin?->nom ?? $selectedConsultation->medecin?->name ?? 'Non assigné' }}</div>
+                                        <div class="col-6 text-end font-weight-bold text-primary">{{ $selectedConsultation->medecin?->nom ?? $selectedConsultation->medecin?->nom ?? 'Non assigné' }}</div>
 
                                         <div class="col-6"><strong>Type de Consultation :</strong></div>
                                         <div class="col-6 text-end"><span class="badge bg-light text-dark">{{ ucfirst(str_replace('_', ' ', $selectedConsultation->type)) }}</span></div>
@@ -925,7 +925,7 @@
                             </div>
                         </div>
 
-                        
+
 
                         <!-- CARTE 4 : CLINIQUE & TABLEAU DES RÉSULTATS DES ANALYSES -->
                         <div class="col-12">
@@ -1086,22 +1086,22 @@
     @endif
 
     <!-- MODALE DE PRÉVISUALISATION DES CHAMPS MODIFIÉS -->
-@if($isModificationsModalOpen && $consultationModificationsDetails)
-<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6);" role="dialog">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content radius-15 border-0 shadow-lg">
+    @if($isModificationsModalOpen && $consultationModificationsDetails)
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6);" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content radius-15 border-0 shadow-lg">
 
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title font-weight-bold">
-                    <i class="bx bx-history me-2"></i>Détails des modifications (Patient : {{ $consultationModificationsDetails->patient?->nom_complet }})
-                </h5>
-                <button type="button" class="btn-close" wire:click="closeModificationsModal"></button>
-            </div>
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title font-weight-bold">
+                        <i class="bx bx-history me-2"></i>Détails des modifications (Patient : {{ $consultationModificationsDetails->patient?->nom_complet }})
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="closeModificationsModal"></button>
+                </div>
 
-            <div class="modal-body p-4">
-                @if(!empty($consultationModificationsDetails->modifications_historique))
+                <div class="modal-body p-4">
+                    @if(!empty($consultationModificationsDetails->modifications_historique))
                     <p class="text-muted small mb-3">Voici la liste exacte des champs qui ont été modifiés par le praticien :</p>
-                    
+
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle mb-0 bg-white">
                             <thead class="table-light">
@@ -1132,40 +1132,40 @@
                             </tbody>
                         </table>
                     </div>
-                @else
+                    @else
                     <div class="text-center py-4 text-muted">
                         <i class="bx bx-info-circle fs-3 d-block mb-1"></i>
                         Aucun détail d'historique de modification disponible pour cette fiche.
                     </div>
-                @endif
-            </div>
-
-            <div class="modal-footer bg-light d-flex justify-content-between align-items-center">
-                <div>
-                    @if(!$consultationModificationsDetails->vu_par_responsable)
-                    <span class="badge bg-danger">En attente de validation responsable</span>
-                    @else
-                    <span class="badge bg-success"><i class="bx bx-check me-1"></i>Validé par le responsable</span>
                     @endif
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-secondary px-3 radius-30" wire:click="closeModificationsModal">Fermer</button>
-                    
-                    @can('consultation_edit') {{-- ou votre permission de responsable --}}
+                <div class="modal-footer bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                        @if(!$consultationModificationsDetails->vu_par_responsable)
+                        <span class="badge bg-danger">En attente de validation responsable</span>
+                        @else
+                        <span class="badge bg-success"><i class="bx bx-check me-1"></i>Validé par le responsable</span>
+                        @endif
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary px-3 radius-30" wire:click="closeModificationsModal">Fermer</button>
+
+                        @can('consultation_edit') {{-- ou votre permission de responsable --}}
                         @if(!$consultationModificationsDetails->vu_par_responsable)
                         <button type="button" wire:click="marquerVuParResponsable({{ $consultationModificationsDetails->id }}); closeModificationsModal();" class="btn btn-success px-4 radius-30">
                             <i class="bx bx-check-shield me-1"></i> Valider ces modifications
                         </button>
                         @endif
-                    @endcan
+                        @endcan
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
-</div>
-@endif
+    @endif
 </div>
 
 <!-- SCRIPTS JS : SCROLL AUTOMATIQUE ET CONFIRMATION -->
