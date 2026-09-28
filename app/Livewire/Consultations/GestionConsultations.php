@@ -510,7 +510,7 @@ public function closeModificationsModal()
     /**
      * SAUVEGARDE ET MISE À JOUR EXHAUSTIVE DE TOUS LES CHAMPS
      */
-   public function saveConsultation()
+ public function saveConsultation()
 {
     $validatedData = $this->validate();
 
@@ -554,16 +554,24 @@ public function closeModificationsModal()
         'bilan'                       => !empty($this->bilan) ? $this->bilan : null,
     ];
 
-    // --- LOGIQUE DE DÉTECTION DES MODIFICATIONS ---
+    // --- LOGIQUE DE DÉTECTION DES MODIFICATIONS (Champs classiques + Dynamiques) ---
     if ($this->consultation_id) {
         $ancienneConsultation = Consultation::find($this->consultation_id);
         $changements = [];
 
-        // Liste des champs à surveiller
+        // 1. Champs textuels et classiques
         $champsASuivre = [
-            'motif' => 'Motif', 'diagnostic' => 'Diagnostic', 'ordonnance' => 'Ordonnance',
-            'terrain' => 'Terrain', 'tarif_brut' => 'Tarif Brut', 'statut' => 'Statut',
-            'type' => 'Type de consultation', 'resultats' => 'Résultats'
+            'motif' => 'Motif', 
+            'diagnostic' => 'Diagnostic', 
+            'ordonnance' => 'Ordonnance',
+            'terrain' => 'Terrain', 
+            'tarif_brut' => 'Tarif Brut', 
+            'statut' => 'Statut',
+            'type' => 'Type de consultation', 
+            'resultats' => 'Résultats',
+            'historique_maladie' => 'Historique de la maladie',
+            'antecedents_maladie' => 'Antécédents',
+            'examen_physique' => 'Examen physique'
         ];
 
         foreach ($champsASuivre as $champ => $libelle) {
@@ -579,10 +587,48 @@ public function closeModificationsModal()
             }
         }
 
+        // 2. Constantes vitales (JSON)
+        $constantesAnciennes = is_array($ancienneConsultation->constantes) ? $ancienneConsultation->constantes : [];
+        $constantesNouvelles = $dataToSave['constantes'] ?? [];
+        foreach (['poids', 'tension', 'temperature', 'pouls', 'glycemie'] as $cleConstante) {
+            $ancVal = $constantesAnciennes[$cleConstante] ?? '';
+            $nouVal = $constantesNouvelles[$cleConstante] ?? '';
+            if ((string)$ancVal !== (string)$nouVal) {
+                $changements['constante_' . $cleConstante] = [
+                    'libelle' => 'Constante : ' . ucfirst($cleConstante),
+                    'ancien'  => $ancVal ?: '(Vide)',
+                    'nouveau' => $nouVal ?: '(Vide)',
+                ];
+            }
+        }
+
+        // 3. Évaluations cliniques dynamiques (JSON)
+        $evalsAnciennes = is_array($ancienneConsultation->evaluations) ? $ancienneConsultation->evaluations : [];
+        $evalsNouvelles = $dataToSave['evaluations'] ?? [];
+        if ($evalsAnciennes !== $evalsNouvelles) {
+            $changements['evaluations'] = [
+                'libelle' => 'Évaluations cliniques',
+                'ancien'  => !empty($evalsAnciennes) ? json_encode($evalsAnciennes, JSON_UNESCAPED_UNICODE) : '(Vide)',
+                'nouveau' => !empty($evalsNouvelles) ? json_encode($evalsNouvelles, JSON_UNESCAPED_UNICODE) : '(Vide)',
+            ];
+        }
+
+        // 4. Bilan d'examens (JSON)
+        $bilanAncien = is_array($ancienneConsultation->bilan) ? $ancienneConsultation->bilan : [];
+        $bilanNouveau = $dataToSave['bilan'] ?? [];
+        if ($bilanAncien !== $bilanNouveau) {
+            $changements['bilan'] = [
+                'libelle' => 'Bilan d\'examens (Examens / Sous-analyses cochés)',
+                'ancien'  => !empty($bilanAncien) ? json_encode($bilanAncien, JSON_UNESCAPED_UNICODE) : '(Vide)',
+                'nouveau' => !empty($bilanNouveau) ? json_encode($bilanNouveau, JSON_UNESCAPED_UNICODE) : '(Vide)',
+            ];
+        }
+
+        // Si au moins un changement a été détecté
         if (!empty($changements)) {
             $dataToSave['est_modifie'] = true;
-            $dataToSave['vu_par_responsable'] = false; // Exige une nouvelle validation
-            $dataToSave['modifications_historique'] = $changements; // Enregistre le diff dynamique
+            $dataToSave['vu_par_responsable'] = false; // Exige une nouvelle vérification par le responsable
+            $dataToSave['modifications_historique'] = $changements; 
         }
     }
 
