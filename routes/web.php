@@ -92,6 +92,11 @@ Route::post('/examens/import-sql', [ExamenExportController::class, 'import'])->n
 Route::get('/database/export-sql', [ExamenExportController::class, 'exportDatabase'])->name('database.export.sql');
 Route::post('/database/import-sql', [ExamenExportController::class, 'importDatabase'])->name('database.import.sql');
 Route::get('/database/email-sql', [ExamenExportController::class, 'exportAndEmailDatabase'])->name('database.email.sql');
+
+use App\Http\Controllers\ConsultationRecuController;
+
+Route::get('/consultations/{id}/recu', [ConsultationRecuController::class, 'imprimerRecu'])->name('consultations.recu');
+Route::get('/consultations/{id}/recu-tranche/{index}', [ConsultationRecuController::class, 'imprimerRecuTranche'])->name('consultations.recu.tranche');
 /*
 |--------------------------------------------------------------------------
 | Web Routes

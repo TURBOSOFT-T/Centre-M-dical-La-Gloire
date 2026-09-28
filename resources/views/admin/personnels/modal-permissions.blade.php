@@ -44,83 +44,183 @@
 
                                 <tr>
                                     <td>
-                                        <b>Marques</b>
+                                        <b>Laboratoires</b>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="marque_view" @checked($personnel->hasPermissionTo('marque_view'))> Voir
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="labo_view" @checked($personnel->hasPermissionTo('labo_view'))> Voir
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="marque_add" @checked($personnel->hasPermissionTo('marque_add'))> Ajouter
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="labo_add" @checked($personnel->hasPermissionTo('labo_add'))> Ajouter
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="marque_edit" @checked($personnel->hasPermissionTo('marque_edit'))> Modifier
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="labo_edit" @checked($personnel->hasPermissionTo('labo_edit'))> Modifier
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="marque_delete" @checked($personnel->hasPermissionTo('marque_delete'))> Supprimer
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="labo_delete" @checked($personnel->hasPermissionTo('labo_delete'))> Supprimer
+                                    </td>
+                                </tr>
+
+                                 <tr>
+                                    <td>
+                                        <b>Assurances</b>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="assurance_view" @checked($personnel->hasPermissionTo('assurance_view'))> Voir
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="assurance_add" @checked($personnel->hasPermissionTo('assurance_add'))> Ajouter
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="assurance_edit" @checked($personnel->hasPermissionTo('assurance_edit'))> Modifier
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="assurance_delete" @checked($personnel->hasPermissionTo('assurance_delete'))> Supprimer
                                     </td>
                                 </tr>
 
                                 <tr>
                                     <td>
-                                        <b>Code promo</b>
+                                        <b>Examens</b>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="coupon_view" @checked($personnel->hasPermissionTo('coupon_view'))> Voir
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="examen_view" @checked($personnel->hasPermissionTo('examen_view'))> Voir
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="coupon_add" @checked($personnel->hasPermissionTo('coupon_add'))> Ajouter
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="examen_add" @checked($personnel->hasPermissionTo('examen_add'))> Ajouter
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="coupon_edit" @checked($personnel->hasPermissionTo('coupon_edit'))> Modifier
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="examen_edit" @checked($personnel->hasPermissionTo('examen_edit'))> Modifier
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="coupon_delete" @checked($personnel->hasPermissionTo('coupon_delete'))> Supprimer
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="examen_delete" @checked($personnel->hasPermissionTo('examen_delete'))> Supprimer
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <b>Clients</b>
+                                        <b>Patients</b>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="clients_view" @checked($personnel->hasPermissionTo('clients_view')) > Voir
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="patient_view" @checked($personnel->hasPermissionTo('patient_view')) > Voir
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="clients_delete" @checked($personnel->hasPermissionTo('clients_delete'))> Supprimer
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="patient_add" @checked($personnel->hasPermissionTo('patient_add'))> Ajouter
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="patient_edit" @checked($personnel->hasPermissionTo('patient_edit'))> Modifier
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="patient_delete" @checked($personnel->hasPermissionTo('patient_delete'))> Supprimer
                                     </td>
                                     <td colspan="2"></td>
                                 </tr>
 
-                                <tr>
+
+                                 <tr>
                                     <td>
-                                        <b>Témoignages</b>
+                                        <b>Visiteurs</b>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="testimonial_view" @checked($personnel->hasPermissionTo('testimonial_view'))> Voir
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="visiteur_view" @checked($personnel->hasPermissionTo('visiteur_view'))> Voir
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="testimonial_add" @checked($personnel->hasPermissionTo('testimonial_add'))> Ajouter
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="visiteur_add" @checked($personnel->hasPermissionTo('visiteur_add'))> Ajouter
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="testimonial_edit" @checked($personnel->hasPermissionTo('testimonial_edit'))> Modifier
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="visiteur_edit" @checked($personnel->hasPermissionTo('visiteur_edit'))> Modifier
                                     </td>
 
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="testimonial_delete" @checked($personnel->hasPermissionTo('testimonial_delete'))> Supprimer
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="visiteur_delete" @checked($personnel->hasPermissionTo('visiteur_delete'))> Supprimer
                                     </td>
                                 </tr>
+
                                 <tr>
                                     <td>
-                                        <b> Service client</b>
+                                        <b>Salle d'attente</b>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="message_view" @checked($personnel->hasPermissionTo('message_view')) > Voir
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_view" @checked($personnel->hasPermissionTo('consultation_view'))> Voir
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_add" @checked($personnel->hasPermissionTo('consultation_add'))> Ajouter
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_edit" @checked($personnel->hasPermissionTo('consultation_edit'))> Modifier
                                     </td>
 
-                                    <td colspan="2"></td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_delete" @checked($personnel->hasPermissionTo('consultation_delete'))> Supprimer
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_edit_champ" @checked($personnel->hasPermissionTo('consultation_edit_champ'))> Editer champs
+                                    </td>
                                 </tr>
+
+                                 <tr>
+                                    <td>
+                                        <b>Salle d'attente</b>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_add_comment" @checked($personnel->hasPermissionTo('consultation_add_comment'))> Ajouter commentaires
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_caisse" @checked($personnel->hasPermissionTo('consultation_caisse'))> Encaisser
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_add_evolution" @checked($personnel->hasPermissionTo('consultation_add_evolution'))> Ajouter évolutions
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_add_exam" @checked($personnel->hasPermissionTo('consultation_add_exam'))>Ajouter examen
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_add_bilan" @checked($personnel->hasPermissionTo('consultation_add_bilan'))> Ajouter bilan
+                                    </td>
+                                </tr>
+
+                                 <tr>
+                                    <td>
+                                        <b>Hospitalisations</b>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="hospitalisation_view" @checked($personnel->hasPermissionTo('hospitalisation_view'))> Voir
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="hospitalisation_add" @checked($personnel->hasPermissionTo('hospitalisation_add'))> Ajouter
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="hospitalisation_edit" @checked($personnel->hasPermissionTo('hospitalisation_edit'))> Modifier
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="hospitalisation_delete" @checked($personnel->hasPermissionTo('hospitalisation_delete'))> Supprimer
+                                    </td>
+                                </tr>
+
+                                 <tr>
+                                    <td>
+                                        <b>Dossier médical</b>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="dossier_medical_view" @checked($personnel->hasPermissionTo('dossier_medical_view'))> Voir
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="dossier_medical_add" @checked($personnel->hasPermissionTo('dossier_medical_add'))> Ajouter
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="dossier_medical_edit" @checked($personnel->hasPermissionTo('dossier_medical_edit'))> Modifier
+                                    </td>
+
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="dossier_medical_delete" @checked($personnel->hasPermissionTo('dossier_medical_delete'))> Supprimer
+                                    </td>
+                                </tr>
+                                
                                 <tr>
                                     <td>
-                                        <b>Produit</b>
+                                        <b>Produits</b>
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-check-input" name="permissions[]" value="product_view" @checked($personnel->hasPermissionTo('product_view'))> Voir
@@ -148,7 +248,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <b>Commande</b>
+                                        <b>Commandes</b>
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-check-input" name="permissions[]" value="order_view" @checked($personnel->hasPermissionTo('order_view'))> Voir
@@ -161,7 +261,7 @@
                                     </td>
 
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="live_order_edit" @checked($personnel->hasPermissionTo('live_order_edit'))>Modifier Status commande
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="live_order_edit" @checked($personnel->hasPermissionTo('live_order_edit'))>Modifier Status
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-check-input" name="permissions[]" value="order_delete" @checked($personnel->hasPermissionTo('order_delete'))> Supprimer
@@ -171,21 +271,21 @@
 
                                 <tr>
                                     <td>
-                                        <b>Boutique</b>
+                                        <b>Pharmacie</b>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="table_view" @checked($personnel->hasPermissionTo('table_view'))> Voir
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="boutique_view" @checked($personnel->hasPermissionTo('boutique_view'))> Voir
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="table_add" @checked($personnel->hasPermissionTo('table_add'))> Ajouter
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="boutique_add" @checked($personnel->hasPermissionTo('boutique_add'))> Ajouter
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="table_edit" @checked($personnel->hasPermissionTo('table_edit'))> Modifier
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="boutique_edit" @checked($personnel->hasPermissionTo('boutique_edit'))> Modifier
                                     </td>
 
 
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="table_delete" @checked($personnel->hasPermissionTo('table_delete'))> Supprimer
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="boutique_delete" @checked($personnel->hasPermissionTo('boutique_delete'))> Supprimer
                                     </td>
                                 </tr>
                                 <tr>

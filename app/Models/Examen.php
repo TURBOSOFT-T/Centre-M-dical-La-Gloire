@@ -16,6 +16,7 @@ class Examen extends Model
     protected $fillable = [
         'nom',
         'caracteristiques',
+        'type', 
         'user_id',
     ];
 

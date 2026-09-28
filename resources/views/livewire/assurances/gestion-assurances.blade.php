@@ -23,9 +23,11 @@
                 </h4>
                 <p class="text-muted small mb-0">Partenaires de tiers-payant du Centre Médical La Gloire</p>
             </div>
+             @can('assurance_add')
             <button wire:click="openModal" class="btn btn-primary px-4 radius-30">
                 <i class="bx bx-plus me-1"></i> Nouvelle Assurance
             </button>
+            @endcan
         </div>
     </div>
 
@@ -104,13 +106,17 @@
                                 </div>
                             </td>
                             <td class="text-end px-4">
+                                 @can('assurance_edit')
                                 <button wire:click="editAssurance({{ $assurance->id }})" class="btn btn-sm btn-outline-primary me-1">
                                     <i class="bx bx-edit"></i>
                                 </button>
-                         
+                                @endcan
+
+                          @can('assurance_delete')
                         <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $assurance->id }})">
                             <i class="bx bx-trash"></i>
                         </button>
+                        @endcan
                     
                         <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $assurance->id }}"
                             wire:click="delete({{ $assurance->id }})">

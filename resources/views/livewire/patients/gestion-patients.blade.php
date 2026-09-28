@@ -15,9 +15,11 @@
                 </h4>
                 <p class="text-muted small mb-0">Registre des dossiers médicaux - Centre Médical La Gloire</p>
             </div>
+             @can('patient_add')
             <button wire:click="openModal" class="btn btn-primary px-4 radius-30">
                 <i class="bx bx-plus me-1"></i> Nouveau Patient
             </button>
+            @endcan
         </div>
     </div>
 
@@ -104,16 +106,18 @@
                                 <button wire:click="showPatient({{ $patient->id }})" class="btn btn-sm btn-outline-info me-1" title="Voir la fiche détaillée">
                                     <i class="bx bx-show"></i>
                                 </button>
-
+    @can('patient_edit')
                                 <button wire:click="editPatient({{ $patient->id }})" class="btn btn-sm btn-outline-primary me-1" title="Modifier le dossier">
                                     <i class="bx bx-edit"></i>
                                 </button>
+                                @endcan
 
 
-
+    @can('patient_delete')
                                 <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $patient->id }})">
                                     <i class="bx bx-trash"></i>
                                 </button>
+                                @endcan
 
                                 <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $patient->id }}"
                                     wire:click="delete({{ $patient->id }})">

@@ -278,7 +278,7 @@
                                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center radius-8 mb-1 py-2 {{ $medecin_id == $m->id ? 'active text-white bg-primary' : 'bg-white' }}">
                                             <div>
                                                 <div class="font-weight-bold" style="font-size: 0.88rem;">
-                                                    Dr. {{ $m->name ?? $m->nom }}
+                                                     {{ $m->name ?? $m->nom }}
                                                 </div>
                                                 <small class="{{ $medecin_id == $m->id ? 'text-white-50' : 'text-muted' }}">
                                                     {{ $m->email ?? 'Médecin' }}

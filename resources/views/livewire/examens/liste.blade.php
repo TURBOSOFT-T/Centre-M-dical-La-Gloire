@@ -5,6 +5,7 @@
             <tr>
                
                 <th>Nom</th>
+                <th>Type</th>
               
                 <th>Création</th>
                 <th>Actions</th>
@@ -18,21 +19,26 @@
                     <td>
                         {{ $examen->nom }}
                     </td>
+                    <td>
+                        {{$examen->type ?? "Biologie"}}
+                    </td>
                     
                     <td>
                         {{ $examen->created_at }}
                     </td>
                     <td class="text-end">
-                       
+                        @can('examen_edit')
                         <button class="btn btn-sm btn-dark" data-bs-toggle="modal"
                             data-bs-target="#examen-{{ $examen->id }}">
                             <i class="ri-edit-box-line"></i> Modifier
                         </button>
+                        @endcan
                       
-                      
+                       @can('examen_delete')
                         <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $examen->id }})">
                              <i class="bx bx-trash"></i>
                         </button>
+                        @endcan
                         
                         <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $examen->id }}"
                             wire:click="delete({{ $examen->id }})">

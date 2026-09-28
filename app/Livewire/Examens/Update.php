@@ -12,6 +12,7 @@ class Update extends Component
 
     public $examen;
     public $nom;
+    public $type; // <--- Propriété pour le type d'examen
     public $logo;
     public $caracteristiques = [];
 
@@ -20,6 +21,7 @@ class Update extends Component
         if ($examen) {
             $this->examen = $examen;
             $this->nom = $examen->nom;
+            $this->type = $examen->type ?? 'biologie'; // <--- Chargement du type existant
 
             // Décodage des caractéristiques [ {"nom": "...", "prix": ...} ]
             $this->caracteristiques = is_string($examen->caracteristiques)
@@ -52,11 +54,14 @@ class Update extends Component
     {
         $this->validate([
             'nom'                       => 'required|string|max:200',
+            'type'                      => 'required|in:biologie,imagerie,cardiologie,parasitologie,hematologie,biochimie,autre', // <--- Validation du type enum
             'caracteristiques'          => 'nullable|array',
             'caracteristiques.*.nom'    => 'required_with:caracteristiques.*.prix|nullable|string',
             'caracteristiques.*.prix'   => 'required_with:caracteristiques.*.nom|nullable|numeric|min:0',
         ], [
-            'nom.required'                          => 'Le nom de l\'examen est obligatoire.',
+            'nom.required'                      => 'Le nom de l\'examen est obligatoire.',
+            'type.required'                     => 'Le type d\'examen est obligatoire.',
+            'type.in'                           => 'Le type d\'examen sélectionné est invalide.',
             'caracteristiques.*.nom.required_with'  => 'Le nom de l\'analyse est requis.',
             'caracteristiques.*.prix.required_with' => 'Le prix de l\'analyse est requis.',
         ]);
@@ -71,6 +76,8 @@ class Update extends Component
 
         // Mise à jour du modèle
         $this->examen->nom = $this->nom;
+        $this->examen->type = $this->type; // <--- Sauvegarde du type
+        $this->examen->user_id = auth()->id(); // <--- Met à jour l'ID de l'admin/utilisateur effectuant la modification
         $this->examen->caracteristiques = $filteredCaracteristiques;
         $this->examen->save();
 

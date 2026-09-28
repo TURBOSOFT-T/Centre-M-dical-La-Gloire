@@ -35,6 +35,15 @@ class DatabaseSeeder extends Seeder
         'consultation_add',
         'consultation_edit',
         'consultation_dlete',
+        'consultation_delete',
+
+        'consultation_edit_champ',
+        'consultation_add_comment',
+        'consultation_add_evolution',
+        'consultation_add_exam',
+        'consultation_add_bilan',
+        'consultation_caisse',
+        'consultation_pay',
 
         'boutique_view',
         'boutique_add',
@@ -147,7 +156,20 @@ class DatabaseSeeder extends Seeder
 
         'setting_view',
         'message_view',
-        'gestion_stock'
+        'gestion_stock',
+        
+        'labo_view',
+        'labo_add',
+        'labo_edit',
+        'labo_delete',
+
+        'hospitalisation_view',
+        'hospitalisation_add',
+        'hospitalisation_edit',
+        'hospitalisation_delete',
+
+        
+
     ];
 
     public function run(): void
@@ -156,7 +178,7 @@ class DatabaseSeeder extends Seeder
         foreach ($this->permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
-      
+
         $this->call([
             CategorieSeeder::class,
             MarqueSeeder::class,
@@ -168,7 +190,7 @@ class DatabaseSeeder extends Seeder
             VisiteSeeder::class,
 
             ExamenSeeder::class,
-          
+
             AdminUserSeeder::class
         ]);
 
@@ -215,8 +237,8 @@ class DatabaseSeeder extends Seeder
 
 
 
-        
-         // 1. Créer ou récupérer le rôle pour le guard 'seller'
+
+        // 1. Créer ou récupérer le rôle pour le guard 'seller'
         $roleSeller = Role::findOrCreate('seller', 'seller');
 
         // 2. Créer et synchroniser les permissions du guard 'seller'

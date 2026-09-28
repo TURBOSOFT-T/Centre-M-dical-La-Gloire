@@ -145,7 +145,7 @@
                                     <td class="font-weight-bold text-primary">{{ $demande->code_demande }}</td>
                                     <td>
                                         <div class="font-weight-bold">{{ $demande->examen->nom ?? 'N/A' }}</div>
-                                        <small class="text-muted">Par Dr. {{ $demande->prescripteur->name ?? $demande->prescripteur->nom ?? 'N/A' }}</small>
+                                        <small class="text-muted">Par {{ $demande->prescripteur->name ?? $demande->prescripteur->nom ?? 'N/A' }}</small>
                                     </td>
                                     <td>
                                         @if(is_array($demande->analyses_demandees))

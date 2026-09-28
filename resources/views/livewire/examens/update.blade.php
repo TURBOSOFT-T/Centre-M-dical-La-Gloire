@@ -23,6 +23,18 @@
                 @enderror
             </div>
 
+            <div class="mb-3">
+    <label class="form-label font-weight-bold">Type d'Examen <span class="text-danger">*</span></label>
+    <select wire:model="type" class="form-select @error('type') is-invalid @enderror">
+       
+        <option value="biologie">Biologie</option>
+        <option value="imagerie">Imagerie</option>
+        tion>
+        <option value="autre">Autre</option>
+    </select>
+    @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+</div>
+
             {{-- Sous-analyses & Tarifs dynamiques --}}
             <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">

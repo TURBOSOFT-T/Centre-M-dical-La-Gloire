@@ -410,7 +410,7 @@ class GestionConsultations extends Component
         $this->date_heure_rdv = $c->date_heure_rdv ? $c->date_heure_rdv->format('Y-m-d\TH:i') : date('Y-m-d\TH:i');
         // $this->type = $c->type ?? 'specialiste';
         // Avant l'enregistrement dans saveConsultation() :
-        $this->type = str_replace(' ', '_', strtolower(trim($this->type)));
+        $this->type = str_replace(' ', '_', strtolower(trim($c->type)));
         $this->statut = $c->statut ?? 'programme';
 
         // Anamnèse & Historique

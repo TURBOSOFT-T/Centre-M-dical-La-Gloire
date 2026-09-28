@@ -23,10 +23,12 @@
                 </div>
 
                 {{-- Bouton Créer Dossier --}}
+                @can('dossier_medical_add')
                 <div class="col-auto">
                     <button wire:click="openCreate" class="btn btn-primary d-flex align-items-center gap-2">
                         <i class="bi bi-folder-plus"></i> Nouveau Dossier Médical
                     </button>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -99,16 +101,21 @@
                                     <button wire:click="openShow({{ $dossier->id }})" class="btn btn-outline-info" title="Consulter le dossier">
                                         Détails
                                     </button>
+                                    @can('dossier_medical_edit')
                                     @if ($dossier->modifiable())
                                     <button wire:click="openEdit({{ $dossier->id }})" class="btn btn-outline-primary" title="Modifier">
                                         Modifier
                                     </button>
                                     @endif
-                                    <button wire:click="delete({{ $dossier->id }})"
-                                        wire:confirm="Êtes-vous sûr de vouloir supprimer ce dossier médical ?"
-                                        class="btn btn-outline-danger" title="Supprimer">
-                                        Supprimer
-                                    </button>
+                                    @endcan
+                                    @can('dossier_medical_delete')
+                                     <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $dossier->id }})">
+                                   Supprimer
+                                </button>
+                                    @endcan
+                                     <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $dossier->id }}" wire:click="delete({{ $dossier->id }})">
+                                    <i class="bx bx-check-circle"></i> Confirmer
+                                </button>
                                 </div>
                             </td>
                         </tr>
@@ -270,12 +277,14 @@
             </div>
             <div class="d-flex gap-2">
 
-            <a href="{{ route('dossier-medical.rapport-pdf', $selectedDossier->id) }}" target="_blank" class="btn btn-success btn-sm me-2">
-        <i class="bi bi-file-earmark-pdf-fill me-1"></i> Imprimer Rapport / Bilan Médical
-    </a>
+                <a href="{{ route('dossier-medical.rapport-pdf', $selectedDossier->id) }}" target="_blank" class="btn btn-success btn-sm me-2">
+                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Imprimer Rapport / Bilan Médical
+                </a>
+                   @can('dossier_medical_edit')
                 <button wire:click="openEdit({{ $selectedDossier->id }})" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-pencil me-1"></i> Modifier
                 </button>
+                @endcan
                 <button wire:click="backToIndex" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-arrow-left me-1"></i> Retour
                 </button>
@@ -587,7 +596,7 @@
                             <th>Examen</th>
                             <th>Prescrit le</th>
                             <th>Statut</th>
-                           
+
                             <th class="text-end px-4">Action</th>
                         </tr>
                     </thead>
@@ -608,7 +617,7 @@
                                 <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">En attente</span>
                                 @endif
                             </td>
-                            
+
                             <td class="text-end px-4">
                                 @if($demande->statut === 'termine')
                                 <button wire:click="voirResultatsExamen({{ $demande->id }})" class="btn btn-sm btn-outline-primary">
@@ -691,7 +700,7 @@
                     </div>
                     @endif
                 </div>
-                
+
             </div>
         </div>
     </div>

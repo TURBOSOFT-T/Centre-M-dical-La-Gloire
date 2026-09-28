@@ -27,10 +27,11 @@
                     </span>
                     @endif
                 </button>
-
+                @can('consultation_add')
                 <button wire:click="openModal" class="btn btn-primary px-4 radius-30">
                     <i class="bx bx-plus me-1"></i> Nouvelle consultation
                 </button>
+                @endcan
             </div>
         </div>
     </div>
@@ -133,11 +134,13 @@
                                 @endswitch
                             </td>
                             <td class="text-end px-4">
+                                @can('consultation_caisse')
                                 @if(!$c->est_paye && $resteD > 0)
                                 <button wire:click="openPaiementModal({{ $c->id }})" class="btn btn-sm btn-success me-1 radius-30" title="Encaisser ou Versement partiel">
                                     <i class="bx bx-dollar-circle me-1"></i>Encaisser
                                 </button>
                                 @endif
+                                @endcan
 
                                 {{-- Imprimer la Facture Globalisee --}}
                                 <a href="{{ route('consultations.facture.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1" title="Imprimer le reçu / facture">
@@ -159,14 +162,15 @@
                                 @endif
 
                                 <button wire:click="showConsultation({{ $c->id }})" class="btn btn-sm btn-outline-info me-1" title="Voir la fiche"><i class="bx bx-show"></i></button>
-
+                                @can('consultation_edit')
                                 @if (method_exists($c, 'modifiable') ? $c->modifiable() : true)
                                 <button wire:click="editConsultation({{ $c->id }})" class="btn btn-sm btn-outline-primary me-1" title="Modifier"><i class="bx bx-edit"></i></button>
                                 @endif
-
+                                @can('consultation_delete')
                                 <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $c->id }})">
                                     <i class="bx bx-trash"></i>
                                 </button>
+                                @endcan
 
                                 <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $c->id }}" wire:click="delete({{ $c->id }})">
                                     <i class="bx bx-check-circle"></i> Confirmer
@@ -190,12 +194,12 @@
     <!-- MODALE D'ENCAISSEMENT PARTIEL ET TOTAL -->
     @if($isPaymentModalOpen && $consultationEnPaiement)
     <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.6);" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content radius-15 border-0 shadow-lg">
 
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title font-weight-bold text-white">
-                        <i class="bx bx-receipt me-2"></i>Règlement / Acompte Caisse
+                        <i class="bx bx-receipt me-2"></i>Règlement / Acompte Caisse - Patient
                     </h5>
                     <button type="button" class="btn-close btn-close-white" wire:click="closePaiementModal"></button>
                 </div>
@@ -203,82 +207,107 @@
                 <form wire:submit.prevent="enregistrerVersement">
                     <div class="modal-body p-4">
 
-                        {{-- Récapitulatif Financier du Patient --}}
+                        {{-- Récapitulatif Financier --}}
                         @php
                         $totalFacture = $consultationEnPaiement->tarif_brut + ($consultationEnPaiement->demandesExamens ? $consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0);
                         $dejaPaye = $consultationEnPaiement->montant_paye ?? 0;
                         $resteAEncaisser = max(0, $totalFacture - $dejaPaye);
                         @endphp
 
-                        <div class="card bg-light border-0 p-3 mb-3 radius-10">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted">Total Prestations :</span>
-                                <strong class="text-dark">{{ number_format($totalFacture, 0, ',', ' ') }} FCFA</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted">Déjà Réglé :</span>
-                                <strong class="text-success">{{ number_format($dejaPaye, 0, ',', ' ') }} FCFA</strong>
-                            </div>
-                            <hr class="my-2">
-                            <div class="d-flex justify-content-between fs-6">
-                                <strong class="text-danger">Reste Net à Payer :</strong>
-                                <strong class="text-danger fs-5">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</strong>
-                            </div>
-                        </div>
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="card bg-light border-0 p-3 mb-3 radius-10">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted">Total Prestations :</span>
+                                        <strong class="text-dark">{{ number_format($totalFacture, 0, ',', ' ') }} FCFA</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted">Déjà Réglé :</span>
+                                        <strong class="text-success">{{ number_format($dejaPaye, 0, ',', ' ') }} FCFA</strong>
+                                    </div>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between fs-6">
+                                        <strong class="text-danger">Reste Net à Payer :</strong>
+                                        <strong class="text-danger fs-5">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</strong>
+                                    </div>
+                                </div>
 
-                        {{-- Formulaire de Versement --}}
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold">Montant du versement (FCFA) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="number"
-                                    wire:model="montantEncaissement"
-                                    max="{{ $resteAEncaisser }}"
-                                    min="1"
-                                    class="form-control fs-5 font-weight-bold text-primary @error('montantEncaissement') is-invalid @enderror">
-                                <button type="button"
-                                    class="btn btn-outline-secondary"
-                                    wire:click="$set('montantEncaissement', {{ $resteAEncaisser }})">
-                                    Tout Régler
-                                </button>
-                            </div>
-                            @error('montantEncaissement') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                        </div>
+                                {{-- Formulaire de Versement --}}
+                                @if($resteAEncaisser > 0)
+                                <div class="mb-3">
+                                    <label class="form-label font-weight-bold">Montant du versement (FCFA) <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number"
+                                            wire:model="montantEncaissement"
+                                            max="{{ $resteAEncaisser }}"
+                                            min="1"
+                                            class="form-control fs-5 font-weight-bold text-primary @error('montantEncaissement') is-invalid @enderror">
+                                        <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            wire:click="$set('montantEncaissement', {{ $resteAEncaisser }})">
+                                            Tout Régler
+                                        </button>
+                                    </div>
+                                    @error('montantEncaissement') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
 
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold">Mode de paiement</label>
-                            <select wire:model="modePaiement" class="form-select">
-                                <option value="Espèces">Espèces</option>
-                                <option value="Mobile Money">Mobile Money (MTN / Orange)</option>
-                                <option value="Carte Bancaire">Carte Bancaire</option>
-                                <option value="Chèque">Chèque</option>
-                                <option value="Prise en charge Assurance">Prise en charge Assurance</option>
-                            </select>
-                        </div>
+                                <div class="mb-3">
+                                    <label class="form-label font-weight-bold">Mode de paiement</label>
+                                    <select wire:model="modePaiement" class="form-select">
+                                        <option value="Espèces">Espèces</option>
+                                        <option value="Mobile Money">Mobile Money (MTN / Orange)</option>
+                                        <option value="Carte Bancaire">Carte Bancaire</option>
+                                        <option value="Chèque">Chèque</option>
+                                        <option value="Prise en charge Assurance">Prise en charge Assurance</option>
+                                    </select>
+                                </div>
+                                @else
+                                <div class="alert alert-success text-center py-3">
+                                    <i class="bx bx-check-shield fs-3 d-block mb-1"></i>
+                                    <strong>Facture totalement soldée !</strong>
+                                </div>
+                                @endif
+                            </div>
 
-                        {{-- Historique des tranches déjà versées --}}
-                        @if(!empty($consultationEnPaiement->historique_paiements))
-                        <div class="mt-3">
-                            <small class="fw-bold text-muted d-block mb-1">Historique des versements :</small>
-                            <div class="border rounded p-2 bg-white" style="max-height: 120px; overflow-y: auto;">
-                                <ul class="list-unstyled mb-0 small">
-                                    @foreach($consultationEnPaiement->historique_paiements as $p)
-                                    <li class="d-flex justify-content-between border-bottom py-1">
-                                        <span>{{ $p['date'] ?? '' }} ({{ $p['mode'] ?? 'Espèces' }})</span>
-                                        <strong class="text-success">+{{ number_format($p['montant'] ?? 0, 0, ',', ' ') }} FCFA</strong>
-                                    </li>
-                                    @endforeach
-                                </ul>
+                            <div class="col-md-5 border-start">
+                                {{-- Bouton global de génération de facture / reçu --}}
+
+
+                                {{-- Historique des tranches déjà versées avec option d'impression par reçu --}}
+                                <small class="fw-bold text-muted d-block mb-1">Historique des versements :</small>
+                                @if(!empty($consultationEnPaiement->historique_paiements))
+                                <div>
+
+                                    <div class="border rounded p-2 bg-white" style="max-height: 180px; overflow-y: auto;">
+                                        <ul class="list-unstyled mb-0 small">
+                                            @foreach($consultationEnPaiement->historique_paiements as $index => $p)
+                                            <li class="d-flex align-items-center justify-content-between border-bottom py-2">
+                                                <div>
+                                                    <span class="d-block fw-bold text-dark">+{{ number_format($p['montant'] ?? 0, 0, ',', ' ') }} FCFA</span>
+                                                    <small class="text-muted">{{ $p['date'] ?? '' }} • {{ $p['mode'] ?? 'Espèces' }}</small>
+                                                </div>
+                                                {{-- Bouton pour imprimer un reçu spécifique à cette tranche si la route le supporte --}}
+                                                <a href="{{ route('consultations.recu.tranche', ['id' => $consultationEnPaiement->id, 'index' => $index]) }}" target="_blank" class="btn btn-sm btn-light text-primary" title="Imprimer le reçu de cette tranche">
+                                                    <i class="bx bx-file"></i>
+                                                </a>
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
                         </div>
-                        @endif
 
                     </div>
 
                     <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary px-4 radius-30" wire:click="closePaiementModal">Annuler</button>
+                        <button type="button" class="btn btn-secondary px-4 radius-30" wire:click="closePaiementModal">Fermer</button>
+                        @if($resteAEncaisser > 0)
                         <button type="submit" class="btn btn-success px-4 radius-30">
-                            <i class="bx bx-check-circle me-1"></i> Valider l'Encaissement
+                            <i class="bx bx-check-circle me-1"></i> Valider le Versement
                         </button>
+                        @endif
                     </div>
                 </form>
 
@@ -286,7 +315,6 @@
         </div>
     </div>
     @endif
-
     <!-- MODALE FORMULAIRE DE CRÉATION / ÉDITION DE CONSULTATION -->
     @if($isModalOpen)
     <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);" role="dialog">
@@ -421,7 +449,7 @@
                                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center radius-8 mb-1 py-2 {{ $medecin_id == $m->id ? 'active text-white bg-primary' : 'bg-white' }}">
                                             <div>
                                                 <div class="font-weight-bold" style="font-size: 0.88rem;">
-                                                    Dr. {{ $m->name ?? $m->nom }}
+                                                    {{ $m->name ?? $m->nom }}
                                                 </div>
                                                 <small class="{{ $medecin_id == $m->id ? 'text-white-50' : 'text-muted' }}">
                                                     {{ $m->email ?? 'Médecin' }}
@@ -453,7 +481,7 @@
                                 <div class="mb-3">
                                     <label class="form-label font-weight-bold">Type de consultation <span class="text-danger">*</span></label>
                                     <select wire:model.live="type" class="form-select @error('type') is-invalid @elseif(!empty($type) && !$errors->has('type')) is-valid @enderror">
-                                        <option value="">-- Sélectionner le type --</option>
+
                                         @foreach ($typeConsultations ?? [] as $typeOption)
                                         <option value="{{ $typeOption }}">{{ ucfirst(str_replace('_', ' ', $typeOption)) }}</option>
                                         @endforeach
@@ -803,7 +831,7 @@
                                         <div class="col-6 font-weight-bold text-danger"><span>Solde Impayé :</span></div>
                                         <div class="col-6 text-end font-weight-bold text-danger">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</div>
 
-                                         <div class="col-6"><strong>Statut Caisse :</strong></div>
+                                        <div class="col-6"><strong>Statut Caisse :</strong></div>
                                         <div class="col-6 text-end">
                                             @if($selectedConsultation->est_paye)
                                             <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>PAYÉ</span>
@@ -814,15 +842,15 @@
 
 
                                         <tr style="border-top: 1px solid #0d6efd; font-weight: bold; font-size: 12px;">
-                <td style="padding-top: 4px; color: #d9534f;">Reste à Payer :</td>
-                <td style="text-align: right; padding-top: 4px; color: #d9534f;">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</td>
-            </tr>
+                                            <td style="padding-top: 4px; color: #d9534f;">Reste à Payer :</td>
+                                            <td style="text-align: right; padding-top: 4px; color: #d9534f;">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</td>
+                                        </tr>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        
+
                         <!-- CARTE 3 : CONSTANTES PRISES -->
                         <div class="col-12">
                             <div class="card border-0 shadow-sm radius-12">

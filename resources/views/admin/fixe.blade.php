@@ -126,10 +126,10 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         <div class="sidebar-wrapper" data-simplebar="true">
             <div class="sidebar-header">
                 <div class="">
-                   
-                     @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" class="logo-icon-2">
-                        @endif
+
+                    @if(!empty($logoBase64))
+                    <img src="{{ $logoBase64 }}" alt="logo" class="logo-icon-2">
+                    @endif
                 </div>
                 <div>
                     <h4 class="logo-text">
@@ -184,7 +184,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 </li>
                 @endcan
 
-                @can('marque_view')
+                @can('labo_view')
                 <li>
                     <a href="{{ route('laboratoires') }}">
                         <div class="parent-icon icon-color-3">
@@ -197,7 +197,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 </li>
                 @endcan
 
-               <!--  @role('admin')
+                <!--  @role('admin')
                 <li>
                     <a href="{{ route('shops') }}">
                         <div class="parent-icon icon-color-6">
@@ -211,7 +211,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 @endrole
  -->
 
-
+                @can('assurance_view')
                 <li>
                     <a href="{{ route('assurances') }}">
                         <div class="parent-icon icon-color-3">
@@ -222,9 +222,10 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                         </div>
                     </a>
                 </li>
+                @endcan
 
 
-
+                @can('examen_view')
                 <li>
                     <a href="{{ route('examens') }}">
                         <div class="parent-icon icon-color-3">
@@ -235,6 +236,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                         </div>
                     </a>
                 </li>
+                @endcan
 
 
                 @can('product_view')
@@ -303,39 +305,43 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 </li>
                 @endcan
 
-{{-- MODULE 1 : ACCUEIL & ADMINISTRATION --}}
-<li>
-    <a href="javascript:;" class="has-arrow">
-        <div class="parent-icon icon-color-5">
-            <i class="ri-user-shared-line"></i>
-        </div>
-        <div class="menu-title">
-            Accueil & Admissions
-        </div>
-    </a>
-    <ul>
-        @role('admin')
-        <li>
-            <a href="{{ route('personnels') }}">
-                <i class="bx bx-right-arrow-alt"></i>
-                Gestion du Personnel
-            </a>
-        </li>
-        @endrole
-        <li>
-            <a href="{{ route('patients') }}">
-                <i class="bx bx-right-arrow-alt"></i>
-                Gestion des Patients
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('visites') }}">
-                <i class="bx bx-right-arrow-alt"></i>
-                Registre des Visiteurs
-            </a>
-        </li>
-    </ul>
-</li>
+                {{-- MODULE 1 : ACCUEIL & ADMINISTRATION --}}
+                <li>
+                    <a href="javascript:;" class="has-arrow">
+                        <div class="parent-icon icon-color-5">
+                            <i class="ri-user-shared-line"></i>
+                        </div>
+                        <div class="menu-title">
+                            Accueil & Admissions
+                        </div>
+                    </a>
+                    <ul>
+                        @role('admin')
+                        <li>
+                            <a href="{{ route('personnels') }}">
+                                <i class="bx bx-right-arrow-alt"></i>
+                                Gestion du Personnel
+                            </a>
+                        </li>
+                        @endrole
+                        @can('patient_view')
+                        <li>
+                            <a href="{{ route('patients') }}">
+                                <i class="bx bx-right-arrow-alt"></i>
+                                Gestion des Patients
+                            </a>
+                        </li>
+                        @endcan
+                        @can('visiteur_view')
+                        <li>
+                            <a href="{{ route('visites') }}">
+                                <i class="bx bx-right-arrow-alt"></i>
+                                Registre des Visiteurs
+                            </a>
+                        </li>
+                        @endcan
+                    </ul>
+                </li>
 
 
 
@@ -357,24 +363,28 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                                 Dossiers Médicaux
                             </a>
                         </li>
+                        @can('consultation_view')
                         <li>
                             <a href="{{ route('consultations') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
-                                Consultations
+                                Salle d'attente
                             </a>
                         </li>
+                        @endcan
+                        @can('hospitalisation_view')
                         <li>
                             <a href="{{ route('hospitalisations') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
                                 Hospitalisations
                             </a>
                         </li>
-                        <li>
+                        @endcan
+                        <!-- <li>
                             <a href="{{ route('rendez-vous') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
                                 Rendez-vous
                             </a>
-                        </li>
+                        </li> -->
                     </ul>
                 </li>
 
@@ -516,10 +526,12 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                                     <i class="bx bx-cog"></i>
                                     <span>Settings</span>
                                 </a>
+                                @can('dashboard')
                                 <a class="dropdown-item" href="{{ route('dashboard') }}">
                                     <i class="bx bx-tachometer"></i>
                                     <span>Dashboard</span>
                                 </a>
+                                @endcan
                                 <div class="dropdown-divider mb-0"></div>
                                 <a class="dropdown-item" href="{{ route('logout') }}">
                                     <i class="bx bx-power-off"></i>

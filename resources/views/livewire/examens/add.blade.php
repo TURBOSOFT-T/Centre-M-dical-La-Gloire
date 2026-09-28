@@ -12,6 +12,17 @@
             @enderror
         </div>
 
+        <div class="mb-3">
+    <label class="form-label font-weight-bold">Type d'Examen <span class="text-danger">*</span></label>
+    <select wire:model="type" class="form-select @error('type') is-invalid @enderror">
+        <option value="">-- Sélectionnez le type --</option>
+        <option value="biologie">Biologie</option>
+        <option value="imagerie">Imagerie</option>
+        
+    </select>
+    @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+</div>
+
         {{-- Liste dynamique des sous-analyses & tarifs --}}
         <div class="mb-3 p-3 border rounded bg-light">
             <label class="form-label font-weight-bold mb-2">Sous-analyses & Tarifs</label>
@@ -53,9 +64,11 @@
             @endforeach
 
             <div class="mt-3">
+                 @can('examen_add')
                 <button type="button" class="btn btn-outline-primary radius-30" wire:click="addCaracteristique">
                     <i class="bx bx-plus me-1"></i> Ajouter une analyse
                 </button>
+                @endcan
             </div>
         </div>
 
@@ -63,11 +76,13 @@
 
         {{-- Pied du Formulaire --}}
         <div class="modal-footer px-0 pb-0 pt-3 border-top">
+             @can('examen_add')
             <button class="btn btn-primary px-4 radius-30" type="submit" wire:loading.attr="disabled">
                 <span wire:loading class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                 <i class="bx bx-save me-1" wire:loading.remove></i>
                 Enregistrer
             </button>
+            @endcan
         </div>
     </form>
 </div>

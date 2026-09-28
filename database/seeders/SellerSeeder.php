@@ -149,7 +149,29 @@ class SellerSeeder extends Seeder
 
         'setting_view',
         'message_view',
-        'gestion_stock'
+        'gestion_stock',
+         'labo_view',
+        'labo_add',
+        'labo_edit',
+        'labo_delete',
+
+        'hospitalisation_view',
+        'hospitalisation_add',
+        'hospitalisation_edit',
+        'hospitalisation_delete',
+
+        'consultation_delete',
+
+        'consultation_edit_champ',
+        'consultation_add_comment',
+        'consultation_add_evolution',
+        'consultation_add_exam',
+        'consultation_add_bilan',
+        'consultation_caisse',
+          'consultation_pay',
+
+
+        
     ];
 
     /**
