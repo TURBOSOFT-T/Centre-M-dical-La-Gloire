@@ -357,12 +357,14 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                         </div>
                     </a>
                     <ul>
+                        @can('dossier_medical_view')
                         <li>
                             <a href="{{ route('dossiersmedicaux') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
                                 Dossiers Médicaux
                             </a>
                         </li>
+                        @endcan
                         @can('consultation_view')
                         <li>
                             <a href="{{ route('consultations') }}">
