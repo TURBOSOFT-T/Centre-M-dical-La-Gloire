@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    
+
 
     <!-- BARRE DE RECHERCHE & FILTRES -->
     <div class="card mb-4 border-0 shadow-sm radius-12">
@@ -159,7 +159,7 @@
                             <td>
 
                                 {{-- Bouton pour voir uniquement les champs modifiés --}}
-                               @can('consultation_confirm_modif')
+                                @can('consultation_confirm_modif')
                                 @if($c->est_modifie)
                                 <button wire:click="voirModifications({{ $c->id }})" class="btn btn-sm btn-outline-warning me-1 position-relative" title="Voir les champs modifiés">
                                     Visualiser
@@ -168,7 +168,7 @@
                                     @endif
                                 </button>
                                 @endif
-                                @endcan 
+                                @endcan
                                 @if($c->est_modifie)
                                 @if(!$c->vu_par_responsable)
                                 <span class="badge bg-danger text-white d-block mt-1" title="Modifié - En attente de validation responsable">
@@ -186,7 +186,7 @@
 
 
                                 {{-- Bouton pour marquer comme vu par le responsable (Visible si modifié et non encore validé, ou selon vos rôles) --}}
-                               @can('consultation_confirm_modif')
+                                @can('consultation_confirm_modif')
                                 @if($c->est_modifie && !$c->vu_par_responsable)
                                 <button wire:click="marquerVuParResponsable({{ $c->id }})" class="btn btn-sm btn-outline-success me-1" title="Marquer comme vu par le responsable">
                                     <i class="bx bx-check-shield"></i> Marquer vue
@@ -425,7 +425,7 @@
                                             </div>
                                         </div>
 
-                                       <!--  <button type="button" wire:click="$set('searchPatient', ' ')" class="btn btn-light btn-sm text-primary font-weight-bold radius-30 px-3">
+                                        <!--  <button type="button" wire:click="$set('searchPatient', ' ')" class="btn btn-light btn-sm text-primary font-weight-bold radius-30 px-3">
                                             <i class="bx bx-refresh me-1"></i> Changer de patient
                                         </button> -->
                                     </div>
@@ -486,7 +486,7 @@
                             </div>
 
                             <!-- SECTION 2 : PROGRAMMATION & MÉDECIN -->
-                             @can('consultation_edit_champ')
+
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-calendar-check me-1"></i> Programmation & Attribution</h6>
                             </div>
@@ -510,7 +510,7 @@
                                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center radius-8 mb-1 py-2 {{ $medecin_id == $m->id ? 'active text-white bg-primary' : 'bg-white' }}">
                                             <div>
                                                 <div class="font-weight-bold" style="font-size: 0.88rem;">
-                                                    {{  $m->nom }}
+                                                    {{ $m->nom }}
                                                 </div>
                                                 <small class="{{ $medecin_id == $m->id ? 'text-white-50' : 'text-muted' }}">
                                                     {{ $m->email ?? 'Médecin' }}
@@ -549,7 +549,7 @@
                                     </select>
                                     @error('type') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
                                 </div>
-
+                                @can('consultation_edit_champ')
                                 <div class="mb-3">
                                     <label class="form-label font-weight-bold">Statut Médical <span class="text-danger">*</span></label>
                                     <select wire:model.live="statut" class="form-select @error('statut') is-invalid @enderror">
@@ -563,6 +563,7 @@
                                     <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div>
                                     @enderror
                                 </div>
+                                @endcan
 
                                 <div>
                                     <label class="form-label font-weight-bold">Tarif de base (FCFA) <span class="text-danger">*</span></label>
@@ -573,7 +574,7 @@
                                     @error('tarif_brut') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
                                 </div>
                             </div>
-                            @endcan
+
 
                             <!-- SECTION 3 : CONSTANTES -->
                             <div class="col-12 mt-3">
@@ -586,7 +587,7 @@
                             <div class="col-md-3 col-12"><label class="form-label">Glycémie (g/L)</label><input type="text" wire:model="glycemie" class="form-control" placeholder="0.95"></div>
 
                             <!-- SECTION 4 : ANAMNÈSE & HISTORIQUE -->
-                             @can('consultation_edit_champ')
+                            @can('consultation_edit_champ')
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Anamnèse & Historique de la Maladie</h6>
                             </div>
@@ -749,7 +750,7 @@
                             </div>
 
                             <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
-                             @can('consultation_add_exam')
+                            @can('consultation_add_exam')
                             @if($isEditMode && isset($selectedConsultationId))
                             @php
                             $consultationActive = $consultations->find($selectedConsultationId);
