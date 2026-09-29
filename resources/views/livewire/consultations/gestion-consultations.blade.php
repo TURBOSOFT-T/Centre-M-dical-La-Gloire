@@ -181,11 +181,13 @@
 
 
                                 {{-- Bouton pour marquer comme vu par le responsable (Visible si modifié et non encore validé, ou selon vos rôles) --}}
+                               @can('consultation_confirm_modif')
                                 @if($c->est_modifie && !$c->vu_par_responsable)
                                 <button wire:click="marquerVuParResponsable({{ $c->id }})" class="btn btn-sm btn-outline-success me-1" title="Marquer comme vu par le responsable">
                                     <i class="bx bx-check-shield"></i> Marquer vue
                                 </button>
                                 @endif
+                                @endcan
                                 @can('consultation_caisse')
                                 @if(!$c->est_paye && $resteD > 0)
                                 <button wire:click="openPaiementModal({{ $c->id }})" class="btn btn-sm btn-success me-1 radius-30" title="Encaisser ou Versement partiel">

@@ -36,10 +36,12 @@ class PermissionSeeder extends Seeder
         'consultation_add_evolution',
         'consultation_add_exam',
         'consultation_add_bilan',
-          'consultation_pay',
-            'consultation_caisse',
+        'consultation_pay',
+        'consultation_caisse',
         'consultation_notifications',
-        
+
+        'consultation_confirm_modif'
+
 
 
     ];

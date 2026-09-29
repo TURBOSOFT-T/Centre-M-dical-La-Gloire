@@ -191,6 +191,10 @@
                                     <td>
                                         <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_pay" @checked($personnel->hasPermissionTo('consultation_pay'))> Notification caisse
                                     </td>
+
+                                     <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_confirm_modif" @checked($personnel->hasPermissionTo('consultation_confirm_modif'))> Marquer vu 
+                                    </td>
                                     
                                 </tr>
 
