@@ -1089,13 +1089,32 @@
 
 
     <!-- SECTION : APERÇU DES MODIFICATIONS DYNAMIQUES POUR LE RESPONSABLE -->
-  @foreach($selectedConsultation->modifications_historique as $cle => $diff)
+    @if(isset($selectedConsultation) && $selectedConsultation->est_modifie && !empty($selectedConsultation->modifications_historique))
+    <div class="card border-danger bg-light mb-4 radius-12">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 text-white"><i class="bx bx-history me-2"></i>Détails des modifications apportées (En attente de validation)</h6>
+            <span class="badge bg-white text-danger">Modifié récemment</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered bg-white align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Champ Modifié</th>
+                            <th>Ancienne Valeur</th>
+                            <th>Nouvelle Valeur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       @foreach($selectedConsultation->modifications_historique as $cle => $diff)
 <tr>
     <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
     <td>
         <span class="text-danger text-decoration-line-through">
             @if(is_array($diff['ancien']))
-                {{ json_encode($diff['ancien'], JSON_UNESCAPED_UNICODE) }}
+                @foreach($diff['ancien'] as $k => $v)
+                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
+                @endforeach
             @else
                 {{ $diff['ancien'] }}
             @endif
@@ -1104,7 +1123,9 @@
     <td>
         <span class="text-success fw-bold">
             @if(is_array($diff['nouveau']))
-                {{ json_encode($diff['nouveau'], JSON_UNESCAPED_UNICODE) }}
+                @foreach($diff['nouveau'] as $k => $v)
+                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
+                @endforeach
             @else
                 {{ $diff['nouveau'] }}
             @endif
@@ -1112,6 +1133,25 @@
     </td>
 </tr>
 @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Bouton direct pour valider en tant que responsable depuis la vue --}}
+            @if(!$selectedConsultation->vu_par_responsable)
+            <div class="mt-3 text-end">
+                <button wire:click="marquerVuParResponsable({{ $selectedConsultation->id }})" class="btn btn-success btn-sm radius-30">
+                    <i class="bx bx-check-shield me-1"></i> Marquer comme vérifié et validé
+                </button>
+            </div>
+            @else
+            <div class="mt-2 text-success small text-end">
+                <i class="bx bx-check-double me-1"></i> Validé par le responsable le {{ \Carbon\Carbon::parse($selectedConsultation->date_vu_responsable)->format('d/m/Y à H:i') }}
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
 
     <!-- MODALE DE PRÉVISUALISATION DES CHAMPS MODIFIÉS -->
     @if($isModificationsModalOpen && $consultationModificationsDetails)
