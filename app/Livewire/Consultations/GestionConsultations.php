@@ -557,10 +557,9 @@ class GestionConsultations extends Component
             $nouveauPatient = Patient::create([
                 'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
                 'nom'          => $this->nouveau_nom,
-                'prenom'       => $this->nouveau_prenom ?? null,
+              
                 'telephone'    => $this->nouveau_telephone,
-                'genre'        => $this->nouveau_genre ?? null,
-                'date_naissance' => $this->nouveau_date_naissance ?? null,
+                
             ]);
 
             $this->patient_id = $nouveauPatient->id;
