@@ -422,9 +422,9 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" wire:click="$set('searchPatient', ' ')" class="btn btn-light btn-sm text-primary font-weight-bold radius-30 px-3">
+                                       <!--  <button type="button" wire:click="$set('searchPatient', ' ')" class="btn btn-light btn-sm text-primary font-weight-bold radius-30 px-3">
                                             <i class="bx bx-refresh me-1"></i> Changer de patient
-                                        </button>
+                                        </button> -->
                                     </div>
                                 </div>
                                 @endif
