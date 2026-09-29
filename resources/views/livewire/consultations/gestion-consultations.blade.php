@@ -483,6 +483,7 @@
                             </div>
 
                             <!-- SECTION 2 : PROGRAMMATION & MÉDECIN -->
+                             @can('consultation_edit_champ')
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-calendar-check me-1"></i> Programmation & Attribution</h6>
                             </div>
@@ -569,6 +570,7 @@
                                     @error('tarif_brut') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
                                 </div>
                             </div>
+                            @endcan
 
                             <!-- SECTION 3 : CONSTANTES -->
                             <div class="col-12 mt-3">
@@ -581,6 +583,7 @@
                             <div class="col-md-3 col-12"><label class="form-label">Glycémie (g/L)</label><input type="text" wire:model="glycemie" class="form-control" placeholder="0.95"></div>
 
                             <!-- SECTION 4 : ANAMNÈSE & HISTORIQUE -->
+                             @can('consultation_edit_champ')
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Anamnèse & Historique de la Maladie</h6>
                             </div>
@@ -643,6 +646,7 @@
                                 <label class="form-label font-weight-bold">Traitement de Sortie & Recommandations</label>
                                 <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
                             </div>
+                            @endcan
                             <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2">
