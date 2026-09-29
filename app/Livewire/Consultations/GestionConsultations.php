@@ -130,44 +130,42 @@ class GestionConsultations extends Component
         $this->consultationModificationsDetails = null;
     }
 
-    protected function rules()
-    {
-        return [
-            'patient_id'             => 'required|exists:patients,id',
-            'medecin_id'             => 'nullable|exists:users,id',
-            'date_heure_rdv'         => 'required',
-            'type'                   => 'nullable|string',
-            // S'assurer que tous les statuts du select figurent dans in:...
-            'statut'                 => 'required|in:programme,en_attente,en_cours,termine,annule',
-            'motif'                  => 'nullable|string',
-            'historique_maladie'     => 'nullable|string',
-            'antecedents_maladie'    => 'nullable|string',
-            'mode_de_vie'            => 'nullable|string',
-            'examen_physique'        => 'nullable|string',
-            'examen_general'         => 'nullable|string',
-            'hypothese_diagnostique' => 'nullable|string',
-            'diagnostic'             => 'nullable|string',
-            'resultats_analyses'     => 'nullable|string',
-            'ordonnance'             => 'nullable|string',
-            'traitement'             => 'nullable|string',
-            'traitement_sortie'      => 'nullable|string',
-            'notes_privees'          => 'nullable|string',
-            'tarif_brut'             => 'required|numeric|min:0',
-            'est_paye'               => 'boolean',
+   protected function rules()
+{
+    $rules = [
+        'medecin_id'             => 'nullable|exists:users,id',
+        'date_heure_rdv'         => 'required',
+        'type'                   => 'nullable|string',
+        'statut'                 => 'required|in:programme,en_attente,en_cours,termine,annule',
+        'motif'                  => 'nullable|string',
+        'historique_maladie'     => 'nullable|string',
+        'antecedents_maladie'    => 'nullable|string',
+        'mode_de_vie'            => 'nullable|string',
+        'examen_physique'        => 'nullable|string',
+        'examen_general'         => 'nullable|string',
+        'hypothese_diagnostique' => 'nullable|string',
+        'diagnostic'             => 'nullable|string',
+        'resultats_analyses'     => 'nullable|string',
+        'ordonnance'             => 'nullable|string',
+        'traitement'             => 'nullable|string',
+        'traitement_sortie'      => 'nullable|string',
+        'notes_privees'          => 'nullable|string',
+        'tarif_brut'             => 'required|numeric|min:0',
+        'est_paye'               => 'boolean',
+    ];
 
-
-        ];
-
-        if ($this->isCreatingNewPatient) {
-            $rules['nouveau_nom'] = 'required|string|max:255';
-            $rules['nouveau_prenom'] = 'nullable|string|max:255';
-            $rules['nouveau_telephone'] = 'required|string|max:50|unique:patients,telephone';
-            $rules['nouveau_genre'] = 'nullable|in:M,F';
-            $rules['nouveau_date_naissance'] = 'nullable|date';
-        } else {
-            $rules['consultation.patient_id'] = 'required|exists:patients,id';
-        }
+    if ($this->isCreatingNewPatient) {
+        $rules['nouveau_nom'] = 'required|string|max:255';
+        $rules['nouveau_prenom'] = 'nullable|string|max:255';
+        $rules['nouveau_telephone'] = 'required|string|max:50'; // On retire |unique pour éviter de bloquer si le patient existe déjà (géré manuellement)
+        $rules['nouveau_genre'] = 'nullable|in:M,F';
+        $rules['nouveau_date_naissance'] = 'nullable|date';
+    } else {
+        $rules['patient_id'] = 'required|exists:patients,id';
     }
+
+    return $rules;
+}
 
     public function mount()
     {
@@ -538,42 +536,36 @@ class GestionConsultations extends Component
     public function saveConsultation()
     {
 
-        if (empty($this->consultation_id) && !empty($this->isCreatingNewPatient)) {
-            $this->validate([
-                'nouveau_nom' => 'required|string|max:255',
-                'nouveau_telephone' => 'required|string|max:50',
+       // --- 1. GESTION DU PATIENT ---
+    if (empty($this->consultation_id) && $this->isCreatingNewPatient) {
+        $this->validate([
+            'nouveau_nom' => 'required|string|max:255',
+            'nouveau_telephone' => 'required|string|max:50',
+        ]);
+
+        $patientExistant = null;
+        if (!empty($this->nouveau_telephone)) {
+            $patientExistant = Patient::where('telephone', $this->nouveau_telephone)->first();
+        }
+
+        if ($patientExistant) {
+            // Le patient existe déjà -> On l'associe
+            $this->patient_id = $patientExistant->id;
+            session()->flash('info', "Ce patient existait déjà dans la base de données. Il a été associé automatiquement.");
+        } else {
+            // Le patient n'existe pas -> On le crée
+            $nouveauPatient = Patient::create([
+                'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+                'nom'          => $this->nouveau_nom,
+                'prenom'       => $this->nouveau_prenom ?? null,
+                'telephone'    => $this->nouveau_telephone,
+                'genre'        => $this->nouveau_genre ?? null,
+                'date_naissance' => $this->nouveau_date_naissance ?? null,
             ]);
 
-            // Vérifier si un patient avec le même numéro de téléphone existe déjà
-            $patientExistant = null;
-            if (!empty($this->nouveau_telephone)) {
-                $patientExistant = Patient::where('telephone', $this->nouveau_telephone)->first();
-            }
-
-
-
-            if ($patientExistant) {
-                // CAS A : Le patient existe déjà -> On l'associe directement à la consultation
-                $this->patient_id = $patientExistant->id;
-
-                // Optionnel : On peut notifier l'utilisateur qu'on a récupéré le profil existant
-                session()->flash('info', "Ce patient existait déjà dans la base de données. Il a été associé automatiquement.");
-            } else {
-                // CAS B : Le patient n'existe pas -> On le crée
-                $nouveauPatient = Patient::create([
-                    'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
-                    'nom' => $this->nouveau_nom,
-
-                    'telephone' => $this->nouveau_telephone,
-
-                ]);
-
-
-                $this->patient_id = $nouveauPatient->id;
-                $this->reinitialiserFiltrePaiement();
-            }
-            
+            $this->patient_id = $nouveauPatient->id;
         }
+    }
         $validatedData = $this->validate();
 
         if (!$this->dossier_medical_id && $this->patient_id) {
@@ -635,7 +627,7 @@ class GestionConsultations extends Component
                 'historique_maladie' => 'Historique de la maladie',
                 'antecedents_maladie' => 'Antécédents',
                 'examen_physique' => 'Examen physique',
-                'examens'=>'examens',
+                'examens' => 'examens',
                 'evaluations' => 'Evaluations',
                 'visite_medicale_journaliere' => 'visite medicale journaliere',
                 'constantes'                => [
@@ -718,17 +710,17 @@ class GestionConsultations extends Component
         $this->selectedConsultationId = $consultation->id;
 
         $this->reset([
-        'patient_id',
-        'searchPatient',
-        'isCreatingNewPatient',
-        'nouveau_nom',
-        'nouveau_prenom',
-        'nouveau_telephone',
-        'nouveau_genre',
-        'nouveau_date_naissance',
-        'nouveau_groupe_sanguin',
-        // Ajoutez ici d'autres champs de consultation si nécessaire pour vider tout le formulaire
-    ]);
+            'patient_id',
+            'searchPatient',
+            'isCreatingNewPatient',
+            'nouveau_nom',
+            'nouveau_prenom',
+            'nouveau_telephone',
+            'nouveau_genre',
+            'nouveau_date_naissance',
+            'nouveau_groupe_sanguin',
+            // Ajoutez ici d'autres champs de consultation si nécessaire pour vider tout le formulaire
+        ]);
 
         session()->flash('message', $isEdit ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
         $this->closeModal();

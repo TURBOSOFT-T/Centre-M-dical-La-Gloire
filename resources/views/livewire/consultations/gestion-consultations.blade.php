@@ -1106,33 +1106,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                       @foreach($selectedConsultation->modifications_historique as $cle => $diff)
-<tr>
-    <td class="fw-bold text-primary">Libelle</td>
-    <td>
-        <span class="text-danger text-decoration-line-through">
-            @if(is_array($diff['ancien']))
-                @foreach($diff['ancien'] as $k => $v)
-                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
-                @endforeach
-            @else
-                {{ $diff['ancien'] }}
-            @endif
-        </span>
-    </td>
-    <td>
-        <span class="text-success fw-bold">
-            @if(is_array($diff['nouveau']))
-                @foreach($diff['nouveau'] as $k => $v)
-                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
-                @endforeach
-            @else
-                {{ $diff['nouveau'] }}
-            @endif
-        </span>
-    </td>
-</tr>
-@endforeach
+                        @foreach($selectedConsultation->modifications_historique as $cle => $diff)
+                        <tr>
+                            <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
+                            <td><span class="text-danger text-decoration-line-through">{{ $diff['ancien'] }}</span></td>
+                            <td><span class="text-success fw-bold">{{ $diff['nouveau'] }}</span></td>
+                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
