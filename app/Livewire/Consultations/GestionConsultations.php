@@ -4,6 +4,7 @@ namespace App\Livewire\Consultations;
 
 use App\Http\Traits\TypeConsultations;
 use App\Models\Consultation;
+use App\Models\notifications;
 use App\Models\Patient;
 use App\Models\User;
 use Livewire\Component;
@@ -632,7 +633,7 @@ class GestionConsultations extends Component
             ?? trim(($consultation->patient?->nom ?? '') . ' ' . ($consultation->patient?->prenom ?? ''))
             ?? 'Patient';
 
-        $notification = new \App\Models\Notifications(); // ou new Notification() selon votre modèle
+        $notification = new notifications(); // ou new Notification() selon votre modèle
 
         // Adaptez la route vers la vue des détails de la consultation si elle existe
         $notification->url = '#'; // Remplacez par route('nom.de.route', ['id' => $consultation->id]) si besoin

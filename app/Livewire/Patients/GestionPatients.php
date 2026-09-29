@@ -3,6 +3,7 @@
 namespace App\Livewire\Patients;
 
 use App\Models\Assurance;
+use App\Models\notifications;
 use App\Models\Patient;
 use App\Models\Visite;
 use App\Models\Visiteur;
@@ -202,6 +203,17 @@ class GestionPatients extends Component
             'observations' => $this->observations,
         ]);
 
+        // 3. Enregistrement de la notification
+        $nomPatient = trim($this->selectedPatient->nom . ' ' . $this->selectedPatient->prenom);
+        
+        $notification = new  notifications();
+        $notification->url = '#';
+        $notification->titre = "Nouvelle visite";
+        $notification->message = "Visite enregistrée pour le patient {$nomPatient}.";
+        $notification->type = "consultation_creation"; // ou un type adapté
+        $notification->statut = "unread";
+        $notification->save();
+
         // Recharger le modèle sélectionné et sa relation
         $this->selectedPatient->refresh();
 
@@ -210,7 +222,7 @@ class GestionPatients extends Component
 
         session()->flash('message_visite', 'Visite enregistrée avec succès.');
     }
-
+    
     /**
      * Marquer la sortie du visiteur directement depuis la liste
      */
@@ -273,11 +285,11 @@ class GestionPatients extends Component
         $this->antecedents_medicaux = '';
         $this->resetValidation();
     }
-public function savePatient()
+    public function savePatient()
     {
         $validatedData = $this->validate();
 
-        // 1. Traitement des champs optionnels pour éviter les erreurs SQL (date, groupe sanguin, foreign keys...)
+        // 1. Traitement des champs optionnels pour éviter les erreurs SQL
         $validatedData['date_naissance'] = !empty($this->date_naissance) ? $this->date_naissance : null;
         $validatedData['groupe_sanguin'] = !empty($this->groupe_sanguin) ? $this->groupe_sanguin : null;
         $validatedData['assurance_id']   = !empty($this->assurance_id) ? $this->assurance_id : null;
@@ -324,13 +336,31 @@ public function savePatient()
         }
 
         // Enregistrement / Mise à jour
-        Patient::updateOrCreate(['id' => $this->patient_id], $validatedData);
+        $patient = Patient::updateOrCreate(['id' => $this->patient_id], $validatedData);
+
+        // 6. Gestion propre de la notification
+        $nomPatient = trim($patient->nom . ' ' . $patient->prenom);
+        
+        $notification = new notifications();
+        $notification->url = '#';
+
+        if ($this->isEditMode) {
+            $notification->titre = "Patient modifié";
+            $notification->message = "Dossier de {$nomPatient} mis à jour.";
+            $notification->type = "consultation_modification";
+        } else {
+            $notification->titre = "Nouveau patient";
+            $notification->message = "Patient {$nomPatient} enregistré.";
+            $notification->type = "consultation_creation";
+        }
+
+        $notification->statut = "unread";
+        $notification->save(); // <- Indispensable pour l'enregistrer en BDD !
 
         session()->flash('message', $this->isEditMode ? 'Dossier patient mis à jour avec succès.' : 'Patient enregistré avec succès.');
 
         $this->closeModal();
     }
-
     // Ajoutez cette méthode dans la classe GestionPatients
 
     /**
