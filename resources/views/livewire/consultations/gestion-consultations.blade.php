@@ -156,6 +156,7 @@
                             <td>
 
                                 {{-- Bouton pour voir uniquement les champs modifiés --}}
+                               @can('consultation_confirm_modif')
                                 @if($c->est_modifie)
                                 <button wire:click="voirModifications({{ $c->id }})" class="btn btn-sm btn-outline-warning me-1 position-relative" title="Voir les champs modifiés">
                                     Visualiser
@@ -164,6 +165,7 @@
                                     @endif
                                 </button>
                                 @endif
+                                @endcan 
                                 @if($c->est_modifie)
                                 @if(!$c->vu_par_responsable)
                                 <span class="badge bg-danger text-white d-block mt-1" title="Modifié - En attente de validation responsable">
