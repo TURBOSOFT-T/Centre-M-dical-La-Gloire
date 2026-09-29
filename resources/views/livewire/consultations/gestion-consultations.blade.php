@@ -491,28 +491,28 @@
                                     </div>
                                 </div>
                                 @endif
-@else
-<!-- ================= STATUT 2 : FORMULAIRE DE CRÉATION RAPIDE DU PATIENT ================= -->
-        <div class="card border p-3 radius-10 bg-light shadow-sm">
-            <h6 class="text-primary mb-3"><i class="bx bx-user-plus me-1"></i> Informations du nouveau patient</h6>
-            
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <label class="form-label small">Nom <span class="text-danger">*</span></label>
-                    <input type="text" wire:model="nouveau_nom" class="form-control form-control-sm" placeholder="Nom de famille">
-                    @error('nouveau_nom') <span class="text-danger small">{{ $message }}</span> @enderror
-                </div>
-               
-                <div class="col-md-6">
-                    <label class="form-label small">Téléphone <span class="text-danger">*</span></label>
-                    <input type="text" wire:model="nouveau_telephone" class="form-control form-control-sm" placeholder="Ex: 699000000">
-                    @error('nouveau_telephone') <span class="text-danger small">{{ $message }}</span> @enderror
-                </div>
-                
-                
-               
-            </div>
-        </div>
+                                @else
+                                <!-- ================= STATUT 2 : FORMULAIRE DE CRÉATION RAPIDE DU PATIENT ================= -->
+                                <div class="card border p-3 radius-10 bg-light shadow-sm">
+                                    <h6 class="text-primary mb-3"><i class="bx bx-user-plus me-1"></i> Informations du nouveau patient</h6>
+
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label small">Nom <span class="text-danger">*</span></label>
+                                            <input type="text" wire:model="nouveau_nom" class="form-control form-control-sm" placeholder="Nom de famille">
+                                            @error('nouveau_nom') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label small">Téléphone <span class="text-danger">*</span></label>
+                                            <input type="text" wire:model="nouveau_telephone" class="form-control form-control-sm" placeholder="Ex: 699000000">
+                                            @error('nouveau_telephone') <span class="text-danger small">{{ $message }}</span> @enderror
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
 
                                 @endif
 
@@ -1106,35 +1106,35 @@
                         </tr>
                     </thead>
                     <tbody>
-                       
+
 
                         @foreach($selectedConsultation->modifications_historique as $cle => $diff)
-<tr>
-    <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
-    <td>
-        <span class="text-danger text-decoration-line-through">
-            @if(is_array($diff['ancien']))
-                @foreach($diff['ancien'] as $k => $v)
-                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
-                @endforeach
-            @else
-                {{ $diff['ancien'] }}
-            @endif
-        </span>
-    </td>
-    <td>
-        <span class="text-success fw-bold">
-            @if(is_array($diff['nouveau']))
-                @foreach($diff['nouveau'] as $k => $v)
-                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
-                @endforeach
-            @else
-                {{ $diff['nouveau'] }}
-            @endif
-        </span>
-    </td>
-</tr>
-@endforeach
+                        <tr>
+                           
+                            <td>
+                                <span class="text-danger text-decoration-line-through">
+                                    @if(is_array($diff['ancien']))
+                                    @foreach($diff['ancien'] as $k => $v)
+                                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
+                                    @endforeach
+                                    @else
+                                    {{ $diff['ancien'] }}
+                                    @endif
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-success fw-bold">
+                                    @if(is_array($diff['nouveau']))
+                                    @foreach($diff['nouveau'] as $k => $v)
+                                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
+                                    @endforeach
+                                    @else
+                                    {{ $diff['nouveau'] }}
+                                    @endif
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -1182,35 +1182,34 @@
                                 </tr>
                             </thead>
                             <tbody>
-                               
-                                
-                        @foreach($consultationModificationsDetails->modifications_historique as $cle => $diff)
-<tr>
-    <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
-    <td>
-        <span class="text-danger text-decoration-line-through">
-            @if(is_array($diff['ancien']))
-                @foreach($diff['ancien'] as $k => $v)
-                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
-                @endforeach
-            @else
-                {{ $diff['ancien'] }}
-            @endif
-        </span>
-    </td>
-    <td>
-        <span class="text-success fw-bold">
-            @if(is_array($diff['nouveau']))
-                @foreach($diff['nouveau'] as $k => $v)
-                    <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
-                @endforeach
-            @else
-                {{ $diff['nouveau'] }}
-            @endif
-        </span>
-    </td>
-</tr>
-@endforeach
+
+
+                                @foreach($consultationModificationsDetails->modifications_historique as $cle => $diff)
+                                <tr>
+                                       <td>
+                                        <span class="text-danger text-decoration-line-through">
+                                            @if(is_array($diff['ancien']))
+                                            @foreach($diff['ancien'] as $k => $v)
+                                            <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
+                                            @endforeach
+                                            @else
+                                            {{ $diff['ancien'] }}
+                                            @endif
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-success fw-bold">
+                                            @if(is_array($diff['nouveau']))
+                                            @foreach($diff['nouveau'] as $k => $v)
+                                            <span class="d-inline-block me-1"><strong>{{ ucfirst($k) }}:</strong> {{ $v }}</span>
+                                            @endforeach
+                                            @else
+                                            {{ $diff['nouveau'] }}
+                                            @endif
+                                        </span>
+                                    </td>
+                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
