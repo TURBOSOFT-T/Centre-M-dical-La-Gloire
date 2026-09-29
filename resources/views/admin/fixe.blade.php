@@ -98,7 +98,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                     // Vérifier si le total est supérieur à l'ancien total
                     if (total > old_total) {
                         // Jouer l'audio uniquement s'il y a une nouvelle notification
-                        const audio = new Audio('/icons/system-notification-199277.wav');
+                        const audio = new Audio('/icons/system-notification-1992778.wav');
 
                         audio.play();
                         // Actualiser le composant Livewire
