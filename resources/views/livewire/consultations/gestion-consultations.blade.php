@@ -1206,7 +1206,7 @@
                                 </tr>
                                 @endforeach -->
                                 
-                        @foreach($selectedConsultation->modifications_historique as $cle => $diff)
+                        @foreach($consultationModificationsDetails->modifications_historique as $cle => $diff)
 <tr>
     <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
     <td>
