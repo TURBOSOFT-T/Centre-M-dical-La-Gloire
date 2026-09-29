@@ -71,6 +71,7 @@ class Consultation extends Model
         'historique_paiements'        => 'array',
         'bilan' => 'array',
         'modifications_historique' => 'array',
+       // 'modifications_historique' => 'array'
     ];
     /**
      * Calcul du montant total cumulé (Consultation + Examens prescrits)

@@ -19,16 +19,23 @@ class AdminNotifications extends Component
         return view('livewire.admin-notifications', compact("notifications"));
     }
 
-    public function delete($id){
-        if ($id) {
-            $notification=notifications::findOrFail($id);
+   public function delete($id)
+    {
+        $notification = \App\Models\Notifications::find($id);
+        
+        if ($notification) {
             $notification->delete();
         }
+        
+        // Optionnel : Vous pouvez ajouter un message flash ou un événement si nécessaire
     }
 
-public function deleteAll()
-{
-    // Supprime définitivement toutes les notifications de votre table personnalisée
-    \App\Models\notifications::query()->delete();
-}
+    /**
+     * Supprime toutes les notifications de la table
+     */
+    public function deleteAll()
+    {
+        // Supprime toutes les lignes de la table notifications en toute sécurité
+        \App\Models\Notifications::query()->delete();
+    }
 }
