@@ -21,7 +21,7 @@ class AdminNotifications extends Component
 
    public function delete($id)
     {
-        $notification = \App\Models\Notifications::find($id);
+        $notification = \App\Models\notifications::find($id);
         
         if ($notification) {
             $notification->delete();
@@ -36,6 +36,6 @@ class AdminNotifications extends Component
     public function deleteAll()
     {
         // Supprime toutes les lignes de la table notifications en toute sécurité
-        \App\Models\Notifications::query()->delete();
+        notifications::query()->delete();
     }
 }
