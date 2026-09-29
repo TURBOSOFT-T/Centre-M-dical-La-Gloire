@@ -1110,7 +1110,7 @@
 
                         @foreach($selectedConsultation->modifications_historique as $cle => $diff)
                         <tr>
-                           
+                            <td class="fw-bold text-primary">{{  $cle }}</td>
                             <td>
                                 <span class="text-danger text-decoration-line-through">
                                     @if(is_array($diff['ancien']))
@@ -1186,7 +1186,8 @@
 
                                 @foreach($consultationModificationsDetails->modifications_historique as $cle => $diff)
                                 <tr>
-                                       <td>
+                                    <td class="fw-bold text-primary">{{  $cle }}</td>
+                                    <td>
                                         <span class="text-danger text-decoration-line-through">
                                             @if(is_array($diff['ancien']))
                                             @foreach($diff['ancien'] as $k => $v)
