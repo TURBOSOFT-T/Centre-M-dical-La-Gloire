@@ -574,7 +574,14 @@ class GestionConsultations extends Component
                 'antecedents_maladie' => 'Antécédents',
                 'examen_physique' => 'Examen physique',
                 'evaluations'=>'Evaluations',
-                'visite_medicale_journaliere'=>'visite medicale journaliere'
+                'visite_medicale_journaliere'=>'visite medicale journaliere',
+                'constantes'                => [
+                'poids'       => $this->poids,
+                'tension'     => $this->tension,
+                'temperature' => $this->temperature,
+                'pouls'       => $this->pouls,
+                'glycemie'    => $this->glycemie,
+            ],
             ];
 
            foreach ($champsASuivre as $champ => $libelle) {
