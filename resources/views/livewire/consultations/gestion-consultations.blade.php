@@ -505,7 +505,7 @@
 
                                         <div class="col-md-6">
                                             <label class="form-label small">Téléphone <span class="text-danger">*</span></label>
-                                            <input type="text" wire:model="nouveau_telephone" class="form-control form-control-sm" placeholder="Ex: 699000000">
+                                            <input type="number" wire:model="nouveau_telephone" class="form-control form-control-sm" placeholder="Ex: 699000000">
                                             @error('nouveau_telephone') <span class="text-danger small">{{ $message }}</span> @enderror
                                         </div>
 
