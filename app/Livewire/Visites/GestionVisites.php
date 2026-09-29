@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Visites;
 
+use App\Models\notifications;
 use App\Models\Patient;
 use App\Models\Visite;
 use App\Models\Visiteur;
@@ -100,6 +101,7 @@ class GestionVisites extends Component
     /**
      * Enregistre le visiteur et crée le billet de visite
      */
+
     public function enregistrerVisite()
     {
         $this->validate();
@@ -133,13 +135,24 @@ class GestionVisites extends Component
             'observations' => $this->observations ?: null,
         ]);
 
+        // 3. Enregistrement automatique de la notification
+        $patient = Patient::find($this->patient_id);
+        $nomPatient = $patient ? trim($patient->nom . ' ' . $patient->prenom) : 'Patient';
+
+        $notification = new notifications();
+        $notification->url = '#'; // Remplacez par une route de détail si disponible
+        $notification->titre = "Nouvelle visite";
+        $notification->message = "Visite pour {$nomPatient} (Visiteur : {$visiteur->nom_complet}).";
+        $notification->type = "consultation_creation"; // Utilise l'icône adaptée dans le header
+        $notification->statut = "unread";
+        $notification->save();
+
         session()->flash('message', 'Visite enregistrée avec succès.');
         $this->closeModal();
 
         // Émission d'évènement JavaScript pour l'impression du Pass
         $this->dispatch('imprimerPassVisite', ['url' => route('visites.pass.pdf', $visite->id)]);
     }
-
     /**
      * Enregistre l'heure de départ/sortie du visiteur
      */
