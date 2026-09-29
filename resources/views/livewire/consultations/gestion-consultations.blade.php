@@ -746,6 +746,7 @@
                             </div>
 
                             <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
+                             @can('consultation_add_exam')
                             @if($isEditMode && isset($selectedConsultationId))
                             @php
                             $consultationActive = $consultations->find($selectedConsultationId);
@@ -764,6 +765,7 @@
                             </div>
                             @endif
                             @endif
+                            @endcan
 
                         </div>
                     </div>
