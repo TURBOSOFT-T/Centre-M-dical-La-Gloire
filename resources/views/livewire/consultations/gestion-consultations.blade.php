@@ -1108,7 +1108,7 @@
                     <tbody>
                        @foreach($selectedConsultation->modifications_historique as $cle => $diff)
 <tr>
-    <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
+    <td class="fw-bold text-primary">Libelle</td>
     <td>
         <span class="text-danger text-decoration-line-through">
             @if(is_array($diff['ancien']))
