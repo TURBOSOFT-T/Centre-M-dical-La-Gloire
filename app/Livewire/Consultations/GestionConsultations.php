@@ -103,6 +103,18 @@ class GestionConsultations extends Component
     public $isModificationsModalOpen = false;
     public $consultationModificationsDetails = null;
 
+
+    public $isCreatingNewPatient = false; // Bascule entre sélection et création
+
+    // Champs pour la création rapide d'un patient
+
+    public $nouveau_nom;
+    public $nouveau_prenom;
+    public $nouveau_telephone;
+    public $nouveau_genre;
+    public $nouveau_date_naissance;
+    public $nouveau_groupe_sanguin;
+
     // Méthode pour ouvrir la modale des modifications
     public function voirModifications($id)
     {
@@ -142,7 +154,19 @@ class GestionConsultations extends Component
             'notes_privees'          => 'nullable|string',
             'tarif_brut'             => 'required|numeric|min:0',
             'est_paye'               => 'boolean',
+
+
         ];
+
+        if ($this->isCreatingNewPatient) {
+            $rules['nouveau_nom'] = 'required|string|max:255';
+            $rules['nouveau_prenom'] = 'nullable|string|max:255';
+            $rules['nouveau_telephone'] = 'required|string|max:50|unique:patients,telephone';
+            $rules['nouveau_genre'] = 'nullable|in:M,F';
+            $rules['nouveau_date_naissance'] = 'nullable|date';
+        } else {
+            $rules['consultation.patient_id'] = 'required|exists:patients,id';
+        }
     }
 
     public function mount()
@@ -513,6 +537,43 @@ class GestionConsultations extends Component
      */
     public function saveConsultation()
     {
+
+        if (empty($this->consultation_id) && !empty($this->isCreatingNewPatient)) {
+            $this->validate([
+                'nouveau_nom' => 'required|string|max:255',
+                'nouveau_telephone' => 'required|string|max:50',
+            ]);
+
+            // Vérifier si un patient avec le même numéro de téléphone existe déjà
+            $patientExistant = null;
+            if (!empty($this->nouveau_telephone)) {
+                $patientExistant = Patient::where('telephone', $this->nouveau_telephone)->first();
+            }
+
+
+
+            if ($patientExistant) {
+                // CAS A : Le patient existe déjà -> On l'associe directement à la consultation
+                $this->patient_id = $patientExistant->id;
+
+                // Optionnel : On peut notifier l'utilisateur qu'on a récupéré le profil existant
+                session()->flash('info', "Ce patient existait déjà dans la base de données. Il a été associé automatiquement.");
+            } else {
+                // CAS B : Le patient n'existe pas -> On le crée
+                $nouveauPatient = Patient::create([
+                    'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+                    'nom' => $this->nouveau_nom,
+
+                    'telephone' => $this->nouveau_telephone,
+
+                ]);
+
+
+                $this->patient_id = $nouveauPatient->id;
+                $this->reinitialiserFiltrePaiement();
+            }
+            
+        }
         $validatedData = $this->validate();
 
         if (!$this->dossier_medical_id && $this->patient_id) {
@@ -574,41 +635,42 @@ class GestionConsultations extends Component
                 'historique_maladie' => 'Historique de la maladie',
                 'antecedents_maladie' => 'Antécédents',
                 'examen_physique' => 'Examen physique',
-                'evaluations'=>'Evaluations',
-                'visite_medicale_journaliere'=>'visite medicale journaliere',
+                'examens'=>'examens',
+                'evaluations' => 'Evaluations',
+                'visite_medicale_journaliere' => 'visite medicale journaliere',
                 'constantes'                => [
-                'poids'       => $this->poids,
-                'tension'     => $this->tension,
-                'temperature' => $this->temperature,
-                'pouls'       => $this->pouls,
-                'glycemie'    => $this->glycemie,
-            ],
+                    'poids'       => $this->poids,
+                    'tension'     => $this->tension,
+                    'temperature' => $this->temperature,
+                    'pouls'       => $this->pouls,
+                    'glycemie'    => $this->glycemie,
+                ],
             ];
 
-           foreach ($champsASuivre as $champ => $libelle) {
-    $valeurAncienne = $ancienneConsultation->$champ ?? '';
-    $valeurNouvelle = $dataToSave[$champ] ?? '';
+            foreach ($champsASuivre as $champ => $libelle) {
+                $valeurAncienne = $ancienneConsultation->$champ ?? '';
+                $valeurNouvelle = $dataToSave[$champ] ?? '';
 
-    // Si les valeurs sont des tableaux, on les convertit en JSON (ou en texte) pour éviter l'erreur
-    if (is_array($valeurAncienne)) {
-        $valeurAncienne = json_encode($valeurAncienne, JSON_UNESCAPED_UNICODE);
-    }
-    if (is_array($valeurNouvelle)) {
-        $valeurNouvelle = json_encode($valeurNouvelle, JSON_UNESCAPED_UNICODE);
-    }
+                // Si les valeurs sont des tableaux, on les convertit en JSON (ou en texte) pour éviter l'erreur
+                if (is_array($valeurAncienne)) {
+                    $valeurAncienne = json_encode($valeurAncienne, JSON_UNESCAPED_UNICODE);
+                }
+                if (is_array($valeurNouvelle)) {
+                    $valeurNouvelle = json_encode($valeurNouvelle, JSON_UNESCAPED_UNICODE);
+                }
 
-    // On convertit en string de manière sécurisée
-    $strAncienne = (string) $valeurAncienne;
-    $strNouvelle = (string) $valeurNouvelle;
+                // On convertit en string de manière sécurisée
+                $strAncienne = (string) $valeurAncienne;
+                $strNouvelle = (string) $valeurNouvelle;
 
-    if ($strAncienne !== $strNouvelle) {
-        $changements[$champ] = [
-            'libelle' => $libelle,
-            'ancien'  => $strAncienne ?: '(Vide)',
-            'nouveau' => $strNouvelle ?: '(Vide)',
-        ];
-    }
-}
+                if ($strAncienne !== $strNouvelle) {
+                    $changements[$champ] = [
+                        'libelle' => $libelle,
+                        'ancien'  => $strAncienne ?: '(Vide)',
+                        'nouveau' => $strNouvelle ?: '(Vide)',
+                    ];
+                }
+            }
 
             // Constantes vitales, Évaluations, Bilan... (votre logique existante)
             // ...
@@ -625,7 +687,7 @@ class GestionConsultations extends Component
             ['id' => $this->consultation_id],
             $dataToSave
 
-       
+
         );
 
         // --- ENREGISTREMENT DE LA NOTIFICATION ---
@@ -654,6 +716,19 @@ class GestionConsultations extends Component
         // ------------------------------------------
 
         $this->selectedConsultationId = $consultation->id;
+
+        $this->reset([
+        'patient_id',
+        'searchPatient',
+        'isCreatingNewPatient',
+        'nouveau_nom',
+        'nouveau_prenom',
+        'nouveau_telephone',
+        'nouveau_genre',
+        'nouveau_date_naissance',
+        'nouveau_groupe_sanguin',
+        // Ajoutez ici d'autres champs de consultation si nécessaire pour vider tout le formulaire
+    ]);
 
         session()->flash('message', $isEdit ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
         $this->closeModal();

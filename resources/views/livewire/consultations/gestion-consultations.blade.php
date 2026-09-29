@@ -392,12 +392,20 @@
                     <div class="modal-body p-4" style="overflow-y: auto; max-height: calc(90vh - 130px);">
                         <div class="row g-3">
 
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" wire:model.live="isCreatingNewPatient" id="togglePatient">
+                                <label class="form-check-label" for="togglePatient">Créer un nouveau patient à la volée</label>
+                            </div>
+
+
+
+
                             <!-- SECTION 1 : SELECTION & MODIFICATION DU PATIENT -->
                             <div class="col-12">
                                 <label class="form-label font-weight-bold text-primary">
                                     <i class="bx bx-user me-1"></i> Patient concerné par la consultation <span class="text-danger">*</span>
                                 </label>
-
+                                @if(!$isCreatingNewPatient)
                                 @php
                                 $patientActuel = $patients->firstWhere('id', $patient_id) ?? $selectedConsultation?->patient;
                                 @endphp
@@ -483,6 +491,32 @@
                                     </div>
                                 </div>
                                 @endif
+@else
+<!-- ================= STATUT 2 : FORMULAIRE DE CRÉATION RAPIDE DU PATIENT ================= -->
+        <div class="card border p-3 radius-10 bg-light shadow-sm">
+            <h6 class="text-primary mb-3"><i class="bx bx-user-plus me-1"></i> Informations du nouveau patient</h6>
+            
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label class="form-label small">Nom <span class="text-danger">*</span></label>
+                    <input type="text" wire:model="nouveau_nom" class="form-control form-control-sm" placeholder="Nom de famille">
+                    @error('nouveau_nom') <span class="text-danger small">{{ $message }}</span> @enderror
+                </div>
+               
+                <div class="col-md-6">
+                    <label class="form-label small">Téléphone <span class="text-danger">*</span></label>
+                    <input type="text" wire:model="nouveau_telephone" class="form-control form-control-sm" placeholder="Ex: 699000000">
+                    @error('nouveau_telephone') <span class="text-danger small">{{ $message }}</span> @enderror
+                </div>
+                
+                
+               
+            </div>
+        </div>
+
+                                @endif
+
+
                             </div>
 
                             <!-- SECTION 2 : PROGRAMMATION & MÉDECIN -->
