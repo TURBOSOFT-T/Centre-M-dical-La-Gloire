@@ -1106,13 +1106,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- @foreach($selectedConsultation->modifications_historique as $cle => $diff)
-                        <tr>
-                            <td class="fw-bold text-primary">{{ $diff['libelle'] ?? $cle }}</td>
-                            <td><span class="text-danger text-decoration-line-through">{{ $diff['ancien'] }}</span></td>
-                            <td><span class="text-success fw-bold">{{ $diff['nouveau'] }}</span></td>
-                        </tr>
-                        @endforeach -->
+                       
 
                         @foreach($selectedConsultation->modifications_historique as $cle => $diff)
 <tr>
