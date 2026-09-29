@@ -70,12 +70,12 @@ class AdminController extends Controller
 
         //veification des permissions
         if (auth()->user()->can('dashboard')) {
-        } elseif (auth()->user()->can('product_view')) {
-            return redirect()->route('produits');
-        } elseif (auth()->user()->can('order_view')) {
-            return redirect()->route('commandes');
-        } elseif (auth()->user()->can('clients_view')) {
-            return redirect()->route('clients');
+        } elseif (auth()->user()->can('consultation_view')) {
+            return redirect()->route('consultations');
+        } elseif (auth()->user()->can('patient_view')) {
+            return redirect()->route('patients');
+        } elseif (auth()->user()->can('visiteur_view')) {
+            return redirect()->route('visiteurs');
         } else {
             // return "Veuillez demande a l'administrateur de vous attribuer des permissions.";
             return redirect('/');
