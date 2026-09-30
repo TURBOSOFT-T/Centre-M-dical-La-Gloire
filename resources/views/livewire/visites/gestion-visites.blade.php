@@ -54,7 +54,7 @@
                         <tr>
                             <td><span class="badge bg-soft-primary text-primary font-weight-bold">{{ $v->code_visite }}</span></td>
                             <td>
-                                <div class="font-weight-bold">{{ $v->patient->nom_complet }}</div>
+                                <div class="font-weight-bold">{{ $v->patient->nom  ?? ' ' }}</div>
                                 <small class="text-muted">{{ $v->patient->code_patient }}</small>
                             </td>
                             <td>
@@ -140,7 +140,7 @@
                                             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center radius-8 mb-1 py-2 {{ $patient_id == $p->id ? 'active text-white bg-primary' : 'bg-white' }}">
                                             <div>
                                                 <div class="font-weight-bold" style="font-size: 0.9rem;">
-                                                    {{ $p->nom_complet }}
+                                                    {{ $p->nom_complet ?? ' ' }}
                                                 </div>
                                                 <small class="{{ $patient_id == $p->id ? 'text-white-50' : 'text-muted' }}">
                                                     <i class="bx bx-phone me-1"></i>{{ $p->telephone }} | Code : {{ $p->code_patient }}

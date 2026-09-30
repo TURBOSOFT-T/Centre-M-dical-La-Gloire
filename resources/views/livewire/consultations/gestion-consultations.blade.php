@@ -96,8 +96,8 @@
     <!-- TABLEAU PRINCIPAL DES CONSULTATIONS -->
     <div class="card border-0 shadow-sm radius-15 overflow-hidden">
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+            <div  class="table-responsive">
+                <table wire:poll.10s class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
                             <th>Patient</th>
