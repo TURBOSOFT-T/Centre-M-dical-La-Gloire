@@ -16,7 +16,7 @@ if (file_exists($logoPath)) {
     $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
 }
 
-$devise = 'FCFA';
+$devise = 'FCFA'; // Remplacez par votre devise si besoin
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -27,30 +27,49 @@ $devise = 'FCFA';
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-        /* Styles optimisés pour imprimante Epson et police 14 */
+        /* Styles globaux pour la responsivité et l'affichage écran/PDF */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            color: #000;
+            color: #333;
             background-color: #fff;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
+        /* Conteneur principal fluide et centré pour s'adapter à tous les écrans et formats */
         .container {
             width: 100%;
             max-width: 750px;
             margin: 0 auto;
-            padding: 10px;
+            padding: 15px;
             box-sizing: border-box;
+            position: relative;
         }
 
-        /* En-tête simplifié pour ticket/reçu */
+        /* Filigrane anti-fraude discret */
+        .watermark {
+            position: absolute;
+            top: 35%;
+            left: 10%;
+            width: 80%;
+            text-align: center;
+            opacity: 0.06;
+            font-size: 70px;
+            font-weight: bold;
+            color: #000;
+            transform: rotate(-30deg);
+            z-index: 0;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* En-tête de l'entreprise */
         .invoice-header {
             width: 100%;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #000;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
 
@@ -68,7 +87,7 @@ $devise = 'FCFA';
 
         .company-details {
             text-align: left;
-            font-size: 14px;
+            font-size: 12px;
             line-height: 1.4;
         }
 
@@ -83,37 +102,44 @@ $devise = 'FCFA';
         }
 
         .logo {
-            max-width: 100px;
+            max-width: 120px;
             height: auto;
-            /* Filtre optionnel pour forcer le noir et blanc net sur Epson si l'image est en couleur */
-            filter: grayscale(100%) contrast(200%);
         }
 
-        /* Tableaux adaptés pour impression thermique */
+        /* Tableaux fluides */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            background-color: transparent;
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
 
         th, td {
-            border: 1px solid #000;
-            padding: 6px 8px;
+            border: 1px solid #ccc;
+            padding: 8px;
             text-align: left;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         th {
-            background-color: #eee !important;
+            background-color: #f2f2f2;
             font-weight: bold;
-            color: #000;
         }
 
         .tr-montant {
-            color: #000 !important;
-            background-color: #eee !important;
-            font-weight: bold;
+            color: #fff !important;
+            background-color: #000 !important;
+        }
+
+        .tr-montant td {
+            border: 1px solid #000;
         }
 
         .text-right {
@@ -125,21 +151,20 @@ $devise = 'FCFA';
         }
 
         h5, h3, h4 {
-            margin: 8px 0 4px 0;
-            font-size: 14px;
+            margin: 10px 0 5px 0;
         }
 
         p {
-            margin: 4px 0;
-            font-size: 14px;
+            margin: 5px 0;
         }
 
         hr {
             border: 0;
-            border-top: 1px dashed #000;
-            margin: 10px 0;
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
         }
 
+        /* Règle spécifique pour l'impression physique (évite les coupures moches) */
         @media print {
             body {
                 width: 100%;
@@ -149,7 +174,10 @@ $devise = 'FCFA';
             .container {
                 width: 100%;
                 max-width: 100%;
-                padding: 0;
+                padding: 5px;
+            }
+            .watermark {
+                opacity: 0.04;
             }
         }
     </style>
@@ -158,6 +186,11 @@ $devise = 'FCFA';
 <body>
 
     <div class="container">
+        <!-- Filigrane de sécurité -->
+        <div class="watermark">
+            {{ strtoupper(TranslationHelper::TranslateText($commande->statut ?? 'EN ATTENTE')) }}
+        </div>
+
         <!-- En-tête de l'entreprise -->
         <div class="invoice-header">
             <table class="header-table">
@@ -186,8 +219,8 @@ $devise = 'FCFA';
             </table>
         </div>
 
-        <h5><strong>{{ TranslationHelper::TranslateText('Reference') }} :</strong> {{ $commande->reference }}</h5>
-        <p><strong>{{ TranslationHelper::TranslateText('Date') }} :</strong> {{ $commande->created_at }}</p>
+        <h5>{{ TranslationHelper::TranslateText('Reference de la commande') }} : {{ $commande->reference }}</h5>
+        <p><strong>{{ TranslationHelper::TranslateText('Date de commande') }} :</strong> {{ $commande->created_at }}</p>
 
         <h3>{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
         <table>
@@ -230,7 +263,7 @@ $devise = 'FCFA';
                     <td><b>{{ TranslationHelper::TranslateText('Coupon de réduction') }}</b></td>
                     <td class="text-center">1</td>
                     <td class="text-right">{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
-                    <td class="text-right">-{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
+                    <td class="text-right" style="color: #dc3545;">-{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
                 </tr>
                 @php $total -= $commande->coupon; @endphp
                 @endif
@@ -246,23 +279,25 @@ $devise = 'FCFA';
             </tbody>
         </table>
 
-        <h4>{{ TranslationHelper::TranslateText('Informations client') }} :</h4>
-        <p><strong>{{ TranslationHelper::TranslateText('Nom') }} :</strong> {{ $commande->prenom }} {{ $commande->nom }}</p>
+        <h4>{{ TranslationHelper::TranslateText('Informations sur la livraison') }} :</h4>
+        <p><strong>{{ TranslationHelper::TranslateText('Nom complet') }} :</strong> {{ $commande->prenom }} {{ $commande->nom }}</p>
 
         @if($commande->adresse)
         <p><strong>{{ TranslationHelper::TranslateText('Adresse') }} :</strong> {{ $commande->adresse }}</p>
         @endif
 
-        <p><strong>{{ TranslationHelper::TranslateText('Téléphone') }} :</strong> {{ $commande->phone ?? 'N/A' }}</p>
+        <p><strong>{{ TranslationHelper::TranslateText('Numéro de téléphone') }} :</strong> {{ $commande->phone ?? 'N/A' }}</p>
 
         @if($commande->gouvernorat)
-        <p><strong>{{ TranslationHelper::TranslateText('Ville') }} :</strong> {{ $commande->gouvernorat }}</p>
+        <p><strong>{{ TranslationHelper::TranslateTest ?? TranslationHelper::TranslateText('Ville') }} :</strong> {{ $commande->gouvernorat }}</p>
         @endif
 
         <hr>
 
-        <p class="text-center">
+        <p class="text-center" style="font-size: 12px;">
             {{ TranslationHelper::TranslateText('Merci de votre confiance') }} !
+            <br>
+            {{ TranslationHelper::TranslateText("Si vous avez des questions, n'hésitez pas à nous contacter") }}.
         </p>
     </div>
 </body>
