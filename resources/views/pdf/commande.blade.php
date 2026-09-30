@@ -16,7 +16,7 @@ if (file_exists($logoPath)) {
     $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
 }
 
-$devise = 'FCFA'; // Remplacez par votre devise si besoin
+$devise = 'FCFA';
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -27,119 +27,79 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-        /* Styles globaux pour la responsivité et l'affichage écran/PDF */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 0;
-            color: #333;
-            background-color: #fff;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        /* Conteneur principal fluide et centré pour s'adapter à tous les écrans et formats */
-        .container {
-            width: 100%;
-            max-width: 750px;
-            margin: 0 auto;
-            padding: 15px;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        /* Filigrane anti-fraude discret */
-        .watermark {
-            position: absolute;
-            top: 35%;
-            left: 10%;
-            width: 80%;
-            text-align: center;
-            opacity: 0.06;
-            font-size: 70px;
-            font-weight: bold;
             color: #000;
-            transform: rotate(-30deg);
-            z-index: 0;
-            user-select: none;
-            pointer-events: none;
+            background-color: #fff;
+            font-size: 13px; /* Taille de police globale fixée à 13px */
+            line-height: 1.3;
         }
 
-        /* En-tête de l'entreprise */
-        .invoice-header {
-            width: 100%;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
+        /* Format rouleau thermique 80mm */
+        .container {
+            width: 72mm;
+            margin: 0 auto;
+            padding: 5px;
+            box-sizing: border-box;
         }
 
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: none;
-        }
-
-        .header-table td {
-            border: none;
-            padding: 0;
-            vertical-align: top;
-        }
-
-        .company-details {
-            text-align: left;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .company-name {
+        /* Style du statut en filigrane thermique */
+        .status-watermark {
+            text-align: center;
             font-size: 16px;
             font-weight: bold;
-            margin-bottom: 4px;
+            border: 2px dashed #000;
+            padding: 6px;
+            margin: 10px 0;
+            letter-spacing: 1px;
+            background-color: #f0f0f0;
         }
 
-        .logo-cell {
-            text-align: right;
+        .invoice-header {
+            width: 100%;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 8px;
+            text-align: center;
         }
 
         .logo {
-            max-width: 120px;
+            max-width: 80px;
             height: auto;
+            display: block;
+            margin: 0 auto 5px auto;
         }
 
-        /* Tableaux fluides */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            background-color: transparent;
-            page-break-inside: auto;
-        }
-
-        tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
 
         th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
+            border: none;
+            border-bottom: 1px dotted #ccc;
+            padding: 5px 2px;
+            font-size: 13px; /* Forcé à 13px pour les tableaux aussi */
             text-align: left;
-            font-size: 13px;
         }
 
         th {
-            background-color: #f2f2f2;
+            border-bottom: 1px solid #000;
             font-weight: bold;
         }
 
         .tr-montant {
-            color: #fff !important;
-            background-color: #000 !important;
+            border-top: 2px solid #000 !important;
         }
 
         .tr-montant td {
-            border: 1px solid #000;
+            border: none;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .text-right {
@@ -151,33 +111,35 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
         }
 
         h5, h3, h4 {
-            margin: 10px 0 5px 0;
+            margin: 8px 0 4px 0;
+            font-size: 13px;
         }
 
         p {
-            margin: 5px 0;
+            margin: 4px 0;
+            font-size: 13px;
         }
 
         hr {
             border: 0;
-            border-top: 1px solid #ddd;
-            margin: 15px 0;
+            border-top: 1px dashed #000;
+            margin: 10px 0;
         }
 
-        /* Règle spécifique pour l'impression physique (évite les coupures moches) */
         @media print {
             body {
-                width: 100%;
+                width: 80mm;
                 margin: 0;
                 padding: 0;
+                font-size: 13px;
             }
             .container {
                 width: 100%;
-                max-width: 100%;
-                padding: 5px;
+                padding: 0;
             }
-            .watermark {
-                opacity: 0.04;
+            .status-watermark {
+                background-color: #fff !important;
+                border: 2px solid #000;
             }
         }
     </style>
@@ -186,49 +148,38 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
 <body>
 
     <div class="container">
-        <!-- Filigrane de sécurité -->
-        <div class="watermark">
+        <!-- En-tête de l'entreprise (Centré pour Epson) -->
+        <div class="invoice-header">
+            @if(!empty($logoBase64))
+            <img src="{{ $logoBase64 }}" alt="logo" class="logo">
+            @endif
+            <div style="font-size: 15px; font-weight: bold;">{{ config('app.name') }}</div>
+            @if($config)
+                @if(!empty($config->addresse))
+                <div>{{ $config->addresse }}</div>
+                @endif
+                @if(!empty($config->telephone))
+                <div>Tél : {{ $config->telephone }}</div>
+                @endif
+               
+            @endif
+        </div>
+
+        <!-- Statut mis en valeur -->
+        <div class="status-watermark">
             {{ strtoupper(TranslationHelper::TranslateText($commande->statut ?? 'EN ATTENTE')) }}
         </div>
 
-        <!-- En-tête de l'entreprise -->
-        <div class="invoice-header">
-            <table class="header-table">
-                <tr>
-                    <td class="company-details">
-                        <div class="company-name">{{ config('app.name') }}</div>
-                        @if($config)
-                            @if(!empty($config->telephone))
-                            <div><strong>Tél :</strong> {{ $config->telephone }}</div>
-                            @endif
-                            @if(!empty($config->email))
-                            <div><strong>Email :</strong> {{ $config->email }}</div>
-                            @endif
-                            @if(!empty($config->addresse))
-                            <div><strong>Adresse :</strong> {{ $config->addresse }}</div>
-                            @endif
-                        @endif
-                    </td>
+        <p><strong>{{ TranslationHelper::TranslateText('Reference') }} :</strong> {{ $commande->reference }}</p>
+        <p><strong>{{ TranslationHelper::TranslateText('Date') }} :</strong> {{ $commande->created_at }}</p>
 
-                    <td class="logo-cell">
-                        @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" class="logo">
-                        @endif
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <h5>{{ TranslationHelper::TranslateText('Reference de la commande') }} : {{ $commande->reference }}</h5>
-        <p><strong>{{ TranslationHelper::TranslateText('Date de commande') }} :</strong> {{ $commande->created_at }}</p>
-
-        <h3>{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
+        <h3 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Produits commandés') }}</h3>
         <table>
             <thead>
                 <tr>
                     <th>{{ TranslationHelper::TranslateText('Produit') }}</th>
-                    <th class="text-center">{{ TranslationHelper::TranslateText('Qté') }}</th>
-                    <th class="text-right">{{ TranslationHelper::TranslateText('P.U') }}</th>
+                    <th class="text-center">Qté</th>
+                    <th class="text-right">P.U</th>
                     <th class="text-right">Total</th>
                 </tr>
             </thead>
@@ -260,17 +211,17 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
 
                 @if($commande->coupon)
                 <tr>
-                    <td><b>{{ TranslationHelper::TranslateText('Coupon de réduction') }}</b></td>
+                    <td><b>{{ TranslationHelper::TranslateText('Coupon') }}</b></td>
                     <td class="text-center">1</td>
                     <td class="text-right">{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
-                    <td class="text-right" style="color: #dc3545;">-{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
+                    <td class="text-right">-{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
                 </tr>
                 @php $total -= $commande->coupon; @endphp
                 @endif
 
                 <tr class="tr-montant">
                     <td colspan="3" class="text-right">
-                        <b>{{ TranslationHelper::TranslateText('Total') }} ({{ $devise }}) :</b>
+                        <b>TOTAL ({{ $devise }}) :</b>
                     </td>
                     <td class="text-right">
                         <b>{{ number_format($total, 0, ',', ' ') }}</b>
@@ -279,27 +230,30 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
             </tbody>
         </table>
 
-        <h4>{{ TranslationHelper::TranslateText('Informations sur la livraison') }} :</h4>
-        <p><strong>{{ TranslationHelper::TranslateText('Nom complet') }} :</strong> {{ $commande->prenom }} {{ $commande->nom }}</p>
-
+        <h4 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Client / Livraison') }}</h4>
+        <p><strong>Nom :</strong> {{ $commande->prenom }} {{ $commande->nom }}</p>
         @if($commande->adresse)
-        <p><strong>{{ TranslationHelper::TranslateText('Adresse') }} :</strong> {{ $commande->adresse }}</p>
+        <p><strong>Adresse :</strong> {{ $commande->adresse }}</p>
         @endif
-
-        <p><strong>{{ TranslationHelper::TranslateText('Numéro de téléphone') }} :</strong> {{ $commande->phone ?? 'N/A' }}</p>
-
+        <p><strong>Tél :</strong> {{ $commande->phone ?? 'N/A' }}</p>
         @if($commande->gouvernorat)
-        <p><strong>{{ TranslationHelper::TranslateTest ?? TranslationHelper::TranslateText('Ville') }} :</strong> {{ $commande->gouvernorat }}</p>
+        <p><strong>Ville :</strong> {{ $commande->gouvernorat }}</p>
         @endif
 
         <hr>
 
-        <p class="text-center" style="font-size: 12px;">
+        <p class="text-center">
             {{ TranslationHelper::TranslateText('Merci de votre confiance') }} !
             <br>
-            {{ TranslationHelper::TranslateText("Si vous avez des questions, n'hésitez pas à nous contacter") }}.
+            {{ TranslationHelper::TranslateText('À bientôt') }}
         </p>
     </div>
+
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 
 </html>
