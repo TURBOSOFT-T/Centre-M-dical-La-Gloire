@@ -93,10 +93,8 @@ class GestionPatients extends Component
             $this->taux_couverture = 0;
         }
     }
-
 public function synchroniserPatients()
 {
-    // 1. Récupérer tous les patients locaux qui n'ont pas encore été synchronisés
     $patientsNonSync = Patient::where('is_synced', false)->get();
 
     if ($patientsNonSync->isEmpty()) {
@@ -105,23 +103,22 @@ public function synchroniserPatients()
     }
 
     try {
-        // 2. Envoyer le paquet de données au serveur distant via HTTP POST
-        // Remplacez l'URL par l'adresse de votre vrai serveur en ligne
-        $response = Http::timeout(15)->post('https://clinique.turbosoft-services.com/api/sync/patients', [
-            'patients' => $patientsNonSync->toArray()
-        ]);
+        $response = Http::timeout(15)
+            // ->withToken('VOTRE_SECRET_TOKEN_SUPER_SECURISE') // Décommentez si vous avez mis un token
+            ->post('https://clinique.turbosoft-services.com/api/sync/patients', [
+                'patients' => $patientsNonSync->toArray()
+            ]);
 
         if ($response->successful()) {
-            // 3. Si le serveur distant a bien reçu, on bascule is_synced à true en local
             Patient::whereIn('id', $patientsNonSync->pluck('id'))->update(['is_synced' => true]);
-
             session()->flash('message', 'Synchronisation réussie avec le serveur distant !');
         } else {
-            session()->flash('error', 'Le serveur distant a rejeté la synchronisation.');
+            // 🔍 ICI : On récupère le message d'erreur exact du serveur distant
+            $errorBody = $response->json('message') ?? $response->body();
+            session()->flash('error', 'Erreur serveur (' . $response->status() . ') : ' . $errorBody);
         }
     } catch (\Exception $e) {
-        // En cas d'absence d'internet, l'application ne plante pas et prévient l'utilisateur
-        session()->flash('error', 'Impossible de joindre le serveur. Vérifiez votre connexion internet.');
+        session()->flash('error', 'Impossible de joindre le serveur : ' . $e->getMessage());
     }
 }
     /**
