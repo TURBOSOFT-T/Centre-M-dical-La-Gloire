@@ -17,8 +17,10 @@
                         
 
 
-                        <option value="admin" {{ $personnel->role == 'admin' ? 'selected' : '' }}>
-                            {{ \App\Helpers\TranslationHelper::TranslateText('Admin') }}
+                       
+
+                        <option value="gerant" {{ $personnel->role == 'gerant' ? 'selected' : '' }}>
+                            {{ \App\Helpers\TranslationHelper::TranslateText('Gérant') }}
                         </option>
                         <option value="caisse" {{ $personnel->role == 'caisse' ? 'selected' : '' }}>
                             {{ \App\Helpers\TranslationHelper::TranslateText('Caisse') }}
