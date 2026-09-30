@@ -8,7 +8,9 @@ use App\Models\Patient;
 use App\Models\Visite;
 use App\Models\Visiteur;
 use Livewire\Component;
+
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Livewire\WithPagination;
 
 class GestionPatients extends Component
@@ -93,7 +95,74 @@ class GestionPatients extends Component
             $this->taux_couverture = 0;
         }
     }
-    public function synchroniserPatients()
+
+    public function synchroniserBidirectionnelle()
+{
+    // 1. Récupérer tous les patients modifiés ou créés en local (is_synced = false)
+    $patientsLocauxNonSync = Patient::where('is_synced', false)->get();
+
+    // Récupérer la date de la dernière synchronisation réussie (stockée en base, en cache ou session)
+    $derniereSynchro = cache('last_sync_time_' . auth()->id()) ?? null;
+
+    try {
+        // 2. Appel HTTP vers le serveur en ligne
+        $response = Http::timeout(30)->post('https://votre-serveur-distant.com/api/patients/sync', [
+            'patients' => $patientsLocauxNonSync->toArray(),
+            'last_sync_time' => $derniereSynchro,
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            DB::beginTransaction();
+
+            try {
+                // A. Marquer nos patients locaux comme synchronisés puisque le serveur les a reçus
+                Patient::where('is_synced', false)->update(['is_synced' => true]);
+
+                // B. Intégrer les modifications venues du serveur en ligne
+                if (isset($data['patients'])) {
+                    foreach ($data['patients'] as $serverPatient) {
+                        $localPatient = Patient::where('uuid', $serverPatient['uuid'])->first();
+
+                        // Préparation des données distantes (on retire l'ID local pour éviter les conflits d'auto-increment)
+                        $serverData = $serverPatient;
+                        unset($serverData['id']);
+                        $serverData['is_synced'] = true; // Vient du serveur, donc déjà synchronisé
+
+                        if ($localPatient) {
+                            // Si le patient existe en local, on met à jour SEULEMENT si le serveur est plus récent
+                            if (strtotime($serverPatient['updated_at']) >= strtotime($localPatient->updated_at)) {
+                                $localPatient->update($serverData);
+                            }
+                        } else {
+                            // Le patient a été créé par l'autre utilisateur en ligne, on l'ajoute en local
+                            Patient::create($serverData);
+                        }
+                    }
+                }
+
+                // C. Sauvegarder la nouvelle heure de synchronisation du serveur
+                if (isset($data['server_time'])) {
+                    cache(['last_sync_time_' . auth()->id() => $data['server_time']]);
+                }
+
+                DB::commit();
+                return ['success' => true, 'message' => 'Synchronisation bidirectionnelle effectuée avec succès !'];
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+        }
+
+        return ['success' => false, 'message' => 'Erreur de réponse du serveur distant.'];
+
+    } catch (\Exception $e) {
+        return ['success' => false, 'message' => 'Impossible de joindre le serveur (Hors-ligne) : ' . $e->getMessage()];
+    }
+}
+    public function synchroniserPatients2()
     {
         $patientsNonSync = Patient::where('is_synced', false)->get();
 

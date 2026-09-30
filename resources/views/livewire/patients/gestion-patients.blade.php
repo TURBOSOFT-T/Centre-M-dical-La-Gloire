@@ -16,7 +16,7 @@
                 <p class="text-muted small mb-0">Registre des dossiers médicaux - Centre Médical La Gloire</p>
             </div>
             <div class="mb-3">
-    <button wire:click="synchroniserPatients" class="btn btn-info">
+    <button wire:click="synchroniserBidirectionnelle" class="btn btn-info">
         <i class="fas fa-sync"></i> Synchroniser avec le serveur
     </button>
 

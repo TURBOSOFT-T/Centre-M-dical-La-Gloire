@@ -9,17 +9,16 @@ class PatientSyncController extends Controller
 {
     public function sync(Request $request)
     {
-        $localPatients = $request->input('patients', []);
-        $lastSyncTime = $request->input('last_sync_time'); // Date de la dernière synchro du client
+        $patientsData = $request->input('patients', []);
 
-        $processedUuids = [];
-
-        // 1. TRAITEMENT : Ce que le local envoie au serveur en ligne
-        foreach ($localPatients as $data) {
-            $patient = Patient::where('uuid', $data['uuid'])->first();
+        foreach ($patientsData as $data) {
+            // CORRECTION : On cherche d'abord si le patient existe par son UUID OU par son code_patient
+            $patient = Patient::where('uuid', $data['uuid'])
+                ->orWhere('code_patient', $data['code_patient'])
+                ->first();
 
             $payload = [
-                'uuid' => $data['uuid'],
+                'uuid' => $data['uuid'], // On s'assure de synchroniser le bon UUID
                 'code_patient' => $data['code_patient'],
                 'assurance_id' => $data['assurance_id'] ?? null,
                 'nom' => $data['nom'],
@@ -44,35 +43,21 @@ class PatientSyncController extends Controller
                 'allergies' => $data['allergies'] ?? null,
                 'antecedents_medicaux' => $data['antecedents_medicaux'] ?? null,
                 'est_actif' => $data['est_actif'] ?? true,
-                'updated_at' => $data['updated_at'] ?? now(),
+                'is_synced' => true,
             ];
 
             if ($patient) {
-                // Règle du plus récent : si la modif locale est plus récente que la distante, on écrase
-                if (isset($data['updated_at']) && strtotime($data['updated_at']) >= strtotime($patient->updated_at)) {
-                    $patient->update($payload);
-                }
+                // Si le patient existe déjà (par uuid ou code), on le met à jour
+                $patient->update($payload);
             } else {
-                // Le patient n'existe pas en ligne, on le crée
+                // S'il n'existe pas, on le crée
                 Patient::create($payload);
             }
-
-            $processedUuids[] = $data['uuid'];
         }
-
-        // 2. RÉPONSE : Le serveur envoie au local tout ce qui a changé depuis la dernière synchro
-        $query = Patient::query();
-        if ($lastSyncTime) {
-            // On récupère tout ce qui a été modifié après la dernière synchro du client
-            $query->where('updated_at', '>', $lastSyncTime);
-        }
-        
-        $serverPatients = $query->get();
 
         return response()->json([
             'success' => true,
-            'patients' => $serverPatients,
-            'server_time' => now()->toIso8601String(), // Horodatage précis pour la prochaine fois
+            'message' => 'Patients synchronisés avec succès sur le serveur distant.'
         ]);
     }
 }
