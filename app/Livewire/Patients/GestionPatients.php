@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\Visite;
 use App\Models\Visiteur;
 use Livewire\Component;
+use Illuminate\Support\Facades\Http;
 use Livewire\WithPagination;
 
 class GestionPatients extends Component
@@ -93,6 +94,36 @@ class GestionPatients extends Component
         }
     }
 
+public function synchroniserPatients()
+{
+    // 1. Récupérer tous les patients locaux qui n'ont pas encore été synchronisés
+    $patientsNonSync = Patient::where('is_synced', false)->get();
+
+    if ($patientsNonSync->isEmpty()) {
+        session()->flash('message', 'Toutes les données sont déjà à jour.');
+        return;
+    }
+
+    try {
+        // 2. Envoyer le paquet de données au serveur distant via HTTP POST
+        // Remplacez l'URL par l'adresse de votre vrai serveur en ligne
+        $response = Http::timeout(15)->post('https://clinique.turbosoft-services.com/api/sync/patients', [
+            'patients' => $patientsNonSync->toArray()
+        ]);
+
+        if ($response->successful()) {
+            // 3. Si le serveur distant a bien reçu, on bascule is_synced à true en local
+            Patient::whereIn('id', $patientsNonSync->pluck('id'))->update(['is_synced' => true]);
+
+            session()->flash('message', 'Synchronisation réussie avec le serveur distant !');
+        } else {
+            session()->flash('error', 'Le serveur distant a rejeté la synchronisation.');
+        }
+    } catch (\Exception $e) {
+        // En cas d'absence d'internet, l'application ne plante pas et prévient l'utilisateur
+        session()->flash('error', 'Impossible de joindre le serveur. Vérifiez votre connexion internet.');
+    }
+}
     /**
      * Pré-remplit le taux de couverture par défaut lorsqu'une assurance est choisie
      */
@@ -190,7 +221,7 @@ class GestionPatients extends Component
             'cni_ou_piece' => $this->visiteur_cni ?: $visiteur->cni_ou_piece,
             'lien_parente' => $this->visiteur_lien ?: $visiteur->lien_parente,
         ]);
-
+$validatedData['is_synced'] = false;
         // 2. Création de l'enregistrement de visite
         Visite::create([
             'code_visite' => 'VIS-' . date('Y') . '-' . strtoupper(uniqid()),

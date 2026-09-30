@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('patients', function (Blueprint $table) {
-            $table->id();
-
+           // $table->id();
+$table->uuid('uuid')->nullable();
+ $table->boolean('is_synced')->default(false);
             // Code / Identifiant Unique du Patient (ex: PAT-2026-0001)
             $table->string('code_patient')->unique();
             $table->unsignedBigInteger('assurance_id')->nullable();

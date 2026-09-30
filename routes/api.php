@@ -19,4 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+use App\Http\Controllers\Api\PatientSyncController;
 
+// Route sécurisée (vous pouvez ajouter un middleware d'authentification par Token/API Key)
+Route::post('/sync/patients', [PatientSyncController::class, 'sync']);

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Patient extends Model
 {
@@ -39,6 +40,16 @@ class Patient extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function uniqueIds()
+    {
+        return ['uuid'];
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid'; // Utile si vous voulez utiliser l'UUID dans vos URLs à la place de l'ID
+    }
 
     protected $casts = [
         'parametres' => 'array',
