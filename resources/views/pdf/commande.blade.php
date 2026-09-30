@@ -27,96 +27,157 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-      body {
-            font-family: 'Courier New', Courier, monospace; /* Police plus nette sur thermique */
+        /* Styles globaux pour la responsivité et l'affichage écran/PDF */
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            color: #000;
+            color: #333;
             background-color: #fff;
-            font-size: 12px; /* Réduit pour les petits reçus */
-            line-height: 1.2;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
-        /* Format rouleau thermique 80mm */
+        /* Conteneur principal fluide et centré pour s'adapter à tous les écrans et formats */
         .container {
-            width: 72mm; /* Laisse une petite marge pour les bords */
+            width: 100%;
+            max-width: 750px;
             margin: 0 auto;
-            padding: 5px;
+            padding: 15px;
             box-sizing: border-box;
             position: relative;
         }
 
+        /* Filigrane anti-fraude discret */
         .watermark {
-            font-size: 40px; /* Plus petit pour tenir sur le ticket */
-            top: 40%;
-            left: 5%;
-            width: 90%;
+            position: absolute;
+            top: 35%;
+            left: 10%;
+            width: 80%;
+            text-align: center;
+            opacity: 0.06;
+            font-size: 70px;
+            font-weight: bold;
+            color: #000;
+            transform: rotate(-30deg);
+            z-index: 0;
+            user-select: none;
+            pointer-events: none;
         }
 
+        /* En-tête de l'entreprise */
         .invoice-header {
             width: 100%;
-            margin-bottom: 10px;
-            border-bottom: 1px dashed #000; /* Ligne pointillée classique pour les tickets */
-            padding-bottom: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
         }
 
-        .logo {
-            max-width: 80px; /* Logo plus petit */
-            height: auto;
-            display: block;
-            margin: 0 auto 5px auto; /* Centrer le logo sur le ticket */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+        }
+
+        .header-table td {
+            border: none;
+            padding: 0;
+            vertical-align: top;
+        }
+
+        .company-details {
+            text-align: left;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .company-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
         }
 
         .logo-cell {
-            text-align: center;
+            text-align: right;
         }
 
+        .logo {
+            max-width: 120px;
+            height: auto;
+        }
+
+        /* Tableaux fluides */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            background-color: transparent;
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
 
         th, td {
-            border: none; /* Pas de bordures de grille sur un ticket thermique */
-            border-bottom: 1px dotted #ccc; /* Séparateur léger entre les articles */
-            padding: 4px 2px;
-            font-size: 11px;
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
         }
 
         th {
-            background-color: transparent;
-            border-bottom: 1px solid #000;
+            background-color: #f2f2f2;
             font-weight: bold;
         }
 
         .tr-montant {
-            color: #000 !important;
-            background-color: transparent !important;
-            border-top: 2px solid #000 !important;
+            color: #fff !important;
+            background-color: #000 !important;
         }
 
         .tr-montant td {
-            border: none;
-            font-size: 13px;
+            border: 1px solid #000;
+        }
+
+        .text-right {
+            text-align: right !important;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        h5, h3, h4 {
+            margin: 10px 0 5px 0;
+        }
+
+        p {
+            margin: 5px 0;
         }
 
         hr {
             border: 0;
-            border-top: 1px dashed #000;
-            margin: 10px 0;
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
         }
 
+        /* Règle spécifique pour l'impression physique (évite les coupures moches) */
         @media print {
             body {
-                width: 80mm;
+                width: 100%;
                 margin: 0;
                 padding: 0;
             }
             .container {
                 width: 100%;
-                padding: 0;
+                max-width: 100%;
+                padding: 5px;
+            }
+            .watermark {
+                opacity: 0.04;
             }
         }
     </style>
@@ -126,25 +187,28 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
 
     <div class="container">
         <!-- Filigrane de sécurité -->
-        
+        <div class="watermark">
+            {{ strtoupper(TranslationHelper::TranslateText($commande->statut ?? 'EN ATTENTE')) }}
+        </div>
 
         <!-- En-tête de l'entreprise -->
         <div class="invoice-header">
             <table class="header-table">
                 <tr>
-                    <!-- En-tête de l'entreprise (Format Ticket) -->
-        <div class="invoice-header" style="text-align: center;">
-           
-            <div class="company-name" style="font-size: 14px; font-weight: bold;">{{ config('app.name') }}</div>
-            @if($config)
-                @if(!empty($config->addresse))
-                <div style="font-size: 10px;">{{ $config->addresse }}</div>
-                @endif
-                @if(!empty($config->telephone))
-                <div style="font-size: 10px;">Tél : {{ $config->telephone }}</div>
-                @endif
-            @endif
-        </div>
+                    <td class="company-details">
+                        <div class="company-name">{{ config('app.name') }}</div>
+                        @if($config)
+                            @if(!empty($config->telephone))
+                            <div><strong>Tél :</strong> {{ $config->telephone }}</div>
+                            @endif
+                            @if(!empty($config->email))
+                            <div><strong>Email :</strong> {{ $config->email }}</div>
+                            @endif
+                            @if(!empty($config->addresse))
+                            <div><strong>Adresse :</strong> {{ $config->addresse }}</div>
+                            @endif
+                        @endif
+                    </td>
 
                     <td class="logo-cell">
                         @if(!empty($logoBase64))
@@ -236,14 +300,6 @@ $devise = 'FCFA'; // Remplacez par votre devise si besoin
             {{ TranslationHelper::TranslateText("Si vous avez des questions, n'hésitez pas à nous contacter") }}.
         </p>
     </div>
-
-    <script>
-    window.onload = function() {
-        window.print();
-        // Optionnel : fermer la page après impression si c'est une vue dédiée
-        // setTimeout(function() { window.close(); }, 1000);
-    };
-</script>
 </body>
 
 </html>
