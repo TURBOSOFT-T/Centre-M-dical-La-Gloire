@@ -3,6 +3,7 @@ use App\Helpers\TranslationHelper;
 
 $config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
 
+// Détermination de l'image à utiliser pour le logo
 $logoPath = public_path('/icons/logo.jpg');
 if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
     $logoPath = storage_path('app/public/' . $config->logo);
@@ -15,7 +16,7 @@ if (file_exists($logoPath)) {
     $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
 }
 
-$devise = 'FCFA';
+$devise = 'FCFA'; // Remplacez par votre devise si besoin
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -26,95 +27,119 @@ $devise = 'FCFA';
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-        /* Optimisation stricte pour Epson TM-T20III (80mm) */
+        /* Styles spécifiques pour Epson TM-T20III (80mm) et police 14px */
         body {
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 0;
             color: #000;
             background-color: #fff;
-            font-size: 14px; /* Taille demandée */
-            line-height: 1.2;
+            font-size: 14px;
+            line-height: 1.25;
         }
 
+        /* Conteneur adapté au rouleau 80mm (largeur utile 72mm) */
         .container {
-            width: 72mm; /* Largeur utile parfaite pour rouleau 80mm */
+            width: 72mm;
             margin: 0 auto;
-            padding: 2mm;
-            box-sizing: border-box;
-        }
-
-        .status-box {
-            text-align: center;
-            font-size: 15px;
-            font-weight: bold;
-            border: 2px dashed #000;
             padding: 4px;
-            margin: 6px 0;
-            letter-spacing: 1px;
+            box-sizing: border-box;
+            position: relative;
         }
 
+        /* Filigrane discret adapté au thermique */
+        .watermark {
+            position: absolute;
+            top: 40%;
+            left: 5%;
+            width: 90%;
+            text-align: center;
+            opacity: 0.05;
+            font-size: 45px;
+            font-weight: bold;
+            color: #000;
+            transform: rotate(-25deg);
+            z-index: 0;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* En-tête de l'entreprise */
         .invoice-header {
             width: 100%;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
             border-bottom: 1px dashed #000;
-            padding-bottom: 4px;
-            text-align: center;
+            padding-bottom: 8px;
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+        }
+
+        .header-table td {
+            border: none;
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        .company-details {
+            text-align: left;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .company-name {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .logo-cell {
+            text-align: right;
+            width: 70px;
         }
 
         .logo {
-            max-width: 65px;
+            max-width: 60px;
             height: auto;
-            display: block;
-            margin: 0 auto 3px auto;
         }
 
+        /* Tableaux adaptés au format ticket */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 6px;
-            margin-bottom: 6px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            background-color: transparent;
         }
 
         th, td {
             border: none;
             border-bottom: 1px dotted #ccc;
-            padding: 4px 1px;
-            font-size: 13px;
+            padding: 4px 2px;
             text-align: left;
-            word-break: break-all;
+            font-size: 13px;
         }
 
         th {
             border-bottom: 1px solid #000;
             font-weight: bold;
             font-size: 13px;
+            background-color: transparent !important;
         }
 
         .tr-montant {
+            color: #000 !important;
+            background-color: transparent !important;
             border-top: 2px solid #000 !important;
         }
 
         .tr-montant td {
-            border: none;
+            border: none !important;
             font-size: 14px;
             font-weight: bold;
-        }
-
-        h5, h3, h4 {
-            margin: 6px 0 2px 0;
-            font-size: 14px;
-        }
-
-        p {
-            margin: 3px 0;
-            font-size: 14px;
-        }
-
-        hr {
-            border: 0;
-            border-top: 1px dashed #000;
-            margin: 6px 0;
         }
 
         .text-right {
@@ -125,11 +150,27 @@ $devise = 'FCFA';
             text-align: center !important;
         }
 
-        /* CONFIGURATION D'IMPRESSION POUR EPSON (PORTRAIT CONTINU) */
+        h5, h3, h4 {
+            margin: 8px 0 3px 0;
+            font-size: 14px;
+        }
+
+        p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+        }
+
+        /* Règle vitale pour l'imprimante thermique : Portrait continu et sans marges de page */
         @media print {
             @page {
-                size: 80mm auto; /* Rouleau de 80mm de large, longueur automatique */
-                margin: 0;       /* Zéro marge pour éviter les coupures de fin de page */
+                size: 80mm auto;
+                margin: 0;
             }
             body {
                 width: 80mm;
@@ -139,7 +180,7 @@ $devise = 'FCFA';
             .container {
                 width: 72mm;
                 margin: 0;
-                padding: 1mm;
+                padding: 2px;
             }
         }
     </style>
@@ -148,33 +189,43 @@ $devise = 'FCFA';
 <body>
 
     <div class="container">
-        <!-- En-tête -->
-        <div class="invoice-header">
-            @if(!empty($logoBase64))
-            <img src="{{ $logoBase64 }}" alt="logo" class="logo">
-            @endif
-            <div style="font-size: 15px; font-weight: bold;">{{ config('app.name') }}</div>
-            @if($config)
-                @if(!empty($config->addresse))
-                <div style="font-size: 11px;">{{ $config->addresse }}</div>
-                @endif
-                @if(!empty($config->telephone))
-                <div style="font-size: 11px;">Tél : {{ $config->telephone }}</div>
-                @endif
-            @endif
-        </div>
-
-        <!-- Statut du reçu -->
-        <div class="status-box">
+        <!-- Filigrane de sécurité -->
+        <div class="watermark">
             {{ strtoupper(TranslationHelper::TranslateText($commande->statut ?? 'EN ATTENTE')) }}
         </div>
 
-        <!-- Infos commande -->
-        <p><strong>{{ TranslationHelper::TranslateText('Reference') }} :</strong> {{ $commande->reference }}</p>
-        <p><strong>{{ TranslationHelper::TranslateText('Date') }} :</strong> {{ $commande->created_at }}</p>
+        <!-- En-tête de l'entreprise -->
+        <div class="invoice-header">
+            <table class="header-table">
+                <tr>
+                    <td class="company-details">
+                        <div class="company-name">{{ config('app.name') }}</div>
+                        @if($config)
+                            @if(!empty($config->telephone))
+                            <div><strong>Tél :</strong> {{ $config->telephone }}</div>
+                            @endif
+                            @if(!empty($config->email))
+                            <div><strong>Email :</strong> {{ $config->email }}</div>
+                            @endif
+                            @if(!empty($config->addresse))
+                            <div><strong>Adresse :</strong> {{ $config->addresse }}</div>
+                            @endif
+                        @endif
+                    </td>
 
-        <!-- Tableau des produits -->
-        <h3 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Produits') }}</h3>
+                    <td class="logo-cell">
+                        @if(!empty($logoBase64))
+                        <img src="{{ $logoBase64 }}" alt="logo" class="logo">
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <h5>{{ TranslationHelper::TranslateText('Reference de la commande') }} : {{ $commande->reference }}</h5>
+        <p><strong>{{ TranslationHelper::TranslateText('Date de commande') }} :</strong> {{ $commande->created_at }}</p>
+
+        <h3>{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
         <table>
             <colgroup>
                 <col style="width: 38%;">
@@ -184,14 +235,16 @@ $devise = 'FCFA';
             </colgroup>
             <thead>
                 <tr>
-                    <th>{{ TranslationHelper::TranslateText('Article') }}</th>
-                    <th class="text-center">Qté</th>
-                    <th class="text-right">P.U</th>
+                    <th>{{ TranslationHelper::TranslateText('Produit') }}</th>
+                    <th class="text-center">{{ TranslationHelper::TranslateText('Qté') }}</th>
+                    <th class="text-right">{{ TranslationHelper::TranslateText('P.U') }}</th>
                     <th class="text-right">Total</th>
                 </tr>
             </thead>
             <tbody>
-                @php $total = 0; @endphp
+                @php
+                $total = 0;
+                @endphp
                 @foreach ($commande->contenus as $item)
                 <tr>
                     <td>{{ $item->produit->nom ?? 'Produit' }}</td>
@@ -199,12 +252,14 @@ $devise = 'FCFA';
                     <td class="text-right">{{ number_format($item->prix_unitaire, 0, ',', ' ') }}</td>
                     <td class="text-right">{{ number_format($item->prix_unitaire * $item->quantite, 0, ',', ' ') }}</td>
                 </tr>
-                @php $total += ($item->prix_unitaire * $item->quantite); @endphp
+                @php
+                $total += ($item->prix_unitaire * $item->quantite);
+                @endphp
                 @endforeach
 
-                @if(isset($commande->frais) && $commande->frais > 0)
+                @if($commande->frais)
                 <tr>
-                    <td><b>{{ TranslationHelper::TranslateText('Livraison') }}</b></td>
+                    <td><b>{{ TranslationHelper::TranslateText('Frais de livraison') }}</b></td>
                     <td class="text-center">1</td>
                     <td class="text-right">{{ number_format($commande->frais, 0, ',', ' ') }}</td>
                     <td class="text-right">{{ number_format($commande->frais, 0, ',', ' ') }}</td>
@@ -212,9 +267,9 @@ $devise = 'FCFA';
                 @php $total += $commande->frais; @endphp
                 @endif
 
-                @if(isset($commande->coupon) && $commande->coupon > 0)
+                @if($commande->coupon)
                 <tr>
-                    <td><b>{{ TranslationHelper::TranslateText('Coupon') }}</b></td>
+                    <td><b>{{ TranslationHelper::TranslateText('Coupon de réduction') }}</b></td>
                     <td class="text-center">1</td>
                     <td class="text-right">{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
                     <td class="text-right">-{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
@@ -224,7 +279,7 @@ $devise = 'FCFA';
 
                 <tr class="tr-montant">
                     <td colspan="3" class="text-right">
-                        <b>TOTAL ({{ $devise }}) :</b>
+                        <b>{{ TranslationHelper::TranslateText('Total') }} ({{ $devise }}) :</b>
                     </td>
                     <td class="text-right">
                         <b>{{ number_format($total, 0, ',', ' ') }}</b>
@@ -233,26 +288,28 @@ $devise = 'FCFA';
             </tbody>
         </table>
 
-        <!-- Infos client -->
-        <h4 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Client') }}</h4>
-        <p><strong>Nom :</strong> {{ $commande->prenom ?? '' }} {{ $commande->nom ?? '' }}</p>
-        <p><strong>Tél :</strong> {{ $commande->phone ?? ($commande->telephone ?? 'N/A') }}</p>
-        @if(!empty($commande->adresse))
-        <p><strong>Adresse :</strong> {{ $commande->adresse }}</p>
+        <h4>{{ TranslationHelper::TranslateText('Informations sur la livraison') }} :</h4>
+        <p><strong>{{ TranslationHelper::TranslateText('Nom complet') }} :</strong> {{ $commande->prenom }} {{ $commande->nom }}</p>
+
+        @if($commande->adresse)
+        <p><strong>{{ TranslationHelper::TranslateText('Adresse') }} :</strong> {{ $commande->adresse }}</p>
         @endif
-        @if(!empty($commande->gouvernorat))
-        <p><strong>Ville :</strong> {{ $commande->gouvernorat }}</p>
+
+        <p><strong>{{ TranslationHelper::TranslateText('Numéro de téléphone') }} :</strong> {{ $commande->phone ?? 'N/A' }}</p>
+
+        @if($commande->gouvernorat)
+        <p><strong>{{ TranslationHelper::TranslateText('Ville') }} :</strong> {{ $commande->gouvernorat }}</p>
         @endif
 
         <hr>
 
-        <p class="text-center" style="font-size: 13px;">
+        <p class="text-center" style="font-size: 12px;">
             {{ TranslationHelper::TranslateText('Merci de votre confiance') }} !
             <br>
-            {{ TranslationHelper::TranslateText('À bientôt') }}
+            {{ TranslationHelper::TranslateText("Si vous avez des questions, n'hésitez pas à nous contacter") }}.
         </p>
     </div>
-
+    
     <script>
         window.onload = function() {
             window.print();
