@@ -27,53 +27,48 @@ $devise = 'FCFA';
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-        /* ==========================================================
-           RESET ET STYLES DE BASE (ÉCRAN)
-           ========================================================== */
-        * {
-            box-sizing: border-box;
-        }
-
+        /* Optimisation exclusive pour petits reçus / imprimante thermique */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 0;
             color: #000;
             background-color: #fff;
-            font-size: 14px;
+            font-size: 14px; /* Taille demandée */
             line-height: 1.3;
         }
 
         .container {
-            width: 100%;
-            max-width: 400px; /* Largeur de sécurité pour éviter l'étalement excessif */
+            width: 72mm; /* Largeur standard rouleau 80mm avec marges de sécurité */
             margin: 0 auto;
-            padding: 10px;
+            padding: 4px;
+            box-sizing: border-box;
         }
 
+        /* Statut en gros format thermique */
         .status-box {
             text-align: center;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: bold;
             border: 2px dashed #000;
             padding: 6px;
             margin: 8px 0;
-            background-color: #f9f9f9;
+            letter-spacing: 1px;
         }
 
         .invoice-header {
             width: 100%;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 6px;
             text-align: center;
         }
 
         .logo {
-            max-width: 70px;
+            max-width: 75px;
             height: auto;
             display: block;
-            margin: 0 auto 5px auto;
+            margin: 0 auto 4px auto;
         }
 
         table {
@@ -81,43 +76,46 @@ $devise = 'FCFA';
             border-collapse: collapse;
             margin-top: 8px;
             margin-bottom: 8px;
-            table-layout: fixed; /* Empêche le tableau de dépasser de l'écran/papier */
         }
 
         th, td {
-            border: 1px solid #ddd;
-            padding: 5px 3px;
+            border: none;
+            border-bottom: 1px dotted #ccc;
+            padding: 5px 2px;
             font-size: 13px;
             text-align: left;
-            word-wrap: break-word; /* Coupe les mots trop longs pour éviter les débordements */
         }
 
         th {
-            background-color: #f2f2f2;
+            border-bottom: 1px solid #000;
             font-weight: bold;
+            font-size: 13px;
+        }
+
+        .tr-montant {
+            border-top: 2px solid #000 !important;
         }
 
         .tr-montant td {
-            background-color: #000 !important;
-            color: #fff !important;
-            font-size: 14px;
+            border: none;
+            font-size: 15px;
             font-weight: bold;
         }
 
         h5, h3, h4 {
-            margin: 8px 0 4px 0;
+            margin: 8px 0 3px 0;
             font-size: 14px;
         }
 
         p {
             margin: 4px 0;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         hr {
             border: 0;
-            border-top: 1px solid #ccc;
-            margin: 10px 0;
+            border-top: 1px dashed #000;
+            margin: 8px 0;
         }
 
         .text-right {
@@ -128,46 +126,19 @@ $devise = 'FCFA';
             text-align: center !important;
         }
 
-        /* ==========================================================
-           MAGIE DE L'IMPRESSION UNIVERSELLE (@media print)
-           Force l'impression intégrale sans coupure de largeur
-           ========================================================== */
         @media print {
             @page {
-                size: auto;   /* S'adapte au type d'imprimante (A4 ou Rouleau) */
-                margin: 3mm;  /* Laisse une petite marge propre pour éviter les coupures de bord */
+                margin: 0;
+                size: 80mm auto; /* Forçage du format rouleau thermique */
             }
-
             body {
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                -webkit-print-color-adjust: exact; /* Force l'impression des fonds (ex: noir/blanc) */
-                print-color-adjust: exact;
+                width: 80mm;
+                margin: 0;
+                padding: 0;
             }
-
             .container {
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            /* Adaptation propre des tableaux pour l'impression */
-            th, td {
-                border-color: #999 !important;
-                padding: 4px 2px !important;
-            }
-
-            .status-box {
-                background-color: #fff !important;
-                border: 2px solid #000 !important;
-            }
-            
-            .tr-montant td {
-                background-color: #eee !important; /* Fond gris clair pour l'économie d'encre sur A4 tout en restant lisible sur thermique */
-                color: #000 !important;
-                border-top: 2px solid #000 !important;
+                width: 100%;
+                padding: 2px;
             }
         }
     </style>
@@ -176,12 +147,12 @@ $devise = 'FCFA';
 <body>
 
     <div class="container">
-        <!-- En-tête de l'entreprise -->
+        <!-- En-tête -->
         <div class="invoice-header">
             @if(!empty($logoBase64))
             <img src="{{ $logoBase64 }}" alt="logo" class="logo">
             @endif
-            <div style="font-size: 16px; font-weight: bold;">{{ config('app.name') }}</div>
+            <div style="font-size: 15px; font-weight: bold;">{{ config('app.name') }}</div>
             @if($config)
                 @if(!empty($config->addresse))
                 <div style="font-size: 11px;">{{ $config->addresse }}</div>
@@ -189,43 +160,37 @@ $devise = 'FCFA';
                 @if(!empty($config->telephone))
                 <div style="font-size: 11px;">Tél : {{ $config->telephone }}</div>
                 @endif
-                @if(!empty($config->email))
-                <div style="font-size: 11px;">Email : {{ $config->email }}</div>
-                @endif
             @endif
         </div>
 
-        <!-- Statut mis en valeur -->
+        <!-- Statut du reçu -->
         <div class="status-box">
             {{ strtoupper(TranslationHelper::TranslateText($commande->statut ?? 'EN ATTENTE')) }}
         </div>
 
-        <!-- Informations globales de la commande -->
+        <!-- Infos commande -->
         <p><strong>{{ TranslationHelper::TranslateText('Reference') }} :</strong> {{ $commande->reference }}</p>
         <p><strong>{{ TranslationHelper::TranslateText('Date') }} :</strong> {{ $commande->created_at }}</p>
 
-        <!-- Liste de tous les produits commandés -->
-        <h3 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Produits commandés') }}</h3>
+        <!-- Tableau des produits -->
+        <h3 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Produits') }}</h3>
         <table>
-            <!-- Fixation des largeurs en pourcentage pour bloquer tout débordement -->
             <colgroup>
-                <col style="width: 40%;">
+                <col style="width: 35%;">
                 <col style="width: 15%;">
-                <col style="width: 20%;">
+                <col style="width: 25%;">
                 <col style="width: 25%;">
             </colgroup>
             <thead>
                 <tr>
-                    <th>{{ TranslationHelper::TranslateText('Prod.') }}</th>
-                    <th class="text-center">{{ TranslationHelper::TranslateText('Qté') }}</th>
-                    <th class="text-right">{{ TranslationHelper::TranslateText('P.U') }}</th>
+                    <th>{{ TranslationHelper::TranslateText('Article') }}</th>
+                    <th class="text-center">Qté</th>
+                    <th class="text-right">P.U</th>
                     <th class="text-right">Total</th>
                 </tr>
             </thead>
             <tbody>
-                @php
-                $total = 0;
-                @endphp
+                @php $total = 0; @endphp
                 @foreach ($commande->contenus as $item)
                 <tr>
                     <td>{{ $item->produit->nom ?? 'Produit' }}</td>
@@ -233,9 +198,7 @@ $devise = 'FCFA';
                     <td class="text-right">{{ number_format($item->prix_unitaire, 0, ',', ' ') }}</td>
                     <td class="text-right">{{ number_format($item->prix_unitaire * $item->quantite, 0, ',', ' ') }}</td>
                 </tr>
-                @php
-                $total += ($item->prix_unitaire * $item->quantite);
-                @endphp
+                @php $total += ($item->prix_unitaire * $item->quantite); @endphp
                 @endforeach
 
                 @if(isset($commande->frais) && $commande->frais > 0)
@@ -260,7 +223,7 @@ $devise = 'FCFA';
 
                 <tr class="tr-montant">
                     <td colspan="3" class="text-right">
-                        <b>TOTAL :</b>
+                        <b>TOTAL ({{ $devise }}) :</b>
                     </td>
                     <td class="text-right">
                         <b>{{ number_format($total, 0, ',', ' ') }}</b>
@@ -269,35 +232,23 @@ $devise = 'FCFA';
             </tbody>
         </table>
 
-        <!-- Informations complètes sur le client et la livraison -->
-        <h4 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Client / Livraison') }}</h4>
-        
+        <!-- Infos client -->
+        <h4 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Client') }}</h4>
         <p><strong>Nom :</strong> {{ $commande->prenom ?? '' }} {{ $commande->nom ?? '' }}</p>
-
-        @if(!empty($commande->email))
-        <p><strong>Email :</strong> {{ $commande->email }}</p>
-        @endif
-
         <p><strong>Tél :</strong> {{ $commande->phone ?? ($commande->telephone ?? 'N/A') }}</p>
-
         @if(!empty($commande->adresse))
         <p><strong>Adresse :</strong> {{ $commande->adresse }}</p>
         @endif
-
         @if(!empty($commande->gouvernorat))
         <p><strong>Ville :</strong> {{ $commande->gouvernorat }}</p>
         @endif
 
-        @if(!empty($commande->notes))
-        <p><strong>Notes :</strong> {{ $commande->notes }}</p>
-        @endif
-
         <hr>
 
-        <p class="text-center" style="font-size: 12px;">
+        <p class="text-center" style="font-size: 13px;">
             {{ TranslationHelper::TranslateText('Merci de votre confiance') }} !
             <br>
-            {{ TranslationHelper::TranslateText("À bientôt") }}.
+            {{ TranslationHelper::TranslateText('À bientôt') }}
         </p>
     </div>
 
