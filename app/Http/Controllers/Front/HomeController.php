@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 //require './vendor/autoload.php';
 
 
-use App\Models\{commandes, config, User, produits, Category, Service, Marque, Testimonial, views, Sous_category, Famille};
+use App\Models\{commandes, config, User, produits, Category, Service, Marque,  views, Sous_category, Famille};
 use App\Models\Banners;
 use App\Models\templates;
 use Barryvdh\DomPDF\Facade\Pdf;

@@ -23,7 +23,7 @@ use App\Http\Controllers\Front\{
     MyAccountController,
     favoris_client,
     HomeController,
-    TestimonialController
+   
 };
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\PrescriptionController;
@@ -110,14 +110,10 @@ Route::get('/consultations/{id}/recu-tranche/{index}', [ConsultationRecuControll
 
 Route::post('/locale', [LocaleController::class, 'change'])->name("locale.change");
 
-Route::get('contact', [ContactController::class, 'contact'])->name("contact");
-Route::get('about', [ContactController::class, 'about'])->name("about");
-/////temoignages
-Route::resource('testimonial', TestimonialController::class);
 
 
 
-Route::resource('contacts', ContactController::class, ['only' => ['create', 'store']]);
+
 Route::get('forgot_password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forgot_password');
 Route::get('/confirmation', [HomeController::class, 'confirmation'])->name('confirmation');
 Route::get('/logout', [HomeController::class, 'logout']);
@@ -138,52 +134,8 @@ Route::get('/print_bordereau/{ids}', [HomeController::class, 'print_bordereau'])
 
 
 
-Route::get('/details-produits/{id}/{slug}', [HomeController::class, 'details'])->name('details-produits');
 
 
-///gestion boutique
-Route::get('/shop', [HomeController::class, 'shop'])->name('shop');
-Route::post('/shop', [HomeController::class, 'shop']);
-Route::get('/shop/reset', [HomeController::class, 'resetShop'])->name('shop.reset');
-Route::post('/commande-whatsapp', [HomeController::class, 'orderWhatsapp'])->name('order.whatsapp');
-
-//gestion du panier
-Route::get('cart', [panier_client::class, 'cart'])->name('cart');
-Route::post('/client/ajouter_au_panier', [panier_client::class, 'add']);
-Route::get('/client/count_panier', [panier_client::class, 'count_panier']);
-Route::get('/client/mon_panier', [panier_client::class, 'contenu_mon_panier']);
-Route::get('/client/delete_produit_au_panier', [panier_client::class, 'delete_produit']);
-// Vérifiez si cette route existe dans votre web.php
-Route::post('/client/delete_produit_au_panier', [App\Http\Controllers\Front\panier_client::class, 'delete_produit']);
-
-
-Route::get('/commander', [CommandeController::class, 'commander'])->name('commander');
-Route::post('/order', [CommandeController::class, 'confirmOrder'])->name('order.confirm');
-Route::get('/thank-you', [CommandeController::class, 'index'])->name('thank-you');
-
-
-//Route::get('cart', [CommandeController::class, 'cart'])->name('cart');
-Route::delete('/cart/clear', [CommandeController::class, 'clear'])->name('cart.clear');
-
-Route::post('/savecoupon', [CouponController::class, 'savecoupon'])->name('savecoupon');
-Route::post('/apply-coupon', [CouponController::class, 'applyCoupon'])->name('apply.coupon');
-
-
-
-// Utilisateur authentifié
-Route::middleware('auth')->group(function () {
-
-    //gestion des favoris
-    Route::post('/client/ajouter_favoris', [favoris_client::class, 'add']);
-    Route::get('/favories', [MyAccountController::class, 'favories'])->name('favories');
-
-    ///Mon compte
-    Route::get('/comptes', [MyAccountController::class, 'comptes'])->name('comptes');
-    Route::get('/account', [MyAccountController::class, 'account'])->name('account');
-
-    ///Mon profil
-    Route::get('/profile', [MyAccountController::class, 'profile'])->name('profile');
-});
 
 
 Route::middleware(['auth'])->group(function () {
@@ -204,10 +156,6 @@ Route::middleware(['auth'])->group(function () {
         ->name('categories.update')
         ->middleware('permission:category_edit');
 
-    ///////////////////Transports/////////////////
-    Route::get('/admin/transports', [AdminController::class, 'transports'])
-        ->name('transports');
-    Route::get('/admin/transport/add', [AdminController::class, 'transport_add']);
 
 
     Route::get('/admin/support', [AdminController::class, 'support'])->name('support');
@@ -217,29 +165,6 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-    ///////////////////Les coupons////////////////////////////////////////////////
-    Route::get('/admin/coupons', [AdminController::class, 'coupons'])
-        ->name('coupons');
-
-    Route::post('/savecoupon', [CouponController::class, 'savecoupon'])->name('savecoupon');
-    Route::get('/updatecoupon/{id}', [CouponController::class, 'updatecoupon'])->name('updatecoupon');
-    Route::delete('/deletecoupon/{id}', [CouponController::class, 'destroy'])->name('coupon.destroy');
-    Route::get('/putcoupon/{id}', [CouponController::class, 'putcoupon'])->name('putcoupon');
-
-    Route::resource('/coupons', CouponController::class);
-
-
-    /////////Testimonials///////////////////
-    Route::get('/admin/testimonials', [AdminController::class, 'testimonials'])
-        ->name('testimonials');
-    Route::get('/admin/testimonial/{id}/delete', [AdminController::class, 'testimonial_delete']);
-    Route::resource('testimonials', TestimonialController::class);
-    Route::get('temoignages/{id}/disapprove', [TestimonialController::class, 'disapprove'])->name('temoignages.disapprove');
-    Route::get('temoignages/{id}/approve', [TestimonialController::class, 'approve'])->name('temoignages.approve');
-
-
-    Route::get('/admin/coupon/add', [AdminController::class, 'coupon_add'])
-        ->name('coupon.add');
 
     ///////////////////Les produits////////////////////////////
 

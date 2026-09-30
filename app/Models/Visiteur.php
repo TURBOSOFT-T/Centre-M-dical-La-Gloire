@@ -18,6 +18,8 @@ class Visiteur extends Model
         'lien_parente'
     ];
 
+    
+
     public function visites()
     {
         return $this->hasMany(Visite::class, 'visiteur_id');

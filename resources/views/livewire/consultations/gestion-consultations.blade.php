@@ -113,8 +113,8 @@
                         @forelse($consultations ?? [] as $c)
                         <tr>
                             <td>
-                                <div class="font-weight-bold">{{ $c->patient->nom_complet }}</div>
-                                <small class="text-muted"><i class="bx bx-phone me-1"></i> Code: {{ $c->patient->code_patient }}</small>
+                                <div class="font-weight-bold">{{ $c->patient->nom_complet ?? ' ' }}</div>
+                                <small class="text-muted"><i class="bx bx-phone me-1"></i> Code: {{ $c->patient->code_patient  ?? ' '}}</small>
                             </td>
                             <td>
                                 @php

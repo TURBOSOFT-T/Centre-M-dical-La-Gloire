@@ -33,6 +33,18 @@ class DossierMedical extends Model
             return false;
         }
     }
+
+    
+    protected static function booted()
+{
+   
+
+     static::deleting(function ($dossier) {
+        // Supprime toutes les consultations associées lors de la suppression du patient
+        $dossier->hospitalisations()->delete();
+       
+    });
+}
     // ==========================================
     // RELATIONS ELOQUENT
     // ==========================================
@@ -45,14 +57,7 @@ class DossierMedical extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    /**
-     * Les consultations associées au dossier médical.
-     */
-
-
-    /**
-     * Les hospitalisations enregistrées dans ce dossier.
-     */
+   
     public function hospitalisations(): HasMany
     {
         return $this->hasMany(Hospitalisation::class);

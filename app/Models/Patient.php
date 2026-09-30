@@ -59,6 +59,22 @@ class Patient extends Model
         });
     }
 
+    protected static function booted()
+    {
+        static::deleting(function ($patient) {
+            // Supprime toutes les consultations associées lors de la suppression du patient
+            $patient->consultations()->delete();
+        });
+
+        static::deleting(function ($patient) {
+            // Supprime toutes les consultations associées lors de la suppression du patient
+            $patient->visites()->delete();
+            $patient->dossierMedical()->delete();
+            $patient->commandes()->delete();
+            $patient->rendezVous()->delete();
+        });
+    }
+
     public function getNomCompletAttribute()
     {
         return trim("{$this->nom} {$this->prenom}");
@@ -73,9 +89,10 @@ class Patient extends Model
     }
 
     public function visites()
-{
-    return $this->hasMany(Visite::class, 'patient_id');
-}/**
+    {
+        return $this->hasMany(Visite::class, 'patient_id');
+    }
+    /**
      * Relation avec le dossier médical du patient
      */
     public function dossierMedical()
@@ -91,15 +108,13 @@ class Patient extends Model
         return $this->hasMany(RendezVous::class, 'patient_id')->orderBy('date_heure', 'desc');
     }
 
-       public function consultations()
+    public function consultations()
     {
         return $this->hasMany(Consultation::class, 'patient_id');
     }
 
-     public function commandes(){
-        return $this->hasMany(commandes::class,"phone");
+    public function commandes()
+    {
+        return $this->hasMany(commandes::class, "phone");
     }
-
-
-
 }

@@ -159,11 +159,10 @@
                             @if ($photo2 && is_null($photo))
                             <img src="{{ Storage::url($photo2) }}" alt="" class="w-100">
                             @else
-                            <img src="{{ $photo->temporaryUrl() }}" alt="" class="w-100">
-                            @endif
+                                 @endif
                             @else
                             @if ($photo)
-                            <img src="{{ $photo->temporaryUrl() }}" alt="" class="w-100">
+                           
                             @else
                             <img src="/icons/no-image.webp" alt="" class="w-100">
                             @endif

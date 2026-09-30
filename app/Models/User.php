@@ -100,17 +100,9 @@ class User extends Authenticatable
         return $this->hasMany(contenu_commande::class, 'commercial_id');
     }
 
-    public function coupons()
-    {
-        return $this->hasMany(Coupon::class, 'commercial_id');
-    }
+    
 
-
-    public function favoris()
-    {
-        return $this->hasMany(favoris::class, 'id_user');
-    }
-
+    
 
     public function getIsAdminAttribute()
     {
@@ -120,10 +112,7 @@ class User extends Authenticatable
         // return $this->role()->where('id', 1)->exists();
         return $this->$admins;
     }
-    public function reviews()
-    {
-        return $this->hasMany('App\Review');
-    }
+    
     public function collection()
     {
         return User::all();

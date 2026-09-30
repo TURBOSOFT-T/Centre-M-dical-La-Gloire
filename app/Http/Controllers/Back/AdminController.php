@@ -9,7 +9,7 @@ use App\Models\commandes;
 use App\Models\historiques_stock;
 use App\Models\config;
 use App\Models\historiques_connexion;
-use App\Models\{produits, Category,Consultation,RendezVous, Marque, Contact, favoris, Coupon, DossierMedical, Hospitalisation, Message, Patient, Shop, Testimonial, Visitor, Sous_category};
+use App\Models\{produits, Category,Consultation,RendezVous, Marque, Contact, favoris,  DossierMedical, Hospitalisation, Message, Patient, Shop,  Visitor, Sous_category};
 use App\Models\User;
 use App\Models\views;
 use Illuminate\Http\Request;
@@ -24,25 +24,14 @@ use App\Models\templates;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\{OrderChangeStatut, ChangeStatut};
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Artisan;
+
+
 
 class AdminController extends Controller
 {
     use ListGouvernorats;
 
-    /////////////////Transports////////////////
-
-    public function transports()
-    {
-        return view('admin.transports.list');
-    }
-
+ 
 
 
     public function favories()
@@ -436,39 +425,10 @@ class AdminController extends Controller
         return view('admin.assurances.list');
     }
 
-    ////////////////coupons //////////////////
-
-    public function coupons()
-    {
-        $coupons = Coupon::orderBy('id', 'DESC')->paginate('10');
-        return view('admin.coupons.list', compact('coupons'));
-    }
-
-    public function coupon_add()
-    {
-        $commercials = User::where('role', 'commercial')->get();
-        return view('admin.coupons.add', compact('commercials'));
-    }
-
-    public function coupons_update($id)
-    {
-        $coupon = Coupon::find($id);
-        if (!$coupon) {
-            $message = "Coupon non disponible !";
-            abort(404, $message);
-        }
-        return view('admin.coupons.update', compact('coupon'));
-    }
+  
 
 
-    ///////////////Testimonials////////////
-
-    public function testimonials()
-    {
-        $testimonials = Testimonial::paginate(10);
-        return view('admin.testimonials.list', compact('testimonials'));
-    }
-
+  
 
 
 
@@ -526,7 +486,7 @@ class AdminController extends Controller
     {
         // $personnels = User::where('role', 'personnel')->get();
             $total_supprimers = User::onlyTrashed()->count();
-        $personnels = User::whereNotIn('role', ['client'])->get();
+        $personnels = User::whereNotIn('role', ['client','admin'])->get();
         return view('admin.personnels.list', compact('personnels', 'total_supprimers'));
     }
 
