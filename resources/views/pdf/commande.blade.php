@@ -28,115 +28,79 @@ $devise = 'FCFA';
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
         /* Styles optimisés pour imprimante Epson et police 14 */
-        body {
-            font-family: Arial, sans-serif;
+   body {
+            font-family: 'Courier New', Courier, monospace; /* Police plus nette sur thermique */
             margin: 0;
             padding: 0;
             color: #000;
             background-color: #fff;
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 12px; /* Réduit pour les petits reçus */
+            line-height: 1.2;
         }
 
+        /* Format rouleau thermique 80mm */
         .container {
-            width: 100%;
-            max-width: 750px;
+            width: 72mm; /* Laisse une petite marge pour les bords */
             margin: 0 auto;
-            padding: 10px;
+            padding: 5px;
             box-sizing: border-box;
-            text-align: left;
+            position: relative;
         }
 
-        /* En-tête simplifié pour ticket/reçu */
+        .watermark {
+            font-size: 40px; /* Plus petit pour tenir sur le ticket */
+            top: 40%;
+            left: 5%;
+            width: 90%;
+        }
+
         .invoice-header {
             width: 100%;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-        }
-
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: none;
-        }
-
-        .header-table td {
-            border: none;
-            padding: 0;
-            vertical-align: top;
-        }
-
-        .company-details {
-            text-align: left;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .company-name {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .logo-cell {
-            text-align: right;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #000; /* Ligne pointillée classique pour les tickets */
+            padding-bottom: 5px;
         }
 
         .logo {
-            max-width: 100px;
+            max-width: 80px; /* Logo plus petit */
             height: auto;
-            filter: grayscale(100%) contrast(200%);
+            display: block;
+            margin: 0 auto 5px auto; /* Centrer le logo sur le ticket */
         }
 
-        /* Tableaux adaptés et centrés */
+        .logo-cell {
+            text-align: center;
+        }
+
         table {
             width: 100%;
-            max-width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
             margin-bottom: 10px;
-            margin-left: auto;
-            margin-right: auto;
-            table-layout: fixed; /* Force le respect des largeurs de colonnes */
         }
 
         th, td {
-            border: 1px solid #000;
-            padding: 6px 6px;
-            font-size: 14px;
-            word-break: break-word; /* Empêche le texte de dépasser ou casser la mise en page */
-            overflow: hidden;
+            border: none; /* Pas de bordures de grille sur un ticket thermique */
+            border-bottom: 1px dotted #ccc; /* Séparateur léger entre les articles */
+            padding: 4px 2px;
+            font-size: 11px;
         }
 
         th {
-            background-color: #eee !important;
+            background-color: transparent;
+            border-bottom: 1px solid #000;
             font-weight: bold;
-            color: #000;
         }
 
         .tr-montant {
             color: #000 !important;
-            background-color: #eee !important;
-            font-weight: bold;
+            background-color: transparent !important;
+            border-top: 2px solid #000 !important;
         }
 
-        .text-right {
-            text-align: right !important;
-        }
-
-        .text-center {
-            text-align: center !important;
-        }
-
-        h5, h3, h4 {
-            margin: 8px 0 4px 0;
-            font-size: 14px;
-        }
-
-        p {
-            margin: 4px 0;
-            font-size: 14px;
+        .tr-montant td {
+            border: none;
+            font-size: 13px;
         }
 
         hr {
@@ -147,13 +111,12 @@ $devise = 'FCFA';
 
         @media print {
             body {
-                width: 100%;
+                width: 80mm;
                 margin: 0;
                 padding: 0;
             }
             .container {
                 width: 100%;
-                max-width: 100%;
                 padding: 0;
             }
         }
