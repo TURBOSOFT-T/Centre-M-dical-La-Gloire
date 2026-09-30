@@ -15,6 +15,19 @@
                 </h4>
                 <p class="text-muted small mb-0">Registre des dossiers médicaux - Centre Médical La Gloire</p>
             </div>
+            <div class="mb-3">
+    <button wire:click="synchroniserPatients" class="btn btn-info">
+        <i class="fas fa-sync"></i> Synchroniser avec le serveur
+    </button>
+
+    <!-- Affichage des messages de succès ou d'erreur -->
+    @if (session()->has('message'))
+        <div class="alert alert-success mt-2">{{ session('message') }}</div>
+    @endif
+    @if (session()->has('error'))
+        <div class="alert alert-danger mt-2">{{ session('error') }}</div>
+    @endif
+</div>
              @can('patient_add')
             <button wire:click="openModal" class="btn btn-primary px-4 radius-30">
                 <i class="bx bx-plus me-1"></i> Nouveau Patient
