@@ -12,6 +12,7 @@ class Patient extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'uuid',
         'code_patient',
         'nom',
         'prenom',
@@ -39,6 +40,7 @@ class Patient extends Model
         'user_id',
         'created_at',
         'updated_at',
+        'is_synced',
     ];
 
     public function uniqueIds()

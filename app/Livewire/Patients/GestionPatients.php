@@ -93,34 +93,34 @@ class GestionPatients extends Component
             $this->taux_couverture = 0;
         }
     }
-public function synchroniserPatients()
-{
-    $patientsNonSync = Patient::where('is_synced', false)->get();
+    public function synchroniserPatients()
+    {
+        $patientsNonSync = Patient::where('is_synced', false)->get();
 
-    if ($patientsNonSync->isEmpty()) {
-        session()->flash('message', 'Toutes les données sont déjà à jour.');
-        return;
-    }
-
-    try {
-        $response = Http::timeout(15)
-            // ->withToken('VOTRE_SECRET_TOKEN_SUPER_SECURISE') // Décommentez si vous avez mis un token
-            ->post('https://clinique.turbosoft-services.com/api/sync/patients', [
-                'patients' => $patientsNonSync->toArray()
-            ]);
-
-        if ($response->successful()) {
-            Patient::whereIn('id', $patientsNonSync->pluck('id'))->update(['is_synced' => true]);
-            session()->flash('message', 'Synchronisation réussie avec le serveur distant !');
-        } else {
-            // 🔍 ICI : On récupère le message d'erreur exact du serveur distant
-            $errorBody = $response->json('message') ?? $response->body();
-            session()->flash('error', 'Erreur serveur (' . $response->status() . ') : ' . $errorBody);
+        if ($patientsNonSync->isEmpty()) {
+            session()->flash('message', 'Toutes les données sont déjà à jour.');
+            return;
         }
-    } catch (\Exception $e) {
-        session()->flash('error', 'Impossible de joindre le serveur : ' . $e->getMessage());
+
+        try {
+            $response = Http::timeout(15)
+                // ->withToken('VOTRE_SECRET_TOKEN_SUPER_SECURISE') // Décommentez si vous avez mis un token
+                ->post('https://clinique.turbosoft-services.com/api/sync/patients', [
+                    'patients' => $patientsNonSync->toArray()
+                ]);
+
+            if ($response->successful()) {
+                Patient::whereIn('id', $patientsNonSync->pluck('id'))->update(['is_synced' => true]);
+                session()->flash('message', 'Synchronisation réussie avec le serveur distant !');
+            } else {
+                // 🔍 ICI : On récupère le message d'erreur exact du serveur distant
+                $errorBody = $response->json('message') ?? $response->body();
+                session()->flash('error', 'Erreur serveur (' . $response->status() . ') : ' . $errorBody);
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Impossible de joindre le serveur : ' . $e->getMessage());
+        }
     }
-}
     /**
      * Pré-remplit le taux de couverture par défaut lorsqu'une assurance est choisie
      */
@@ -136,8 +136,14 @@ public function synchroniserPatients()
         }
     }
 
-    public function updatedPoids() { $this->calculerIMC(); }
-    public function updatedTaille() { $this->calculerIMC(); }
+    public function updatedPoids()
+    {
+        $this->calculerIMC();
+    }
+    public function updatedTaille()
+    {
+        $this->calculerIMC();
+    }
 
     public function calculerIMC()
     {
@@ -218,7 +224,7 @@ public function synchroniserPatients()
             'cni_ou_piece' => $this->visiteur_cni ?: $visiteur->cni_ou_piece,
             'lien_parente' => $this->visiteur_lien ?: $visiteur->lien_parente,
         ]);
-$validatedData['is_synced'] = false;
+        
         // 2. Création de l'enregistrement de visite
         Visite::create([
             'code_visite' => 'VIS-' . date('Y') . '-' . strtoupper(uniqid()),
@@ -233,7 +239,7 @@ $validatedData['is_synced'] = false;
 
         // 3. Enregistrement de la notification
         $nomPatient = trim($this->selectedPatient->nom . ' ' . $this->selectedPatient->prenom);
-        
+
         $notification = new  notifications();
         $notification->url = '#';
         $notification->titre = "Nouvelle visite";
@@ -250,7 +256,7 @@ $validatedData['is_synced'] = false;
 
         session()->flash('message_visite', 'Visite enregistrée avec succès.');
     }
-    
+
     /**
      * Marquer la sortie du visiteur directement depuis la liste
      */
@@ -323,16 +329,16 @@ $validatedData['is_synced'] = false;
         $validatedData['assurance_id']   = !empty($this->assurance_id) ? $this->assurance_id : null;
 
         // 2. Traitement des chaînes optionnelles pouvant arriver vides
-        $validatedData['prenom']               = $this->prenom ?: null;
-        $validatedData['lieu_naissance']        = $this->lieu_naissance ?: null;
-        $validatedData['lieu_residence']        = $this->lieu_residence ?: null;
-        $validatedData['profession']            = $this->profession ?: null;
-        $validatedData['religion']              = $this->religion ?: null;
+        $validatedData['prenom']              = $this->prenom ?: null;
+        $validatedData['lieu_naissance']      = $this->lieu_naissance ?: null;
+        $validatedData['lieu_residence']      = $this->lieu_residence ?: null;
+        $validatedData['profession']          = $this->profession ?: null;
+        $validatedData['religion']            = $this->religion ?: null;
         $validatedData['telephone_whatsapp']    = $this->telephone_whatsapp ?: null;
-        $validatedData['email']                 = $this->email ?: null;
-        $validatedData['adresse']               = $this->adresse ?: null;
-        $validatedData['ville']                 = $this->ville ?: null;
-        $validatedData['allergies']             = $this->allergies ?: null;
+        $validatedData['email']               = $this->email ?: null;
+        $validatedData['adresse']             = $this->adresse ?: null;
+        $validatedData['ville']               = $this->ville ?: null;
+        $validatedData['allergies']           = $this->allergies ?: null;
         $validatedData['antecedents_medicaux']  = $this->antecedents_medicaux ?: null;
 
         // 3. Réinitialisation explicite si le patient n'est pas assuré
@@ -358,18 +364,26 @@ $validatedData['is_synced'] = false;
             'imc'         => $this->imc,
         ];
 
-        // 5. Génération automatique du code patient en création si absent
-        if (!$this->isEditMode && empty($validatedData['code_patient'])) {
-            $validatedData['code_patient'] = 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5));
+        // 5. Génération automatique du code patient et de l'UUID (Création vs Modification)
+        if (!$this->isEditMode || empty($this->patient_id)) {
+            if (empty($validatedData['code_patient'])) {
+                $validatedData['code_patient'] = 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5));
+            }
+            // 🔑 Génération obligatoire de l'UUID pour la synchronisation et contournement de l'erreur SQL
+            $validatedData['uuid'] = (string) \Illuminate\Support\Str::uuid();
+            $validatedData['is_synced'] = false;
+        } else {
+            // En cas de modification, on peut aussi marquer is_synced à false pour propager la mise à jour
+            $validatedData['is_synced'] = false;
         }
 
-        // Enregistrement / Mise à jour
+        // 6. Enregistrement / Mise à jour sécurisé
         $patient = Patient::updateOrCreate(['id' => $this->patient_id], $validatedData);
 
-        // 6. Gestion propre de la notification
+        // 7. Gestion propre de la notification
         $nomPatient = trim($patient->nom . ' ' . $patient->prenom);
-        
-        $notification = new notifications();
+
+        $notification = new Notifications(); // (Assurez-vous de la casse de votre modèle si c'est 'Notification')
         $notification->url = '#';
 
         if ($this->isEditMode) {
@@ -383,14 +397,12 @@ $validatedData['is_synced'] = false;
         }
 
         $notification->statut = "unread";
-        $notification->save(); // <- Indispensable pour l'enregistrer en BDD !
+        $notification->save();
 
         session()->flash('message', $this->isEditMode ? 'Dossier patient mis à jour avec succès.' : 'Patient enregistré avec succès.');
 
         $this->closeModal();
     }
-    // Ajoutez cette méthode dans la classe GestionPatients
-
     /**
      * Recherche automatique du visiteur dès la saisie de son numéro de téléphone
      */
@@ -406,7 +418,7 @@ $validatedData['is_synced'] = false;
                 $this->visiteur_nom = $visiteur->nom_complet;
                 $this->visiteur_cni = $visiteur->cni_ou_piece;
                 $this->visiteur_lien = $visiteur->lien_parente;
-                
+
                 session()->flash('info_visiteur_trouve', 'Visiteur habituel identifié : ' . $visiteur->nom_complet);
             }
         }
@@ -467,9 +479,9 @@ $validatedData['is_synced'] = false;
             ->with('assurance')
             ->when($this->search, function ($query) {
                 $query->where('nom', 'like', '%' . $this->search . '%')
-                      ->orWhere('prenom', 'like', '%' . $this->search . '%')
-                      ->orWhere('telephone', 'like', '%' . $this->search . '%')
-                      ->orWhere('code_patient', 'like', '%' . $this->search . '%');
+                    ->orWhere('prenom', 'like', '%' . $this->search . '%')
+                    ->orWhere('telephone', 'like', '%' . $this->search . '%')
+                    ->orWhere('code_patient', 'like', '%' . $this->search . '%');
             })
             ->when($this->filtreGenre, function ($query) {
                 $query->where('genre', $this->filtreGenre);
