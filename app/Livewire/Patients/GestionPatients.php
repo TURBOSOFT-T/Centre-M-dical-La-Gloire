@@ -94,7 +94,7 @@ class GestionPatients extends Component
             $this->taux_couverture = 0;
         }
     }
-    
+
     public function synchroniserPatients()
     {
         // 1. Récupérer tous les patients modifiés ou créés en local (is_synced = false)
@@ -105,10 +105,10 @@ class GestionPatients extends Component
 
         try {
             // 2. Appel HTTP vers le serveur en ligne (⚠️ Remplacez l'URL par la vôtre)
-           $response = Http::timeout(30)->post('https://clinique.turbosoft-services.com/api/patients/sync', [
-    'patients' => $patientsLocauxNonSync->toArray(),
-    'last_sync_time' => $derniereSynchro,
-]);
+            $response = Http::timeout(30)->post('https://clinique.turbosoft-services.com/api/sync/patients', [
+                'patients' => $patientsLocauxNonSync->toArray(),
+                'last_sync_time' => $derniereSynchro,
+            ]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -150,7 +150,6 @@ class GestionPatients extends Component
 
                     // ✅ Message flash pour Livewire
                     session()->flash('message', 'Synchronisation bidirectionnelle effectuée avec succès !');
-
                 } catch (\Exception $e) {
                     DB::rollBack();
                     throw $e;
@@ -158,13 +157,12 @@ class GestionPatients extends Component
             } else {
                 session()->flash('error', 'Erreur de réponse du serveur distant.');
             }
-
         } catch (\Exception $e) {
             // ✅ Message d'erreur flash si hors-ligne
             session()->flash('error', 'Impossible de joindre le serveur (Mode hors-ligne) : ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Pré-remplit le taux de couverture par défaut lorsqu'une assurance est choisie
      */
@@ -268,7 +266,7 @@ class GestionPatients extends Component
             'cni_ou_piece' => $this->visiteur_cni ?: $visiteur->cni_ou_piece,
             'lien_parente' => $this->visiteur_lien ?: $visiteur->lien_parente,
         ]);
-        
+
         // 2. Création de l'enregistrement de visite
         Visite::create([
             'code_visite' => 'VIS-' . date('Y') . '-' . strtoupper(uniqid()),
