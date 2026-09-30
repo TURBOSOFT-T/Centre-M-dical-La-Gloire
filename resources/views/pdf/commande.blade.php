@@ -127,31 +127,19 @@ $devise = 'FCFA';
 
     <div class="container">
         <!-- En-tête de l'entreprise -->
-        <div class="invoice-header">
-            <table class="header-table">
-                <tr>
-                    <td class="company-details">
-                        <div class="company-name">{{ config('app.name') }}</div>
-                        @if($config)
-                            @if(!empty($config->telephone))
-                            <div><strong>Tél :</strong> {{ $config->telephone }}</div>
-                            @endif
-                            @if(!empty($config->email))
-                            <div><strong>Email :</strong> {{ $config->email }}</div>
-                            @endif
-                            @if(!empty($config->addresse))
-                            <div><strong>Adresse :</strong> {{ $config->addresse }}</div>
-                            @endif
-                        @endif
-                    </td>
-
-                    <td class="logo-cell">
-                        @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" class="logo">
-                        @endif
-                    </td>
-                </tr>
-            </table>
+       <div class="invoice-header" style="text-align: center;">
+            @if(!empty($logoBase64))
+            <img src="{{ $logoBase64 }}" alt="logo" class="logo">
+            @endif
+            <div class="company-name" style="font-size: 14px; font-weight: bold;">{{ config('app.name') }}</div>
+            @if($config)
+                @if(!empty($config->addresse))
+                <div style="font-size: 10px;">{{ $config->addresse }}</div>
+                @endif
+                @if(!empty($config->telephone))
+                <div style="font-size: 10px;">Tél : {{ $config->telephone }}</div>
+                @endif
+            @endif
         </div>
 
         <!-- Informations globales de la commande -->
@@ -255,6 +243,14 @@ $devise = 'FCFA';
             {{ TranslationHelper::TranslateText("Si vous avez des questions, n'hésitez pas à nous contacter") }}.
         </p>
     </div>
+
+    <script>
+    window.onload = function() {
+        window.print();
+        // Optionnel : fermer la page après impression si c'est une vue dédiée
+        // setTimeout(function() { window.close(); }, 1000);
+    };
+</script>
 </body>
 
 </html>
