@@ -33,7 +33,7 @@ $devise = 'FCFA';
             padding: 0;
             color: #000;
             background-color: #fff;
-            font-size: 13px; /* Taille de police globale fixée à 13px */
+            font-size: 14px; /* Taille d'écriture fixée à 14px */
             line-height: 1.3;
         }
 
@@ -45,13 +45,13 @@ $devise = 'FCFA';
             box-sizing: border-box;
         }
 
-        /* Style du statut en filigrane thermique */
+        /* Style du statut mis en valeur */
         .status-watermark {
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             border: 2px dashed #000;
-            padding: 6px;
+            padding: 8px;
             margin: 10px 0;
             letter-spacing: 1px;
             background-color: #f0f0f0;
@@ -66,7 +66,7 @@ $devise = 'FCFA';
         }
 
         .logo {
-            max-width: 80px;
+            max-width: 90px;
             height: auto;
             display: block;
             margin: 0 auto 5px auto;
@@ -82,14 +82,15 @@ $devise = 'FCFA';
         th, td {
             border: none;
             border-bottom: 1px dotted #ccc;
-            padding: 5px 2px;
-            font-size: 13px; /* Forcé à 13px pour les tableaux aussi */
+            padding: 6px 2px;
+            font-size: 13px; /* Écritures du tableau à 13px/14px */
             text-align: left;
         }
 
         th {
             border-bottom: 1px solid #000;
             font-weight: bold;
+            font-size: 13px;
         }
 
         .tr-montant {
@@ -98,7 +99,7 @@ $devise = 'FCFA';
 
         .tr-montant td {
             border: none;
-            font-size: 14px;
+            font-size: 15px; /* Total bien visible en grand */
             font-weight: bold;
         }
 
@@ -111,13 +112,13 @@ $devise = 'FCFA';
         }
 
         h5, h3, h4 {
-            margin: 8px 0 4px 0;
-            font-size: 13px;
+            margin: 10px 0 5px 0;
+            font-size: 15px;
         }
 
         p {
-            margin: 4px 0;
-            font-size: 13px;
+            margin: 6px 0;
+            font-size: 14px;
         }
 
         hr {
@@ -131,7 +132,6 @@ $devise = 'FCFA';
                 width: 80mm;
                 margin: 0;
                 padding: 0;
-                font-size: 13px;
             }
             .container {
                 width: 100%;
@@ -148,20 +148,20 @@ $devise = 'FCFA';
 <body>
 
     <div class="container">
-        <!-- En-tête de l'entreprise (Centré pour Epson) -->
+        <!-- En-tête de l'entreprise -->
         <div class="invoice-header">
             @if(!empty($logoBase64))
             <img src="{{ $logoBase64 }}" alt="logo" class="logo">
             @endif
-            <div style="font-size: 15px; font-weight: bold;">{{ config('app.name') }}</div>
+            <div style="font-size: 16px; font-weight: bold;">{{ config('app.name') }}</div>
             @if($config)
                 @if(!empty($config->addresse))
-                <div>{{ $config->addresse }}</div>
+                <div style="font-size: 13px;">{{ $config->addresse }}</div>
                 @endif
                 @if(!empty($config->telephone))
-                <div>Tél : {{ $config->telephone }}</div>
+                <div style="font-size: 13px;">Tél : {{ $config->telephone }}</div>
                 @endif
-               
+                
             @endif
         </div>
 
@@ -242,7 +242,7 @@ $devise = 'FCFA';
 
         <hr>
 
-        <p class="text-center">
+        <p class="text-center" style="font-size: 13px;">
             {{ TranslationHelper::TranslateText('Merci de votre confiance') }} !
             <br>
             {{ TranslationHelper::TranslateText('À bientôt') }}
