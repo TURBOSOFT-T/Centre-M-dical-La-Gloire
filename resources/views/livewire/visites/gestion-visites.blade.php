@@ -55,10 +55,10 @@
                             <td><span class="badge bg-soft-primary text-primary font-weight-bold">{{ $v->code_visite }}</span></td>
                             <td>
                                 <div class="font-weight-bold">{{ $v->patient->nom  ?? ' ' }}</div>
-                                <small class="text-muted">{{ $v->patient->code_patient }}</small>
+                                <small class="text-muted">{{ $v->patient->code_patient ?? ' ' }}</small>
                             </td>
                             <td>
-                                <div class="font-weight-bold">{{ $v->visiteur->nom_complet }}</div>
+                                <div class="font-weight-bold">{{ $v->visiteur->nom_complet  ?? ' '}}</div>
                                 <small class="text-muted"><i class="bx bx-phone me-1"></i>{{ $v->visiteur->telephone }}</small>
                             </td>
                             <td><span class="badge bg-light text-dark border">{{ $v->visiteur->lien_parente ?? 'Proche' }}</span></td>
@@ -143,7 +143,7 @@
                                                     {{ $p->nom_complet ?? ' ' }}
                                                 </div>
                                                 <small class="{{ $patient_id == $p->id ? 'text-white-50' : 'text-muted' }}">
-                                                    <i class="bx bx-phone me-1"></i>{{ $p->telephone ?? ' ' }} | Code : {{ $p->code_patient   ?? ' '}}
+                                                    <i class="bx bx-phone me-1"></i>{{ $p->telephone ?? ' ' }} | Code : {{ $p->code_patient ?? ' '}}
                                                 </small>
                                             </div>
                                             @if($patient_id == $p->id)
