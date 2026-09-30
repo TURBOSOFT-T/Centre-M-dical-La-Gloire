@@ -27,19 +27,19 @@ $devise = 'FCFA';
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-        /* Optimisation exclusive pour petits reçus / imprimante thermique */
+        /* Styles de base pour petits reçus */
         body {
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 0;
             color: #000;
             background-color: #fff;
-            font-size: 14px; /* Taille demandée */
+            font-size: 14px;
             line-height: 1.3;
         }
 
         .container {
-            width: 72mm; /* Largeur standard rouleau 80mm avec marges de sécurité */
+            width: 95%;
             margin: 0 auto;
             padding: 4px;
             box-sizing: border-box;
@@ -126,13 +126,14 @@ $devise = 'FCFA';
             text-align: center !important;
         }
 
+        /* FORÇAGE DE L'IMPRESSION EN PAYSAGE (LANDSCAPE) */
         @media print {
             @page {
+                size: landscape; /* Force l'orientation paysage au niveau du navigateur/imprimante */
                 margin: 0;
-                size: 80mm auto; /* Forçage du format rouleau thermique */
             }
             body {
-                width: 80mm;
+                width: 100%;
                 margin: 0;
                 padding: 0;
             }
