@@ -165,7 +165,13 @@ class GestionVisites extends Component
 
         session()->flash('message', 'Sortie du visiteur enregistrée.');
     }
+ public function delete($id)
+    {
+        $consultation = Visite::findOrFail($id);
+        $consultation->delete();
 
+        session()->flash('message', 'Visiteur supprimée avec succès.');
+    }
     public function render()
     {
         // Recherche globale dans le registre des visites

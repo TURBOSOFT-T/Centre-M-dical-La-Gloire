@@ -84,6 +84,16 @@
                                 @else
                                 <span class="text-muted small"><i class="bx bx-check-double text-success me-1"></i>Terminée</span>
                                 @endif
+
+                                 @can('visiteur_delete')
+                                <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $v->id }})">
+                                    <i class="bx bx-trash"></i>
+                                </button>
+                                @endcan
+
+                                <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $v->id }}" wire:click="delete({{ $v->id }})">
+                                    <i class="bx bx-check-circle"></i> Confirmer
+                                </button>
                             </td>
                         </tr>
                         @empty
