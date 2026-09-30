@@ -44,6 +44,7 @@ $devise = 'FCFA';
             margin: 0 auto;
             padding: 10px;
             box-sizing: border-box;
+            text-align: left;
         }
 
         /* En-tête simplifié pour ticket/reçu */
@@ -88,19 +89,24 @@ $devise = 'FCFA';
             filter: grayscale(100%) contrast(200%);
         }
 
-        /* Tableaux adaptés pour impression thermique */
+        /* Tableaux adaptés et centrés */
         table {
             width: 100%;
+            max-width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
             margin-bottom: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            table-layout: fixed; /* Force le respect des largeurs de colonnes */
         }
 
         th, td {
             border: 1px solid #000;
-            padding: 6px 8px;
-            text-align: left;
+            padding: 6px 6px;
             font-size: 14px;
+            word-break: break-word; /* Empêche le texte de dépasser ou casser la mise en page */
+            overflow: hidden;
         }
 
         th {
@@ -193,6 +199,13 @@ $devise = 'FCFA';
         <!-- Liste de tous les produits commandés -->
         <h3>{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
         <table>
+            <!-- Définition des largeurs : Colonne Produit réduite à 35%, Qté à 15%, P.U et Total à 25% chacun -->
+            <colgroup>
+                <col style="width: 30%;">
+                <col style="width: 15%;">
+                <col style="width: 25%;">
+                <col style="width: 20%;">
+            </colgroup>
             <thead>
                 <tr>
                     <th>{{ TranslationHelper::TranslateText('Produit') }}</th>
