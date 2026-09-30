@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PatientSyncController extends Controller
 {
@@ -16,11 +17,14 @@ class PatientSyncController extends Controller
 
         // 1. TRAITEMENT : Ce que le local envoie au serveur en ligne
         foreach ($localPatients as $data) {
-            $patient = Patient::where('uuid', $data['uuid'])->first();
+            // Sécurité : Si l'uuid est absent, on en génère un
+            $uuid = $data['uuid'] ?? (string) Str::uuid();
+
+            $patient = Patient::where('uuid', $uuid)->first();
 
             $payload = [
-                'uuid' => $data['uuid'],
-                'code_patient' => $data['code_patient'],
+                'uuid' => $uuid,
+                'code_patient' => $data['code_patient'] ?? ('PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5))),
                 'assurance_id' => $data['assurance_id'] ?? null,
                 'nom' => $data['nom'],
                 'prenom' => $data['prenom'] ?? null,
@@ -35,7 +39,7 @@ class PatientSyncController extends Controller
                 'matricule_assurance' => $data['matricule_assurance'] ?? null,
                 'taux_couverture' => $data['taux_couverture'] ?? 0,
                 'parametres' => $data['parametres'] ?? null,
-                'telephone' => $data['telephone'],
+                'telephone' => $data['telephone'] ?? null, // Sécurisé en optionnel si besoin
                 'telephone_whatsapp' => $data['telephone_whatsapp'] ?? null,
                 'email' => $data['email'] ?? null,
                 'adresse' => $data['adresse'] ?? null,
@@ -57,7 +61,7 @@ class PatientSyncController extends Controller
                 Patient::create($payload);
             }
 
-            $processedUuids[] = $data['uuid'];
+            $processedUuids[] = $uuid;
         }
 
         // 2. RÉPONSE : Le serveur envoie au local tout ce qui a changé depuis la dernière synchro
