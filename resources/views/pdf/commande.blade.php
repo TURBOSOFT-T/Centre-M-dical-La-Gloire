@@ -27,100 +27,98 @@ $devise = 'FCFA';
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-        /* Styles optimisés pour imprimante Epson et police 14px */
+        /* Styles universels de base */
         body {
-            font-family: 'Courier New', Courier, monospace;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             color: #000;
             background-color: #fff;
-            font-size: 14px; /* Fixé à 14px comme demandé */
-            line-height: 1.3;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
-        /* Format rouleau thermique 80mm */
+        /* Conteneur fluide par défaut (pour écran et A4) */
         .container {
-            width: 72mm;
+            width: 100%;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 5px;
+            padding: 15px;
             box-sizing: border-box;
             position: relative;
         }
 
-        /* Statut mis en valeur (façon filigrane thermique) */
+        /* Statut mis en valeur */
         .status-box {
             text-align: center;
             font-size: 16px;
             font-weight: bold;
             border: 2px dashed #000;
-            padding: 6px;
-            margin: 10px 0;
+            padding: 8px;
+            margin: 12px 0;
             letter-spacing: 1px;
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
         }
 
         .invoice-header {
             width: 100%;
-            margin-bottom: 10px;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
             text-align: center;
         }
 
         .logo {
-            max-width: 80px;
+            max-width: 100px;
             height: auto;
             display: block;
-            margin: 0 auto 5px auto;
+            margin: 0 auto 8px auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         th, td {
-            border: none;
-            border-bottom: 1px dotted #ccc;
-            padding: 5px 2px;
-            font-size: 13px; /* Proportionnel à 14px pour tenir dans le tableau */
+            border: 1px solid #ddd;
+            padding: 8px;
+            font-size: 14px;
+            text-align: left;
         }
 
         th {
-            background-color: transparent;
-            border-bottom: 1px solid #000;
+            background-color: #f2f2f2;
             font-weight: bold;
-            font-size: 13px;
         }
 
         .tr-montant {
-            color: #000 !important;
-            background-color: transparent !important;
-            border-top: 2px solid #000 !important;
+            background-color: #000 !important;
+            color: #fff !important;
         }
 
         .tr-montant td {
-            border: none;
+            border: 1px solid #000;
             font-size: 15px;
             font-weight: bold;
         }
 
         h5, h3, h4 {
-            margin: 8px 0 4px 0;
-            font-size: 14px;
+            margin: 12px 0 6px 0;
+            font-size: 15px;
         }
 
         p {
-            margin: 4px 0;
+            margin: 6px 0;
             font-size: 14px;
         }
 
         hr {
             border: 0;
-            border-top: 1px dashed #000;
-            margin: 10px 0;
+            border-top: 1px solid #ccc;
+            margin: 15px 0;
         }
 
         .text-right {
@@ -131,19 +129,59 @@ $devise = 'FCFA';
             text-align: center !important;
         }
 
+        /* ==========================================================
+           MAGIE DE L'IMPRESSION UNIVERSELLE (@media print)
+           ================================================---------- */
         @media print {
+            /* Si l'utilisateur a configuré son imprimante sur du format ticket (80mm) */
+            @page {
+                margin: 0;
+                size: auto; 
+            }
+
             body {
-                width: 80mm;
+                width: 100%;
                 margin: 0;
                 padding: 0;
+                font-family: 'Courier New', Courier, monospace; /* Rendu thermique net si imprimante de caisse */
             }
+
             .container {
-                width: 100%;
-                padding: 0;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 5px !important;
             }
+
+            /* Sur thermique, on allège les bordures lourdes des tableaux A4 pour un look ticket épuré */
+            th, td {
+                border: none !important;
+                border-bottom: 1px dotted #ccc !important;
+                padding: 5px 2px !important;
+            }
+
+            th {
+                border-bottom: 1px solid #000 !important;
+                background-color: transparent !important;
+            }
+
+            .tr-montant {
+                background-color: transparent !important;
+                color: #000 !important;
+                border-top: 2px solid #000 !important;
+            }
+
+            .tr-montant td {
+                border: none !important;
+            }
+
             .status-box {
                 background-color: #fff !important;
-                border: 2px solid #000;
+                border: 2px solid #000 !important;
+            }
+
+            hr {
+                border-top: 1px dashed #000 !important;
             }
         }
     </style>
@@ -157,13 +195,16 @@ $devise = 'FCFA';
             @if(!empty($logoBase64))
             <img src="{{ $logoBase64 }}" alt="logo" class="logo">
             @endif
-            <div style="font-size: 15px; font-weight: bold;">{{ config('app.name') }}</div>
+            <div style="font-size: 18px; font-weight: bold;">{{ config('app.name') }}</div>
             @if($config)
                 @if(!empty($config->addresse))
-                <div style="font-size: 11px;">{{ $config->addresse }}</div>
+                <div style="font-size: 13px;">{{ $config->addresse }}</div>
                 @endif
                 @if(!empty($config->telephone))
-                <div style="font-size: 11px;">Tél : {{ $config->telephone }}</div>
+                <div style="font-size: 13px;">Tél : {{ $config->telephone }}</div>
+                @endif
+                @if(!empty($config->email))
+                <div style="font-size: 13px;">Email : {{ $config->email }}</div>
                 @endif
             @endif
         </div>
@@ -178,14 +219,8 @@ $devise = 'FCFA';
         <p><strong>{{ TranslationHelper::TranslateText('Date') }} :</strong> {{ $commande->created_at }}</p>
 
         <!-- Liste de tous les produits commandés -->
-        <h3 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
+        <h3 style="border-bottom: 1px solid #000; padding-bottom: 3px;">{{ TranslationHelper::TranslateText('Produits commandés') }}</h3>
         <table>
-            <colgroup>
-                <col style="width: 30%;">
-                <col style="width: 15%;">
-                <col style="width: 25%;">
-                <col style="width: 30%;">
-            </colgroup>
             <thead>
                 <tr>
                     <th>{{ TranslationHelper::TranslateText('Produit') }}</th>
@@ -242,7 +277,7 @@ $devise = 'FCFA';
         </table>
 
         <!-- Informations complètes sur le client et la livraison -->
-        <h4 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Client / Livraison') }} :</h4>
+        <h4 style="border-bottom: 1px solid #000; padding-bottom: 3px;">{{ TranslationHelper::TranslateText('Client / Livraison') }}</h4>
         
         <p><strong>Nom :</strong> {{ $commande->prenom ?? '' }} {{ $commande->nom ?? '' }}</p>
 
