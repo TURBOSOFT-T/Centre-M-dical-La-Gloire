@@ -200,39 +200,22 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 $total = 0;
                 @endphp
                 @foreach ($commande->contenus as $item)
-                <tr>
-                    <td>{{ $item->produit->nom }}</td>
-                    <td>{{ $item->quantite }}</td>
-                    <td>{{ $item->prix_unitaire }} <x-devise></x-devise></td>
-                    <td>{{ $item->prix_unitaire * $item->quantite }} <x-devise></x-devise></td>
+                <tr >
+                    <td class="text-left" colspan="1">{{ $item->produit->nom }}</td>
+                    <td class="text-left">{{ $item->quantite }}</td>
+                    <td class="text-left">{{ $item->prix_unitaire }} <x-devise></x-devise></td>
+                    <td class="text-left">{{ $item->prix_unitaire * $item->quantite }} <x-devise></x-devise></td>
                 </tr>
                 @php
                 $total += ($item->prix_unitaire * $item->quantite);
                 @endphp
                 @endforeach
 
-                @if($commande->frais)
-                <tr>
-                    <td><b>{{ \App\Helpers\TranslationHelper::TranslateText('Frais de livraison') }}</b></td>
-                    <td>1</td>
-                    <td>{{ $commande->frais }} <x-devise></x-devise></td>
-                    <td>{{ $commande->frais }} <x-devise></x-devise></td>
-                </tr>
-                @php $total += $commande->frais; @endphp
-                @endif
-
-                @if($commande->coupon)
-                <tr>
-                    <td><b>{{ \App\Helpers\TranslationHelper::TranslateText('Coupon de réduction') }}</b></td>
-                    <td>1</td>
-                    <td>{{ $commande->coupon }} <x-devise></x-devise></td>
-                    <td style="color: #dc3545;">-{{ $commande->coupon }} <x-devise></x-devise></td>
-                </tr>
-                @php $total -= $commande->coupon; @endphp
-                @endif
+               
+               
 
                 <tr class="tr-montant">
-                    <td colspan="3" class="text-right">
+                    <td colspan="1" class="text-left">
                         <b>{{ \App\Helpers\TranslationHelper::TranslateText('Total de la commande') }}:</b>
                     </td>
                     <td>
