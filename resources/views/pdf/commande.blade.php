@@ -85,7 +85,6 @@ $devise = 'FCFA';
         .logo {
             max-width: 100px;
             height: auto;
-            /* Filtre optionnel pour forcer le noir et blanc net sur Epson si l'image est en couleur */
             filter: grayscale(100%) contrast(200%);
         }
 
@@ -186,9 +185,12 @@ $devise = 'FCFA';
             </table>
         </div>
 
-        <h5><strong>{{ TranslationHelper::TranslateText('Reference') }} :</strong> {{ $commande->reference }}</h5>
-        <p><strong>{{ TranslationHelper::TranslateText('Date') }} :</strong> {{ $commande->created_at }}</p>
+        <!-- Informations globales de la commande -->
+        <h5><strong>{{ TranslationHelper::TranslateText('Reference de la commande') }} :</strong> {{ $commande->reference }}</h5>
+        <p><strong>{{ TranslationHelper::TranslateText('Date de commande') }} :</strong> {{ $commande->created_at }}</p>
+        <p><strong>{{ TranslationHelper::TranslateText('Statut') }} :</strong> {{ $commande->statut ?? 'EN ATTENTE' }}</p>
 
+        <!-- Liste de tous les produits commandés -->
         <h3>{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
         <table>
             <thead>
@@ -215,7 +217,7 @@ $devise = 'FCFA';
                 @endphp
                 @endforeach
 
-                @if($commande->frais)
+                @if(isset($commande->frais) && $commande->frais > 0)
                 <tr>
                     <td><b>{{ TranslationHelper::TranslateText('Frais de livraison') }}</b></td>
                     <td class="text-center">1</td>
@@ -225,7 +227,7 @@ $devise = 'FCFA';
                 @php $total += $commande->frais; @endphp
                 @endif
 
-                @if($commande->coupon)
+                @if(isset($commande->coupon) && $commande->coupon > 0)
                 <tr>
                     <td><b>{{ TranslationHelper::TranslateText('Coupon de réduction') }}</b></td>
                     <td class="text-center">1</td>
@@ -246,23 +248,35 @@ $devise = 'FCFA';
             </tbody>
         </table>
 
-        <h4>{{ TranslationHelper::TranslateText('Informations client') }} :</h4>
-        <p><strong>{{ TranslationHelper::TranslateText('Nom') }} :</strong> {{ $commande->prenom }} {{ $commande->nom }}</p>
+        <!-- Informations complètes sur le client et la livraison -->
+        <h4>{{ TranslationHelper::TranslateText('Informations sur la livraison') }} :</h4>
+        
+        <p><strong>{{ TranslationHelper::TranslateText('Nom complet') }} :</strong> {{ $commande->prenom ?? '' }} {{ $commande->nom ?? '' }}</p>
 
-        @if($commande->adresse)
+        @if(!empty($commande->email))
+        <p><strong>{{ TranslationHelper::TranslateText('Email') }} :</strong> {{ $commande->email }}</p>
+        @endif
+
+        <p><strong>{{ TranslationHelper::TranslateText('Numéro de téléphone') }} :</strong> {{ $commande->phone ?? ($commande->telephone ?? 'N/A') }}</p>
+
+        @if(!empty($commande->adresse))
         <p><strong>{{ TranslationHelper::TranslateText('Adresse') }} :</strong> {{ $commande->adresse }}</p>
         @endif
 
-        <p><strong>{{ TranslationHelper::TranslateText('Téléphone') }} :</strong> {{ $commande->phone ?? 'N/A' }}</p>
+        @if(!empty($commande->gouvernorat))
+        <p><strong>{{ TranslationHelper::TranslateText('Ville / Gouvernorat') }} :</strong> {{ $commande->gouvernorat }}</p>
+        @endif
 
-        @if($commande->gouvernorat)
-        <p><strong>{{ TranslationHelper::TranslateText('Ville') }} :</strong> {{ $commande->gouvernorat }}</p>
+        @if(!empty($commande->notes))
+        <p><strong>{{ TranslationHelper::TranslateText('Notes') }} :</strong> {{ $commande->notes }}</p>
         @endif
 
         <hr>
 
         <p class="text-center">
             {{ TranslationHelper::TranslateText('Merci de votre confiance') }} !
+            <br>
+            {{ TranslationHelper::TranslateText("Si vous avez des questions, n'hésitez pas à nous contacter") }}.
         </p>
     </div>
 </body>
