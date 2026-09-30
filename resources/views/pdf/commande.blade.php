@@ -99,7 +99,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         }
 
         table {
-            width: 100%;
+            width: 60%;
             border-collapse: collapse;
             margin-top: 20px;
             background-color: transparent;
@@ -170,11 +170,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                     </td>
 
                     <!-- Logo à droite -->
-                    <td class="logo-cell">
-                        @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" class="logo">
-                        @endif
-                    </td>
+                    
                 </tr>
             </table>
         </div>
@@ -200,7 +196,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 $total = 0;
                 @endphp
                 @foreach ($commande->contenus as $item)
-                <tr >
+                <tr>
                     <td class="text-left" colspan="1">{{ $item->produit->nom }}</td>
                     <td class="text-left">{{ $item->quantite }}</td>
                     <td class="text-left">{{ $item->prix_unitaire }} <x-devise></x-devise></td>
@@ -211,8 +207,8 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 @endphp
                 @endforeach
 
-               
-               
+
+
 
                 <tr class="tr-montant">
                     <td colspan="1" class="text-left">
