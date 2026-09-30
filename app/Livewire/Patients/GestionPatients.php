@@ -105,10 +105,10 @@ class GestionPatients extends Component
 
         try {
             // 2. Appel HTTP vers le serveur en ligne (⚠️ Remplacez l'URL par la vôtre)
-            $response = Http::timeout(30)->post('https://votre-serveur-distant.com/api/patients/sync', [
-                'patients' => $patientsLocauxNonSync->toArray(),
-                'last_sync_time' => $derniereSynchro,
-            ]);
+           $response = Http::timeout(30)->post('https://clinique.turbosoft-services.com/api/patients/sync', [
+    'patients' => $patientsLocauxNonSync->toArray(),
+    'last_sync_time' => $derniereSynchro,
+]);
 
             if ($response->successful()) {
                 $data = $response->json();
