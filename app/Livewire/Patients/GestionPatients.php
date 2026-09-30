@@ -96,15 +96,14 @@ class GestionPatients extends Component
     }
     public function synchroniserPatients()
     {
-        // 1. Récupérer tous les patients modifiés ou créés en local (is_synced = false)
+   // 1. Récupérer tous les patients modifiés ou créés en local (is_synced = false)
     $patientsLocauxNonSync = Patient::where('is_synced', false)->get();
 
-    // Récupérer la date de la dernière synchronisation réussie
+    // Récupérer la date de la dernière synchronisation réussie (stockée en base, en cache ou session)
     $derniereSynchro = cache('last_sync_time_' . auth()->id()) ?? null;
 
     try {
         // 2. Appel HTTP vers le serveur en ligne
-        // ⚠️ Remplacez l'URL par l'URL exacte de votre API distante
         $response = Http::timeout(30)->post('https://votre-serveur-distant.com/api/patients/sync', [
             'patients' => $patientsLocauxNonSync->toArray(),
             'last_sync_time' => $derniereSynchro,
@@ -116,7 +115,7 @@ class GestionPatients extends Component
             DB::beginTransaction();
 
             try {
-                // A. Marquer nos patients locaux comme synchronisés
+                // A. Marquer nos patients locaux comme synchronisés puisque le serveur les a reçus
                 Patient::where('is_synced', false)->update(['is_synced' => true]);
 
                 // B. Intégrer les modifications venues du serveur en ligne
@@ -124,43 +123,41 @@ class GestionPatients extends Component
                     foreach ($data['patients'] as $serverPatient) {
                         $localPatient = Patient::where('uuid', $serverPatient['uuid'])->first();
 
+                        // Préparation des données distantes (on retire l'ID local pour éviter les conflits d'auto-increment)
                         $serverData = $serverPatient;
-                        unset($serverData['id']); // Évite les conflits d'auto-increment local
-                        $serverData['is_synced'] = true;
+                        unset($serverData['id']);
+                        $serverData['is_synced'] = true; // Vient du serveur, donc déjà synchronisé
 
                         if ($localPatient) {
-                            // Si le patient existe, on met à jour seulement si le serveur est plus récent
+                            // Si le patient existe en local, on met à jour SEULEMENT si le serveur est plus récent
                             if (strtotime($serverPatient['updated_at']) >= strtotime($localPatient->updated_at)) {
                                 $localPatient->update($serverData);
                             }
                         } else {
-                            // Le patient a été créé en ligne par l'autre utilisateur, on l'ajoute en local
+                            // Le patient a été créé par l'autre utilisateur en ligne, on l'ajoute en local
                             Patient::create($serverData);
                         }
                     }
                 }
 
-                // C. Sauvegarder la nouvelle heure de synchronisation
+                // C. Sauvegarder la nouvelle heure de synchronisation du serveur
                 if (isset($data['server_time'])) {
                     cache(['last_sync_time_' . auth()->id() => $data['server_time']]);
                 }
 
                 DB::commit();
-
-                // Message de succès pour l'utilisateur
-                session()->flash('message', 'Synchronisation réussie : les données sont à jour.');
+                return ['success' => true, 'message' => 'Synchronisation bidirectionnelle effectuée avec succès !'];
 
             } catch (\Exception $e) {
                 DB::rollBack();
                 throw $e;
             }
-        } else {
-            session()->flash('error', 'Erreur lors de la communication avec le serveur.');
         }
 
+        return ['success' => false, 'message' => 'Erreur de réponse du serveur distant.'];
+
     } catch (\Exception $e) {
-        // Gère le cas où le poste est hors-ligne (pas d'internet)
-        session()->flash('error', 'Impossible de joindre le serveur (Mode hors-ligne actif).');
+        return ['success' => false, 'message' => 'Impossible de joindre le serveur (Hors-ligne) : ' . $e->getMessage()];
     }
     }
     /**
