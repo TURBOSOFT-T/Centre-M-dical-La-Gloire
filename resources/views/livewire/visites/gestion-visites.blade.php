@@ -143,7 +143,7 @@
                                                     {{ $p->nom_complet ?? ' ' }}
                                                 </div>
                                                 <small class="{{ $patient_id == $p->id ? 'text-white-50' : 'text-muted' }}">
-                                                    <i class="bx bx-phone me-1"></i>{{ $p->telephone }} | Code : {{ $p->code_patient }}
+                                                    <i class="bx bx-phone me-1"></i>{{ $p->telephone ?? ' ' }} | Code : {{ $p->code_patient   ?? ' '}}
                                                 </small>
                                             </div>
                                             @if($patient_id == $p->id)
