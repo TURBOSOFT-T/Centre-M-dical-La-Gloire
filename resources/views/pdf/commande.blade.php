@@ -27,49 +27,51 @@ $devise = 'FCFA';
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ TranslationHelper::TranslateText('Reçu de commande') }} - {{ $commande->reference }}</title>
     <style>
-        /* Styles optimisés pour imprimante Epson et police 14 */
-   body {
-            font-family: 'Courier New', Courier, monospace; /* Police plus nette sur thermique */
+        /* Styles optimisés pour imprimante Epson et police 14px */
+        body {
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 0;
             color: #000;
             background-color: #fff;
-            font-size: 12px; /* Réduit pour les petits reçus */
-            line-height: 1.2;
+            font-size: 14px; /* Fixé à 14px comme demandé */
+            line-height: 1.3;
         }
 
         /* Format rouleau thermique 80mm */
         .container {
-            width: 72mm; /* Laisse une petite marge pour les bords */
+            width: 72mm;
             margin: 0 auto;
             padding: 5px;
             box-sizing: border-box;
             position: relative;
         }
 
-        .watermark {
-            font-size: 40px; /* Plus petit pour tenir sur le ticket */
-            top: 40%;
-            left: 5%;
-            width: 90%;
+        /* Statut mis en valeur (façon filigrane thermique) */
+        .status-box {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px dashed #000;
+            padding: 6px;
+            margin: 10px 0;
+            letter-spacing: 1px;
+            background-color: #f0f0f0;
         }
 
         .invoice-header {
             width: 100%;
             margin-bottom: 10px;
-            border-bottom: 1px dashed #000; /* Ligne pointillée classique pour les tickets */
+            border-bottom: 1px dashed #000;
             padding-bottom: 5px;
+            text-align: center;
         }
 
         .logo {
-            max-width: 80px; /* Logo plus petit */
+            max-width: 80px;
             height: auto;
             display: block;
-            margin: 0 auto 5px auto; /* Centrer le logo sur le ticket */
-        }
-
-        .logo-cell {
-            text-align: center;
+            margin: 0 auto 5px auto;
         }
 
         table {
@@ -80,16 +82,17 @@ $devise = 'FCFA';
         }
 
         th, td {
-            border: none; /* Pas de bordures de grille sur un ticket thermique */
-            border-bottom: 1px dotted #ccc; /* Séparateur léger entre les articles */
-            padding: 4px 2px;
-            font-size: 11px;
+            border: none;
+            border-bottom: 1px dotted #ccc;
+            padding: 5px 2px;
+            font-size: 13px; /* Proportionnel à 14px pour tenir dans le tableau */
         }
 
         th {
             background-color: transparent;
             border-bottom: 1px solid #000;
             font-weight: bold;
+            font-size: 13px;
         }
 
         .tr-montant {
@@ -100,13 +103,32 @@ $devise = 'FCFA';
 
         .tr-montant td {
             border: none;
-            font-size: 13px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        h5, h3, h4 {
+            margin: 8px 0 4px 0;
+            font-size: 14px;
+        }
+
+        p {
+            margin: 4px 0;
+            font-size: 14px;
         }
 
         hr {
             border: 0;
             border-top: 1px dashed #000;
             margin: 10px 0;
+        }
+
+        .text-right {
+            text-align: right !important;
+        }
+
+        .text-center {
+            text-align: center !important;
         }
 
         @media print {
@@ -119,6 +141,10 @@ $devise = 'FCFA';
                 width: 100%;
                 padding: 0;
             }
+            .status-box {
+                background-color: #fff !important;
+                border: 2px solid #000;
+            }
         }
     </style>
 </head>
@@ -127,35 +153,38 @@ $devise = 'FCFA';
 
     <div class="container">
         <!-- En-tête de l'entreprise -->
-       <div class="invoice-header" style="text-align: center;">
+        <div class="invoice-header">
             @if(!empty($logoBase64))
             <img src="{{ $logoBase64 }}" alt="logo" class="logo">
             @endif
-            <div class="company-name" style="font-size: 14px; font-weight: bold;">{{ config('app.name') }}</div>
+            <div style="font-size: 15px; font-weight: bold;">{{ config('app.name') }}</div>
             @if($config)
                 @if(!empty($config->addresse))
-                <div style="font-size: 10px;">{{ $config->addresse }}</div>
+                <div style="font-size: 11px;">{{ $config->addresse }}</div>
                 @endif
                 @if(!empty($config->telephone))
-                <div style="font-size: 10px;">Tél : {{ $config->telephone }}</div>
+                <div style="font-size: 11px;">Tél : {{ $config->telephone }}</div>
                 @endif
             @endif
         </div>
 
+        <!-- Statut mis en valeur -->
+        <div class="status-box">
+            {{ strtoupper(TranslationHelper::TranslateText($commande->statut ?? 'EN ATTENTE')) }}
+        </div>
+
         <!-- Informations globales de la commande -->
-        <h5><strong>{{ TranslationHelper::TranslateText('Reference de la commande') }} :</strong> {{ $commande->reference }}</h5>
-        <p><strong>{{ TranslationHelper::TranslateText('Date de commande') }} :</strong> {{ $commande->created_at }}</p>
-        <p><strong>{{ TranslationHelper::TranslateText('Statut') }} :</strong> {{ $commande->statut ?? 'EN ATTENTE' }}</p>
+        <p><strong>{{ TranslationHelper::TranslateText('Reference') }} :</strong> {{ $commande->reference }}</p>
+        <p><strong>{{ TranslationHelper::TranslateText('Date') }} :</strong> {{ $commande->created_at }}</p>
 
         <!-- Liste de tous les produits commandés -->
-        <h3>{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
+        <h3 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Produits commandés') }} :</h3>
         <table>
-            <!-- Définition des largeurs : Colonne Produit réduite à 35%, Qté à 15%, P.U et Total à 25% chacun -->
             <colgroup>
                 <col style="width: 30%;">
                 <col style="width: 15%;">
                 <col style="width: 25%;">
-                <col style="width: 20%;">
+                <col style="width: 30%;">
             </colgroup>
             <thead>
                 <tr>
@@ -193,7 +222,7 @@ $devise = 'FCFA';
 
                 @if(isset($commande->coupon) && $commande->coupon > 0)
                 <tr>
-                    <td><b>{{ TranslationHelper::TranslateText('Coupon de réduction') }}</b></td>
+                    <td><b>{{ TranslationHelper::TranslateText('Coupon') }}</b></td>
                     <td class="text-center">1</td>
                     <td class="text-right">{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
                     <td class="text-right">-{{ number_format($commande->coupon, 0, ',', ' ') }}</td>
@@ -203,7 +232,7 @@ $devise = 'FCFA';
 
                 <tr class="tr-montant">
                     <td colspan="3" class="text-right">
-                        <b>{{ TranslationHelper::TranslateText('Total') }} ({{ $devise }}) :</b>
+                        <b>TOTAL ({{ $devise }}) :</b>
                     </td>
                     <td class="text-right">
                         <b>{{ number_format($total, 0, ',', ' ') }}</b>
@@ -213,44 +242,42 @@ $devise = 'FCFA';
         </table>
 
         <!-- Informations complètes sur le client et la livraison -->
-        <h4>{{ TranslationHelper::TranslateText('Informations sur la livraison') }} :</h4>
+        <h4 style="border-bottom: 1px solid #000; padding-bottom: 2px;">{{ TranslationHelper::TranslateText('Client / Livraison') }} :</h4>
         
-        <p><strong>{{ TranslationHelper::TranslateText('Nom complet') }} :</strong> {{ $commande->prenom ?? '' }} {{ $commande->nom ?? '' }}</p>
+        <p><strong>Nom :</strong> {{ $commande->prenom ?? '' }} {{ $commande->nom ?? '' }}</p>
 
         @if(!empty($commande->email))
-        <p><strong>{{ TranslationHelper::TranslateText('Email') }} :</strong> {{ $commande->email }}</p>
+        <p><strong>Email :</strong> {{ $commande->email }}</p>
         @endif
 
-        <p><strong>{{ TranslationHelper::TranslateText('Numéro de téléphone') }} :</strong> {{ $commande->phone ?? ($commande->telephone ?? 'N/A') }}</p>
+        <p><strong>Tél :</strong> {{ $commande->phone ?? ($commande->telephone ?? 'N/A') }}</p>
 
         @if(!empty($commande->adresse))
-        <p><strong>{{ TranslationHelper::TranslateText('Adresse') }} :</strong> {{ $commande->adresse }}</p>
+        <p><strong>Adresse :</strong> {{ $commande->adresse }}</p>
         @endif
 
         @if(!empty($commande->gouvernorat))
-        <p><strong>{{ TranslationHelper::TranslateText('Ville / Gouvernorat') }} :</strong> {{ $commande->gouvernorat }}</p>
+        <p><strong>Ville :</strong> {{ $commande->gouvernorat }}</p>
         @endif
 
         @if(!empty($commande->notes))
-        <p><strong>{{ TranslationHelper::TranslateText('Notes') }} :</strong> {{ $commande->notes }}</p>
+        <p><strong>Notes :</strong> {{ $commande->notes }}</p>
         @endif
 
         <hr>
 
-        <p class="text-center">
+        <p class="text-center" style="font-size: 13px;">
             {{ TranslationHelper::TranslateText('Merci de votre confiance') }} !
             <br>
-            {{ TranslationHelper::TranslateText("Si vous avez des questions, n'hésitez pas à nous contacter") }}.
+            {{ TranslationHelper::TranslateText("À bientôt") }}.
         </p>
     </div>
 
     <script>
-    window.onload = function() {
-        window.print();
-        // Optionnel : fermer la page après impression si c'est une vue dédiée
-        // setTimeout(function() { window.close(); }, 1000);
-    };
-</script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 
 </html>
