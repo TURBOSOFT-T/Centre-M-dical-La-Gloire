@@ -526,7 +526,7 @@ class AdminController extends Controller
     {
         // $personnels = User::where('role', 'personnel')->get();
             $total_supprimers = User::onlyTrashed()->count();
-        $personnels = User::whereNotIn('role', ['client','admin'])->get();
+        $personnels = User::whereNotIn('role', ['client'])->get();
         return view('admin.personnels.list', compact('personnels', 'total_supprimers'));
     }
 

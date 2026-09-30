@@ -47,7 +47,7 @@
                             @livewire('Marques.Liste')
                         </div>
                         <div class="col-sm-4">
-                              @can('marque_add')
+                              @can('labo_add')
                             <h5>
                                 <b>
                                     Ajouter un laboratoire
