@@ -11,10 +11,10 @@
 
     <div class="card-body">
         @if (session()->has('success_resultats_' . $demandeExamen->id))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bx bx-check-circle me-1"></i> {{ session('success_resultats_' . $demandeExamen->id) }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bx bx-check-circle me-1"></i> {{ session('success_resultats_' . $demandeExamen->id) }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         @endif
 
         <form wire:submit.prevent="enregistrerResultats">
@@ -29,30 +29,37 @@
                     </thead>
                     <tbody>
                         @forelse($analysesResultats as $index => $item)
-                            <tr>
-                                <td class="font-weight-bold">
-                                    {{ $item['nom'] ?? 'Analyse' }}
-                                </td>
-                                <td>
-                                    <input type="text"
-                                           wire:model="analysesResultats.{{ $index }}.resultat"
-                                           class="form-control form-control-sm"
-                                           placeholder="ex: 12.5 g/dL ou Positif">
-                                </td>
-                                <td>
-                                    <input type="text"
-                                           wire:model="analysesResultats.{{ $index }}.norme"
-                                           class="form-control form-control-sm"
-                                           placeholder="ex: 11.5 - 16.0">
-                                </td>
-                            </tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                                {{ $item['nom'] ?? 'Analyse' }}
+                            </td>
+                            <td>
+                                <input type="text"
+                                    wire:model="analysesResultats.{{ $index }}.resultat"
+                                    class="form-control form-control-sm"
+                                    placeholder="ex: 12.5 g/dL ou Positif">
+                            </td>
+                            <td>
+                                <input type="text"
+                                    wire:model="analysesResultats.{{ $index }}.norme"
+                                    class="form-control form-control-sm"
+                                    placeholder="ex: 11.5 - 16.0">
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="3" class="text-center text-muted">Aucune sous-analyse configurée.</td>
-                            </tr>
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">Aucune sous-analyse configurée.</td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
+
+                <label class="form-label font-weight-bold">Indication medicale :</label>
+                <input type="text" wire:model="indication_medicale" class="form-control form-control-sm" placeholder="Avis global sur les résultats...">
+
             </div>
 
             <div class="row g-2 mb-3">
@@ -69,6 +76,8 @@
                     </select>
                 </div>
             </div>
+
+
 
             <div class="text-end">
                 <button type="submit" class="btn btn-sm btn-primary px-3 radius-30">

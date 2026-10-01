@@ -1,18 +1,35 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Résultats d'Examen - {{ $demande->code_demande }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 13px; color: #333; }
-        .header-title { text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .header-title {
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
         @media print {
-            .no-print { display: none !important; }
-            body { padding: 0; }
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                padding: 0;
+            }
         }
     </style>
 </head>
+
 <body class="p-4 bg-white" onload="window.print()">
 
     <div class="no-print mb-4 d-flex justify-content-between align-items-center">
@@ -64,24 +81,30 @@
         </thead>
         <tbody>
             @forelse($demande->analyses_demandees ?? [] as $item)
-                <tr>
-                    <td class="fw-semibold">{{ $item['nom'] ?? 'Paramètre' }}</td>
-                    <td class="text-center fw-bold text-primary fs-6">{{ $item['resultat'] ?? 'N/A' }}</td>
-                </tr>
+            <tr>
+                <td class="fw-semibold">{{ $item['nom'] ?? 'Paramètre' }}</td>
+                <td class="text-center fw-bold text-primary fs-6">{{ $item['resultat'] ?? 'N/A' }}</td>
+            </tr>
             @empty
-                <tr>
-                    <td colspan="2" class="text-center text-muted">Aucun paramètre saisi.</td>
-                </tr>
+            <tr>
+                <td colspan="2" class="text-center text-muted">Aucun paramètre saisi.</td>
+            </tr>
             @endforelse
         </tbody>
     </table>
 
     {{-- Conclusion & Signature --}}
+
+    @if($demande->indication_medicale )
+    <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
+        <strong>Indication medicale :</strong> {{ $demande->indication_medicale }}
+    </div>
+    @endif
     @if($demande->conclusion)
-        <div class="p-3 bg-light border rounded mb-4">
-            <strong class="text-primary d-block mb-1">Conclusion du Biologiste :</strong>
-            <p class="mb-0">{{ $demande->conclusion }}</p>
-        </div>
+    <div class="p-3 bg-light border rounded mb-4">
+        <strong class="text-primary d-block mb-1">Conclusion du Biologiste :</strong>
+        <p class="mb-0">{{ $demande->conclusion }}</p>
+    </div>
     @endif
 
     <div class="row mt-5 pt-3">
@@ -92,4 +115,5 @@
     </div>
 
 </body>
+
 </html>

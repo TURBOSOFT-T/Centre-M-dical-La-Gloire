@@ -663,8 +663,7 @@ class GestionConsultations extends Component
                 }
             }
 
-            // Constantes vitales, Évaluations, Bilan... (votre logique existante)
-            // ...
+       
 
             if (!empty($changements)) {
                 $dataToSave['est_modifie'] = true;

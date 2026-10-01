@@ -248,7 +248,12 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                     @endif
                 </tbody>
             </table>
-
+  @if($demande->indication_medicale )
+    <div class="conclusion-box">
+        <strong>Indication medicale :</strong> {{ $demande->indication_medicale }}
+    </div>
+    @endif
+    
             @if(!empty($demande->conclusion))
                 <div class="conclusion-box">
                     <strong>Conclusion / Interprétation :</strong> {{ $demande->conclusion }}

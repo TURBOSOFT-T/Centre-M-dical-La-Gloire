@@ -195,7 +195,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             </td>
             <td>
                 <div class="info-title">Médecin Prescripteur</div>
-                <strong>Médecin :</strong> Dr. {{ $consultation->medecin?->name ?? $consultation->medecin?->nom ?? 'Non assigné' }}<br>
+                <strong>Médecin :</strong> {{ $consultation->medecin?->name ?? $consultation->medecin?->nom ?? 'Non assigné' }}<br>
                 <strong>Service :</strong> Consultation {{ ucfirst(str_replace('_', ' ', $consultation->type)) }}<br>
                 <strong>Dossier Médical N° :</strong> {{ $consultation->dossier_medical_id ?? '-' }}
             </td>

@@ -27,6 +27,7 @@ class AjouterCommande extends Component
     // Le shop_id sélectionné en haut de la page
     public $shop_id;
     public $stocksDisponibles = [];
+    public $patient_id;
 
     use ListGouvernorats;
 
@@ -43,7 +44,34 @@ class AjouterCommande extends Component
         $this->key = '';
         $this->produits = [];
     }
+   protected function rules()
+    {
+        return [
+            'nom' => 'required|string|max:100',
+            'prenom' => 'nullable|string|max:100',
+            'genre' => 'required|in:M,F',
+            'date_naissance' => 'nullable|date',
+            'lieu_naissance' => 'nullable|string|max:100',
+            'lieu_residence' => 'nullable|string|max:150',
+            'profession' => 'nullable|string|max:100',
+            'religion' => 'nullable|string|max:100',
 
+            'est_assure' => 'boolean',
+            'assurance_id' => 'nullable|required_if:est_assure,true|exists:assurances,id',
+            'nom_assure' => 'nullable|string|max:150',
+            'matricule_assurance' => 'nullable|string|max:100',
+            'taux_couverture' => 'nullable|integer|min:0|max:100',
+
+            'telephone' => 'required|string|max:20|unique:patients,telephone,' . $this->patient_id,
+          
+            'email' => 'nullable|email|max:100',
+            'adresse' => 'nullable|string|max:150',
+            'ville' => 'nullable|string|max:100',
+            'groupe_sanguin' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'allergies' => 'nullable|string',
+            'antecedents_medicaux' => 'nullable|string',
+        ];
+    }
     public function updatedRecherche($recherche)
     {
         if (strlen($recherche) > 0) {
@@ -234,28 +262,51 @@ public function import($clientId)
     }
     public function order()
     {
-        $this->validate([
+     $validatedData =   $this->validate([
             'nom' => 'required|string|max:100',
             'prenom' => 'nullable|string|max:100',
             'adresse' => 'nullable|string|max:150',
-            'telephone' => 'required|string|max:100',
-            'pays' => 'nullable|string|max:100',
-            'gouvernorat' => 'nullable|string|max:12',
-            'frais' => 'nullable',
+          
+        //    'telephone' => 'required|string|max:20|unique:patients,telephone,' . $this->patient_id,
+         
+            
             'shop_id' => 'required',
         ]);
 
         $user_id = Auth::check() ? Auth::id() : null;
         $caisse_id = Auth::id();
         $final_shop_id = $this->shop_id;
+  // 5. Génération automatique du code patient et de l'UUID (Création vs Modification)
+        if ( empty($this->patient_id)) {
+            if (empty($validatedData['code_patient'])) {
+                $validatedData['code_patient'] = 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5));
+            }
+            // 🔑 Génération obligatoire de l'UUID pour la synchronisation et contournement de l'erreur SQL
+            $validatedData['uuid'] = (string) \Illuminate\Support\Str::uuid();
+            $validatedData['is_synced'] = false;
+        } else {
+            // En cas de modification, on peut aussi marquer is_synced à false pour propager la mise à jour
+            $validatedData['is_synced'] = false;
+        }
+
+        // 6. Enregistrement / Mise à jour sécurisé
+        $patient = Patient::updateOrCreate(
+         ['telephone' => $this->telephone],    
+        [
+        $validatedData,    
+        'id' => $this->patient_id,],
+        
+        $validatedData);
 
         // Gestion du client
-        $client = Patient::updateOrCreate(
+       /*  $client = Patient::updateOrCreate(
+              ['uuid' => $this->Str::uuid()],
             ['telephone' => $this->telephone],
-            ['nom' => $this->nom]
-        );
+            ['nom' => $this->nom],
+           
+        ); */
 
-        $reference = 'CMG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        $reference = 'CMlG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
         $panier = session()->get('panier', []);
 
         if ($panier) {
@@ -280,7 +331,7 @@ public function import($clientId)
             $commande = new commandes();
             $commande->nom = $this->nom;
             $commande->user_id = $user_id;
-            $commande->client_id = $client->id;
+            $commande->client_id = $patient->id;
             $commande->reference = $reference;
             $commande->phone = $this->telephone;
             $commande->caisse_id = $caisse_id;

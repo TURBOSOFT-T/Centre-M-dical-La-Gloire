@@ -12,6 +12,7 @@ class SaisirResultatsExamen extends Component
     // Tableau dynamique structuré : [index => ['nom' => ..., 'prix' => ..., 'resultat' => ..., 'norme' => ...]]
     public array $analysesResultats = [];
     public string $conclusion = '';
+    public string $indication_medicale = '';
     public string $statut = 'termine';
 
     public function mount(DemandeExamen $demandeExamen)
@@ -20,7 +21,7 @@ class SaisirResultatsExamen extends Component
         $this->analysesResultats = is_array($demandeExamen->analyses_demandees)
             ? $demandeExamen->analyses_demandees
             : json_decode($demandeExamen->analyses_demandees ?? '[]', true);
-
+        $this->indication_medicale = $demandeExamen->indication_medicale ?? '';
         $this->conclusion = $demandeExamen->conclusion ?? '';
         $this->statut = $demandeExamen->statut ?? 'termine';
     }
@@ -36,9 +37,11 @@ class SaisirResultatsExamen extends Component
 
         $this->demandeExamen->update([
             'analyses_demandees' => $this->analysesResultats,
+            'indication_medicale' => $this->indication_medicale,
             'conclusion'         => $this->conclusion,
+
             'statut'             => $this->statut,
-           'effectue_par'        => auth()->id(),
+            'effectue_par'        => auth()->id(),
             'date_realisation'   => now(),
         ]);
 

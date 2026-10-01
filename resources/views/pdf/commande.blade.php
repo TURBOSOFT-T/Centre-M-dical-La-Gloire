@@ -57,14 +57,14 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
         /* Styles de l'en-tête de l'entreprise */
         .invoice-header {
-            width: 100%;
+            width: 70%;
             margin-bottom: 30px;
             border-bottom: 2px solid #333;
             padding-bottom: 15px;
         }
 
         .header-table {
-            width: 100%;
+            width: 70%;
             border-collapse: collapse;
             border: none;
         }
@@ -99,7 +99,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         }
 
         table {
-            width: 60%;
+            width: 70%;
             border-collapse: collapse;
             margin-top: 20px;
             background-color: transparent;
@@ -170,14 +170,17 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                     </td>
 
                     <!-- Logo à droite -->
+                     <td class="logo-cell">
+                        @if(!empty($logoBase64))
+                        <img src="{{ $logoBase64 }}" alt="logo" class="logo">
+                        @endif
+                    </td>
                     
                 </tr>
             </table>
         </div>
 
-        <!-- <h1>
-            {{ \App\Helpers\TranslationHelper::TranslateText('Reçu de commande') }}
-        </h1> -->
+      
         <h5>{{ \App\Helpers\TranslationHelper::TranslateText('Reference de la commande') }}: {{ $commande->reference }}</h5>
         <p><strong>{{ \App\Helpers\TranslationHelper::TranslateText('Date de commande') }}:</strong> {{ $commande->created_at }}</p>
 
@@ -211,7 +214,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
 
                 <tr class="tr-montant">
-                    <td colspan="1" class="text-left">
+                    <td colspan="3" class="text-left">
                         <b>{{ \App\Helpers\TranslationHelper::TranslateText('Total de la commande') }}:</b>
                     </td>
                     <td>
@@ -239,8 +242,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         <p>
             {{ \App\Helpers\TranslationHelper::TranslateText('Merci de votre confiance') }}!
             <br>
-            {{ \App\Helpers\TranslationHelper::TranslateText('Si vous avez des questions ou des préoccupations, n\'hésitez pas à nous contacter') }}.
-        </p>
+                 </p>
     </div>
 </body>
 

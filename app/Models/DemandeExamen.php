@@ -20,6 +20,7 @@ class DemandeExamen extends Model
         'examen_id',
         'patient_id',
         'dossier_medical_id',
+        'conclusion',
 
         'prescrit_par',
         'indication_medicale',
@@ -27,6 +28,7 @@ class DemandeExamen extends Model
         'statut',
         'tarif_brut',
         'part_assurance',
+        'indication_medicale',
         'part_patient',
         'est_paye',
 

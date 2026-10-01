@@ -55,6 +55,7 @@ class GestionPatients extends Component
     public $isEditMode = false;
     public $selectedPatient = null;
     public $isViewModalOpen = false;
+   
 
     protected function rules()
     {

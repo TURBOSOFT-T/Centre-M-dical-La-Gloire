@@ -96,7 +96,7 @@
     <!-- TABLEAU PRINCIPAL DES CONSULTATIONS -->
     <div class="card border-0 shadow-sm radius-15 overflow-hidden">
         <div class="card-body p-0">
-            <div  class="table-responsive">
+            <div class="table-responsive">
                 <table wire:poll.10s class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
@@ -633,7 +633,7 @@
                                 <label class="form-label font-weight-bold">Historique de la maladie</label>
                                 <textarea wire:model.live.debounce.500ms="historique_maladie" class="form-control" rows="3" placeholder="Évolution des symptômes..."></textarea>
                             </div>
-                            <div class="col-md-3">
+                             <div class="col-md-3">
                                 <label class="form-label font-weight-bold">Antécédents de la maladie</label>
                                 <textarea wire:model.live.debounce.500ms="antecedents_maladie" class="form-control" rows="3" placeholder="Antécédents spécifiques..."></textarea>
                             </div>
@@ -677,7 +677,7 @@
                                 <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label font-weight-bold">Traitement Administré sur place</label>
+                                <label class="form-label font-weight-bold">Traitement en cours</label>
                                 <textarea wire:model.live.debounce.500ms="traitement" class="form-control" rows="2" placeholder="Protocoles appliqués sur place..."></textarea>
                             </div>
                             <div class="col-md-4">
@@ -1055,11 +1055,18 @@
                                                         </tbody>
                                                     </table>
                                                 </div>
+                                                @if(!empty($dEx->indication_medicale))
+                                                <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
+                                                    <strong>Indication medicale :</strong> {{ $dEx->indication_medicale }}
+                                                </div>
+                                                @endif
+
                                                 @if(!empty($dEx->conclusion))
                                                 <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
                                                     <strong>Conclusion / Remarques :</strong> {{ $dEx->conclusion }}
                                                 </div>
                                                 @endif
+
                                             </div>
                                         </div>
                                         @endforeach
@@ -1110,7 +1117,7 @@
 
                         @foreach($selectedConsultation->modifications_historique as $cle => $diff)
                         <tr>
-                            <td class="fw-bold text-primary">{{  $cle }}</td>
+                            <td class="fw-bold text-primary">{{ $cle }}</td>
                             <td>
                                 <span class="text-danger text-decoration-line-through">
                                     @if(is_array($diff['ancien']))
@@ -1186,7 +1193,7 @@
 
                                 @foreach($consultationModificationsDetails->modifications_historique as $cle => $diff)
                                 <tr>
-                                    <td class="fw-bold text-primary">{{  $cle }}</td>
+                                    <td class="fw-bold text-primary">{{ $cle }}</td>
                                     <td>
                                         <span class="text-danger text-decoration-line-through">
                                             @if(is_array($diff['ancien']))
