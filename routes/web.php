@@ -252,7 +252,7 @@ Route::middleware(['auth'])->group(function () {
 
   Route::get('patients', [AdminController::class, 'patients'])
         ->name('patients');
-
+        Route::get('/corbeillepatient', [AdminController::class, 'corbeillepatient'])->name('corbeillepatient');
         
   Route::get('consultations', [AdminController::class, 'consultations'])
         ->name('consultations');

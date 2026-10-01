@@ -531,10 +531,11 @@ class GestionPatients extends Component
             })
             ->orderBy('id', 'desc')
             ->paginate(10);
+              $total = Patient::onlyTrashed()->count();
 
         // Liste dynamique des compagnies actives pour le selecteur d'assurance
         $assurancesList = Assurance::where('est_actif', true)->orderBy('nom', 'asc')->get();
 
-        return view('livewire.patients.gestion-patients', compact('patients', 'assurancesList'));
+        return view('livewire.patients.gestion-patients', compact('patients', 'assurancesList','total'));
     }
 }

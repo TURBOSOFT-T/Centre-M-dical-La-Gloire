@@ -314,7 +314,10 @@ class AdminController extends Controller
     {
         return view("admin.produits.corbeille");
     }
-
+  public function corbeillepatient()
+    {
+        return view("admin.patients.corbeille");
+    }
 
     public function corbeillepersonnel()
     {

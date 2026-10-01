@@ -31,7 +31,7 @@
             <thead class="table-dark cursor">
                 <tr>
                     <th title="Ajouter un produit dans la bannière de l'accueil">Top</th>
-                  
+
 
                     <th>Nom</th>
                     <th>Disponibilité</th>
@@ -39,8 +39,8 @@
                     <th>Prix vente</th>
                     <th>Prix achat</th>
                     <th>Sell</th>
-                  
-                  
+
+
                     <th>Création</th>
                     <th>Date peremption</th>
                     <th style="text-align: right;">
@@ -58,8 +58,8 @@
                         <input type="checkbox" class="form-check-input" @checked($produit->top == 1)
                         wire:click="add_top({{ $produit->id }})">
                     </td>
-                   
-                    
+
+
                     <td>
                         <button class="btn btn-sm btn-outline" data-bs-toggle="modal" data-bs-target="#qr-code-{{ $produit->id }}">
                             <i class="ri-qr-code-line"></i>
@@ -134,27 +134,27 @@
                     <td>
                         <i class="ri-wallet-2-line vert"></i> {{ $produit->vendus->count() }}
                     </td>
-                   
+
                     <td>{{ $produit->created_at->format('d/m/Y') }}</td>
 
                     <td>
                         @if($produit->date_peremption)
-    @if($produit->est_expire)
-        <span class="badge bg-danger"><i class="bx bx-x-circle me-1"></i> Périmé ({{ $produit->date_peremption->format('d/m/Y') }})</span>
-    @elseif($produit->jours_restants <= 30)
-        <span class="badge bg-warning text-dark"><i class="bx bx-time me-1"></i> Expire dans {{ $produit->jours_restants }} jours</span>
-    @else
-        <span class="badge bg-light text-dark"><i class="bx bx-calendar me-1"></i> Exp : {{ $produit->date_peremption->format('d/m/Y') }}</span>
-    @endif
-@else
-    <span class="text-muted small">Non renseignée</span>
-@endif
+                        @if($produit->est_expire)
+                        <span class="badge bg-danger"><i class="bx bx-x-circle me-1"></i> Périmé ({{ $produit->date_peremption->format('d/m/Y') }})</span>
+                        @elseif($produit->jours_restants <= 30)
+                            <span class="badge bg-warning text-dark"><i class="bx bx-time me-1"></i> Expire dans {{ $produit->jours_restants }} jours</span>
+                            @else
+                            <span class="badge bg-light text-dark"><i class="bx bx-calendar me-1"></i> Exp : {{ $produit->date_peremption->format('d/m/Y') }}</span>
+                            @endif
+                            @else
+                            <span class="text-muted small">Non renseignée</span>
+                            @endif
                     </td>
                     <td style="text-align: right;">
                         <div class="btn-group">
                             @can('gestion_stock')
                             <button class="btn btn-primary btn-sm" title="Ajouter Stock" wire:click="openModal({{ $produit->id }})">
-                            <!--     <i class="fas fa-plus"></i> -->
+                                <!--     <i class="fas fa-plus"></i> -->
                                 <span class="hide-tablete">Ajouter Stock</span>
                             </button>
                             @endcan
@@ -166,10 +166,10 @@
                             </button>
                             @endcan
 
-                           
+
                             @can('product_delete')
                             <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $produit->id }})">
-                             <!--    <i class="ri-delete-bin-6-line"></i> -->
+                                <!--    <i class="ri-delete-bin-6-line"></i> -->
                                 <span class="hide-tablete">Supprimer</span>
                             </button>
                             @endcan

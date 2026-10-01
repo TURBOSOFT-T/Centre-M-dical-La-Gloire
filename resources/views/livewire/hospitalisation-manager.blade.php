@@ -221,7 +221,7 @@
                             <select class="form-select" wire:model="medecin_id">
                                 <option value="">-- Sélectionner un médecin --</option>
                                 @foreach($medecins as $med)
-                                    <option value="{{ $med->id }}">Dr. {{ $med->nom }}  {{ $med->prenom }}</option>
+                                    <option value="{{ $med->id }}"> {{ $med->nom }}  {{ $med->prenom }}</option>
                                 @endforeach
                             </select>
                         </div>
