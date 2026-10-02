@@ -5,6 +5,13 @@
             <h4 class="fw-bold mb-1"><i class="bi bi-bar-chart-fill text-primary me-2"></i> Statistiques & Rapports des Hospitalisations</h4>
             <p class="text-muted mb-0">Suivi financier et volumes par période, intervalle de temps et par session d'agent.</p>
         </div>
+
+        <div>
+            {{-- Bouton d'impression pour la comptabilité --}}
+            <button onclick="window.print()" class="btn btn-dark d-flex align-items-center gap-2">
+                <i class="bi bi-printer-fill"></i> Imprimer le Rapport Comptable
+            </button>
+        </div>
        
     </div>
 
@@ -169,5 +176,54 @@
         @endif
     </div>
 
+<!-- 🔹 Style CSS dédié à l'impression / PDF -->
+<style>
+@media print {
+    /* 1. Masquer tous les éléments du layout global (sidebar, topbar, etc.) */
+    body * {
+        visibility: hidden !important;
+    }
 
+    /* 2. Rendre visible uniquement la section de contenu ciblée */
+    #printable-section, #printable-section * {
+        visibility: visible !important;
+    }
+
+    /* 3. Repositionner proprement la zone imprimée */
+    #printable-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 4. Masquer explicitement les filtres et boutons */
+    .d-print-none {
+        display: none !important;
+    }
+
+    /* 5. Désactiver les conteneurs défilants pour afficher tout le tableau */
+    .table-responsive {
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
+    table {
+        page-break-inside: auto !important;
+    }
+
+    tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+
+    /* 🔹 6. SUPPRESSION DE L'URL ET DE LA DATE AUTOMATIQUE DU NAVIGATEUR */
+    @page {
+        size: auto;
+        margin: 15mm; /* Ajustez la marge papier selon vos besoins */
+    }
+}
+</style>
 </div>

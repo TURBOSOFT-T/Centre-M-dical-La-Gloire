@@ -20,6 +20,7 @@
                             wire:model.live.debounce.300ms="search"
                             placeholder="Code, chambre, patient...">
                     </div>
+                    
                 </div>
 
                 {{-- Filtre par Statut --}}

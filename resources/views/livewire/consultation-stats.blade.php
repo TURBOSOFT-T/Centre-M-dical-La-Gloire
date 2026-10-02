@@ -5,6 +5,13 @@
             <h4 class="fw-bold mb-1"><i class="bi bi-clipboard2-pulse-fill text-primary me-2"></i> Statistiques & Rapports des Consultations</h4>
             <p class="text-muted mb-0">Suivi financier et volumes des consultations par période et par médecin.</p>
         </div>
+
+        <div>
+            {{-- Bouton d'impression pour le rapport --}}
+            <button onclick="window.print()" class="btn btn-dark d-flex align-items-center gap-2">
+                <i class="bi bi-printer-fill"></i> Imprimer le Rapport
+            </button>
+        </div>
         
     </div>
 
@@ -170,60 +177,54 @@
     </div>
 
     {{-- STYLE D'IMPRESSION PROPRE SANS LE MENU --}}
-    @push('styles')
-    <style>
-        @media print {
-            body * {
-                visibility: hidden !important;
-            }
-            #zone-impression, #zone-impression * {
-                visibility: visible !important;
-            }
-            #zone-impression {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: white !important;
-            }
-            .d-flex.justify-content-between.align-items-center.mb-4 div:last-child,
-            .card.shadow-sm.border-0.mb-4,
-            .card-footer {
-                display: none !important;
-            }
-            .row.g-3.mb-4 {
-                display: flex !important;
-                flex-wrap: nowrap !important;
-                gap: 10px !important;
-                margin-bottom: 20px !important;
-            }
-            .row.g-3.mb-4 > div {
-                flex: 1 !important;
-                max-width: 25% !important;
-            }
-            .card {
-                border: 1px solid #ccc !important;
-                box-shadow: none !important;
-                background-color: #fff !important;
-            }
-            .table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-            }
-            .table th, .table td {
-                border: 1px solid #333 !important;
-                padding: 6px 8px !important;
-                font-size: 11px !important;
-                color: #000 !important;
-            }
-            .table thead th {
-                background-color: #e9ecef !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-    </style>
-    @endpush
+   <!-- 🔹 Style CSS dédié à l'impression / PDF -->
+<style>
+@media print {
+    /* 1. Masquer tous les éléments du layout global (sidebar, topbar, etc.) */
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* 2. Rendre visible uniquement la section de contenu ciblée */
+    #printable-section, #printable-section * {
+        visibility: visible !important;
+    }
+
+    /* 3. Repositionner proprement la zone imprimée */
+    #printable-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 4. Masquer explicitement les filtres et boutons */
+    .d-print-none {
+        display: none !important;
+    }
+
+    /* 5. Désactiver les conteneurs défilants pour afficher tout le tableau */
+    .table-responsive {
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
+    table {
+        page-break-inside: auto !important;
+    }
+
+    tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+
+    /* 🔹 6. SUPPRESSION DE L'URL ET DE LA DATE AUTOMATIQUE DU NAVIGATEUR */
+    @page {
+        size: auto;
+        margin: 15mm; /* Ajustez la marge papier selon vos besoins */
+    }
+}
+</style>
 </div>
