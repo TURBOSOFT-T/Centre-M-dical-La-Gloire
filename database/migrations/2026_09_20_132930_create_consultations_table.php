@@ -82,6 +82,7 @@ return new class extends Migration
             $table->text('terrain')->nullable(); // Particularités / Allergies / Terrain
             $table->text('resultats')->nullable(); // Résultats tex
              $table->json('modifications_historique');
+              $table->text('evolution_maladie')->nullable();
 
             $table->boolean('est_modifie')->default(false); // Indique si la fiche a été modifiée
             $table->boolean('vu_par_responsable')->default(false); // Validé par le responsable

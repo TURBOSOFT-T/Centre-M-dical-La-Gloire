@@ -123,4 +123,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Shop::class, 'shop_user')
             ->withTimestamps();
     }
+
+    // Dans app/Models/User.php
+
+public function hospitalisationsAgent()
+{
+    return $this->hasMany(Hospitalisation::class, 'agent_id'); // Remplacez 'agent_id' par 'user_id' si c'est le nom de votre colonne étrangère
+}
 }

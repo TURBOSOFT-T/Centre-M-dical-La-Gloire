@@ -14,7 +14,7 @@ class Consultation extends Model
 
     protected $table = 'consultations';
 
-   protected $fillable = [
+    protected $fillable = [
         'code_consultation',
         'patient_id',
         'medecin_id',
@@ -51,16 +51,17 @@ class Consultation extends Model
         'evaluations',
         'visite_medicale_journaliere',
         'bilan',
-    'terrain',
-    'resultats',
-    'est_modifie',
-    'vu_par_responsable',
-    'date_vu_responsable',
-    'responsable_id',
-    'modifications_historique',
+        'terrain',
+        'resultats',
+        'est_modifie',
+        'vu_par_responsable',
+        'date_vu_responsable',
+        'responsable_id',
+        'modifications_historique',
+        'evolution_maladie'
     ];
 
-   protected $casts = [
+    protected $casts = [
         'date_heure_rdv'              => 'datetime',
         'tarif_brut'                  => 'decimal:2',
         'montant_paye'                => 'decimal:2',
@@ -71,7 +72,7 @@ class Consultation extends Model
         'historique_paiements'        => 'array',
         'bilan' => 'array',
         'modifications_historique' => 'array',
-       // 'modifications_historique' => 'array'
+        // 'modifications_historique' => 'array'
     ];
     /**
      * Calcul du montant total cumulé (Consultation + Examens prescrits)

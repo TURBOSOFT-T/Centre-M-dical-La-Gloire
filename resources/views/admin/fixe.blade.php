@@ -399,19 +399,42 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
 
 
-                {{-- 🔹 Menu Statistiques & Rapports --}}
-                @role('admin')
-                <li>
-                    <a href="{{ route('admin.statistiques') }}">
-                        <div class="parent-icon icon-color-6">
-                            <i class="ri-bar-chart-box-line"></i>
-                        </div>
-                        <div class="menu-title">
-                            Statistiques & Bilans
-                        </div>
-                    </a>
-                </li>
-                @endcan
+          
+{{-- 🔹 Menu Déroulant Statistiques & Bilans --}}
+            @role('admin')
+            <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon icon-color-6">
+                        <i class="ri-bar-chart-box-line"></i>
+                    </div>
+                    <div class="menu-title">
+                        Statistiques & Bilans
+                    </div>
+                </a>
+                <ul>
+                    {{-- Sous-menu Hospitalisations --}}
+                    <li>
+                        <a href="{{ route('hospitalisations.stats') }}">
+                            <i class="ri-hospital-line me-2"></i> Hospitalisations
+                        </a>
+                    </li>
+
+                    {{-- 🔹 NOUVEAU : Sous-menu Consultations --}}
+                    <li>
+                        <a href="{{ route('consultations.stats') }}">
+                            <i class="ri-stethoscope-line me-2"></i> Consultations
+                        </a>
+                    </li>
+
+                    {{-- Sous-menu Les produits --}}
+                    <li>
+                        <a href="{{ route('admin.statistiques') }}">
+                            <i class="ri-box-3-line me-2"></i> Les produits
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endrole
 
 
 

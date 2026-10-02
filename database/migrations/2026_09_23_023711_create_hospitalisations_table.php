@@ -22,15 +22,28 @@ return new class extends Migration
             $table->foreignId('agent_id')->nullable()->constrained('users')->nullOnDelete(); // Agent qui enregistre
 
             // Emplacement / Hébergement
-            $table->string('chambre_number'); // N° ou nom de la chambre
+            $table->string('chambre_number')->nullable(); // N° ou nom de la chambre
             $table->string('lit_number')->nullable();  // N° du lit
             $table->string('service_department')->nullable(); // Ex: Cardiologie, Pédiatrie, Chirurgie, Maternité
 
             // Dates & Suivi Temporel
-            $table->dateTime('date_entree');
+            $table->dateTime('date_entree')->nullable();
             $table->dateTime('date_sortie_prevue')->nullable();
             $table->dateTime('date_sortie_effective')->nullable();
 
+
+               $table->enum('type_prise_en_charge', ['observation', 'hospitalisation'])
+                  ->default('hospitalisation');
+
+            // 2. Ajout du type de standing / catégorie de chambre
+            $table->enum('standing_type', [
+                'haut_standing', 
+                'classique', 
+                'economique', 
+                'post_up'
+            ])->nullable();
+
+         
             // Motif & Diagnostic
             $table->text('motif_admission');
             $table->text('diagnostic_entree')->nullable();

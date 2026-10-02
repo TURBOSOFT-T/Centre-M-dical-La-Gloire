@@ -663,22 +663,29 @@
                                 <textarea wire:model.live.debounce.500ms="hypothese_diagnostique" class="form-control" rows="2" placeholder="Hypothèse / Diagnostic différentiel..."></textarea>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label font-weight-bold">Diagnostic positif</label>
-                                <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
+                             <div class="col-md-4">
+                                <label class="form-label font-weight-bold">Examens demandés</label>
+                                <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Examens demandés......."></textarea>
                             </div>
-                            <div class="col-md-6">
+                              <div class="col-md-4">
                                 <label class="form-label font-weight-bold">Résultats</label>
                                 <textarea wire:model.live.debounce.500ms="resultats_analyses" class="form-control" rows="2" placeholder="Synthèse des examens..."></textarea>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label font-weight-bold">Ordonnance / Prescription</label>
-                                <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea>
+                                <label class="form-label font-weight-bold">Diagnostic positif</label>
+                                <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
                             </div>
+                          
+
+                           
                             <div class="col-md-4">
                                 <label class="form-label font-weight-bold">Traitement en cours</label>
                                 <textarea wire:model.live.debounce.500ms="traitement" class="form-control" rows="2" placeholder="Protocoles appliqués sur place..."></textarea>
+                            </div>
+                             <div class="col-md-4">
+                                <label class="form-label font-weight-bold">Evolution de la maladie</label>
+                                <textarea wire:model.live.debounce.500ms="evolution_maladie" class="form-control" rows="2" placeholder="Evolution de la maladie..."></textarea>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label font-weight-bold">Traitement de Sortie & Recommandations</label>
@@ -686,6 +693,7 @@
                             </div>
                             @endcan
                             <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
+                             @can('consultation_add_evolution')
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2">
                                     <i class="bx bx-clipboard me-1"></i> Évaluation du patient
@@ -752,7 +760,7 @@
 
                             <!-- SECTION 7 : JOURNAL DE VISITE MÉDICALE JOURNALIÈRE -->
                             <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-time-five me-1"></i> Visite Médicale Journalière (Journal de Suivi)</h6>
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-time-five me-1"></i> Visite Médicale Journalière </h6>
 
                                 <div class="card bg-light border-0 p-3 mb-3">
                                     <div class="input-group">
@@ -782,6 +790,7 @@
                                 <small class="text-muted d-block text-center py-2">Aucune note de visite journalière enregistrée.</small>
                                 @endif
                             </div>
+                            @endcan
 
                             <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
                             @can('consultation_add_exam')

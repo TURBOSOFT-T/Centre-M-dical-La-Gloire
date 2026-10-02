@@ -54,7 +54,7 @@ class GestionConsultations extends Component
     // Traitements & Prescriptions
     public $ordonnance;
     public $traitement;
-    public $traitement_sortie;
+    public $traitement_sortie, $evolution_maladie;
     public $notes_privees;
 
     // Facturation & Règlement
@@ -594,6 +594,7 @@ class GestionConsultations extends Component
             'ordonnance'                => $this->ordonnance ?: null,
             'traitement'                => $this->traitement ?: null,
             'traitement_sortie'         => $this->traitement_sortie ?: null,
+            'evolution_maladie'         => $this->evolution_maladie ?: null,
             'notes_privees'             => $this->notes_privees ?: null,
             'constantes'                => [
                 'poids'       => $this->poids,
@@ -628,6 +629,7 @@ class GestionConsultations extends Component
                 'examen_physique' => 'Examen physique',
                 'examens' => 'examens',
                 'evaluations' => 'Evaluations',
+                'evolution_maladie'=> 'Evolution de la maladie',
                 'visite_medicale_journaliere' => 'visite medicale journaliere',
                 'constantes'                => [
                     'poids'       => $this->poids,
@@ -717,6 +719,7 @@ class GestionConsultations extends Component
             'nouveau_genre',
             'nouveau_date_naissance',
             'nouveau_groupe_sanguin',
+           
             // Ajoutez ici d'autres champs de consultation si nécessaire pour vider tout le formulaire
         ]);
 

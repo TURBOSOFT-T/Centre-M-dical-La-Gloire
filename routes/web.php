@@ -27,14 +27,30 @@ use App\Http\Controllers\Front\{
 };
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\PrescriptionController;
+use App\Http\Controllers\HospitalisationFactureController;
 
+Route::get('/hospitalisations/{id}/facture-print', [HospitalisationFactureController::class, 'print'])
+     ->name('hospitalisation.facture.print')
+     ->middleware(['auth']);
 Route::middleware(['auth'])->group(function () {
     // Route d'impression de l'ordonnance
     Route::get('/consultations/{id}/ordonnance/pdf', [PrescriptionController::class, 'imprimerOrdonnance'])
         ->name('consultations.ordonnance.pdf');
 });
 
+use App\Http\Controllers\HospitalisationReportController;
 
+Route::middleware(['auth'])->group(function () {
+    // Route pour la page des statistiques d'hospitalisation
+    Route::get('/hospitalisations/statistiques', [HospitalisationReportController::class, 'index'])
+        ->name('hospitalisations.stats');
+});
+
+use App\Http\Controllers\ConsultationController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/consultations/statistiques', [ConsultationController::class, 'stats'])->name('consultations.stats');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/consultations/{id}/facture/pdf', [PrescriptionController::class, 'imprimerFactureConsultation'])

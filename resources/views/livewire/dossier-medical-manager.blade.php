@@ -109,13 +109,13 @@
                                     @endif
                                     @endcan
                                     @can('dossier_medical_delete')
-                                     <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $dossier->id }})">
-                                   Supprimer
-                                </button>
+                                    <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $dossier->id }})">
+                                        Supprimer
+                                    </button>
                                     @endcan
-                                     <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $dossier->id }}" wire:click="delete({{ $dossier->id }})">
-                                    <i class="bx bx-check-circle"></i> Confirmer
-                                </button>
+                                    <button class="btn btn-sm btn-success d-none" type="button" id="confirmBtn{{ $dossier->id }}" wire:click="delete({{ $dossier->id }})">
+                                        <i class="bx bx-check-circle"></i> Confirmer
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -280,7 +280,7 @@
                 <a href="{{ route('dossier-medical.rapport-pdf', $selectedDossier->id) }}" target="_blank" class="btn btn-success btn-sm me-2">
                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Imprimer Rapport / Bilan Médical
                 </a>
-                   @can('dossier_medical_edit')
+                @can('dossier_medical_edit')
                 <button wire:click="openEdit({{ $selectedDossier->id }})" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-pencil me-1"></i> Modifier
                 </button>
