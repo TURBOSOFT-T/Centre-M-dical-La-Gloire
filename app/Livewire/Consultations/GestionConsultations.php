@@ -533,7 +533,186 @@ class GestionConsultations extends Component
     /**
      * SAUVEGARDE ET MISE À JOUR EXHAUSTIVE DE TOUS LES CHAMPS
      */
+
     public function saveConsultation()
+    {
+        // --- 0. VALIDATION GLOBALE EN PREMIER ---
+        $validatedData = $this->validate();
+
+        // --- 1. GESTION DU PATIENT ---
+        if (empty($this->consultation_id) && $this->isCreatingNewPatient) {
+            $this->validate([
+                'nouveau_nom' => 'required|string|max:255',
+                'nouveau_telephone' => 'required|string|max:50',
+            ]);
+
+            $patientExistant = null;
+            if (!empty($this->nouveau_telephone)) {
+                $patientExistant = Patient::where('telephone', $this->nouveau_telephone)->first();
+            }
+
+            if ($patientExistant) {
+                // Le patient existe déjà -> On l'associe
+                $this->patient_id = $patientExistant->id;
+                session()->flash('info', "Ce patient existait déjà dans la base de données. Il a été associé automatiquement.");
+            } else {
+                // Le patient n'existe pas -> On le crée
+                $nouveauPatient = Patient::create([
+                    'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+                    'uuid'         => (string) \Illuminate\Support\Str::uuid(),
+                    'nom'          => $this->nouveau_nom,
+                    'telephone'    => $this->nouveau_telephone,
+                    'is_synced'    => false,
+                ]);
+
+                $this->patient_id = $nouveauPatient->id;
+            }
+        }
+
+        if (!$this->dossier_medical_id && $this->patient_id) {
+            $patient = Patient::find($this->patient_id);
+            $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
+        }
+
+        $dataToSave = [
+            'patient_id'                  => $this->patient_id,
+            'medecin_id'                  => $this->medecin_id,
+            'dossier_medical_id'          => $this->dossier_medical_id,
+            'date_heure_rdv'              => $this->date_heure_rdv,
+            'type'                        => str_replace(' ', '_', strtolower(trim($this->type))),
+            'statut'                      => $this->statut,
+            'tarif_brut'                  => $this->tarif_brut,
+            'motif'                       => $this->motif ?: null,
+            'historique_maladie'          => $this->historique_maladie ?: null,
+            'antecedents_maladie'         => $this->antecedents_maladie ?: null,
+            'mode_de_vie'                 => $this->mode_de_vie ?: null,
+            'terrain'                     => $this->terrain ?: null,
+            'examen_physique'             => $this->examen_physique ?: null,
+            'examen_general'              => $this->examen_general ?: null,
+            'hypothese_diagnostique'      => $this->hypothese_diagnostique ?: null,
+            'diagnostic'                  => $this->diagnostic ?: null,
+            'resultats_analyses'          => $this->resultats_analyses ?: null,
+            'resultats'                   => $this->resultats ?: null,
+            'ordonnance'                  => $this->ordonnance ?: null,
+            'traitement'                  => $this->traitement ?: null,
+            'traitement_sortie'           => $this->traitement_sortie ?: null,
+            'evolution_maladie'           => $this->evolution_maladie ?: null,
+            'notes_privees'               => $this->notes_privees ?: null,
+            'constantes'                  => [
+                'poids'       => $this->poids,
+                'tension'     => $this->tension,
+                'temperature' => $this->temperature,
+                'pouls'       => $this->pouls,
+                'glycemie'    => $this->glycemie,
+            ],
+            'evaluations'                 => !empty($this->evaluations) ? $this->evaluations : null,
+            'visite_medicale_journaliere' => !empty($this->visite_medicale_journaliere) ? $this->visite_medicale_journaliere : null,
+            'bilan'                       => !empty($this->bilan) ? $this->bilan : null,
+        ];
+
+        $isEdit = !empty($this->consultation_id);
+
+        // --- LOGIQUE DE DÉTECTION DES MODIFICATIONS ---
+        if ($isEdit) {
+            $ancienneConsultation = Consultation::find($this->consultation_id);
+            $changements = [];
+
+            $champsASuivre = [
+                'motif'                       => 'Motif',
+                'diagnostic'                  => 'Diagnostic',
+                'ordonnance'                  => 'Ordonnance',
+                'terrain'                     => 'Terrain',
+                'tarif_brut'                  => 'Tarif Brut',
+                'statut'                      => 'Statut',
+                'type'                        => 'Type de consultation',
+                'resultats'                   => 'Résultats',
+                'historique_maladie'          => 'Historique de la maladie',
+                'antecedents_maladie'         => 'Antécédents',
+                'examen_physique'             => 'Examen physique',
+                'evaluations'                 => 'Evaluations',
+                'evolution_maladie'           => 'Evolution de la maladie',
+                'visite_medicale_journaliere' => 'Visite médicale journalière',
+                'constantes'                  => 'Constantes vitales',
+            ];
+
+            foreach ($champsASuivre as $champ => $libelle) {
+                $valeurAncienne = $ancienneConsultation->$champ ?? '';
+                $valeurNouvelle = $dataToSave[$champ] ?? '';
+
+                if (is_array($valeurAncienne)) {
+                    $valeurAncienne = json_encode($valeurAncienne, JSON_UNESCAPED_UNICODE);
+                }
+                if (is_array($valeurNouvelle)) {
+                    $valeurNouvelle = json_encode($valeurNouvelle, JSON_UNESCAPED_UNICODE);
+                }
+
+                $strAncienne = (string) $valeurAncienne;
+                $strNouvelle = (string) $valeurNouvelle;
+
+                if ($strAncienne !== $strNouvelle) {
+                    $changements[$champ] = [
+                        'libelle' => $libelle,
+                        'ancien'  => $strAncienne ?: '(Vide)',
+                        'nouveau' => $strNouvelle ?: '(Vide)',
+                    ];
+                }
+            }
+
+            if (!empty($changements)) {
+                $dataToSave['est_modifie'] = true;
+                $dataToSave['vu_par_responsable'] = false;
+                $dataToSave['modifications_historique'] = $changements;
+            }
+        }
+
+        // Sauvegarde de la consultation
+        $consultation = Consultation::updateOrCreate(
+            ['id' => $this->consultation_id],
+            $dataToSave
+        );
+
+        // --- ENREGISTREMENT DE LA NOTIFICATION ---
+        $nomPatient = $consultation->patient?->nom_complet
+            ?? trim(($consultation->patient?->nom ?? '') . ' ' . ($consultation->patient?->prenom ?? ''))
+            ?? 'Patient';
+
+        $notification = new notifications(); 
+        $notification->url = '#'; 
+
+        if ($isEdit) {
+            $notification->titre = "Consultation modifiée";
+            $notification->message = "Consultation de {$nomPatient} mise à jour.";
+            $notification->type = "consultation_modification";
+        } else {
+            $notification->titre = "Nouvelle consultation";
+            $notification->message = "Enregistrée pour {$nomPatient}.";
+            $notification->type = "consultation_creation";
+        }
+
+        $notification->statut = "unread";
+        $notification->save();
+        // ------------------------------------------
+
+        $this->selectedConsultationId = $consultation->id;
+
+        $this->reset([
+            'patient_id',
+            'searchPatient',
+            'isCreatingNewPatient',
+            'nouveau_nom',
+            'nouveau_prenom',
+            'nouveau_telephone',
+            'nouveau_genre',
+            'nouveau_date_naissance',
+            'nouveau_groupe_sanguin',
+        ]);
+
+        session()->flash('message', $isEdit ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
+        $this->closeModal();
+    }
+
+    
+    public function saveConsultation2()
     {
 
        // --- 1. GESTION DU PATIENT ---
@@ -548,6 +727,18 @@ class GestionConsultations extends Component
             $patientExistant = Patient::where('telephone', $this->nouveau_telephone)->first();
         }
 
+        if (empty($this->patient_id)) {
+            if (empty($validatedData['code_patient'])) {
+                $validatedData['code_patient'] = 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5));
+            }
+            // 🔑 Génération obligatoire de l'UUID pour la synchronisation et contournement de l'erreur SQL
+            $validatedData['uuid'] = (string) \Illuminate\Support\Str::uuid();
+            $validatedData['is_synced'] = false;
+        } else {
+            // En cas de modification, on peut aussi marquer is_synced à false pour propager la mise à jour
+            $validatedData['is_synced'] = false;
+        }
+
         if ($patientExistant) {
             // Le patient existe déjà -> On l'associe
             $this->patient_id = $patientExistant->id;
@@ -557,9 +748,9 @@ class GestionConsultations extends Component
             $nouveauPatient = Patient::create([
                 'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
                 'nom'          => $this->nouveau_nom,
-              
+                'uuid'         => (string) \Illuminate\Support\Str::uuid(),
                 'telephone'    => $this->nouveau_telephone,
-                
+                'is_synced'    => false,
             ]);
 
             $this->patient_id = $nouveauPatient->id;
