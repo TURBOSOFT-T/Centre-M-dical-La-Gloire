@@ -306,6 +306,22 @@
                                         <input type="checkbox" class="form-check-input" name="permissions[]" value="boutique_delete" @checked($personnel->hasPermissionTo('boutique_delete'))> Supprimer
                                     </td>
                                 </tr>
+
+                                  <tr>
+                                    <td>
+                                        <b>Bilan et statistiques</b>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="hospitalisation_stat_view" @checked($personnel->hasPermissionTo('hospitalisation_stat_view'))> Rappots Hopitalisation
+                                    </td>
+                                     <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="concultation_stat_view" @checked($personnel->hasPermissionTo('concultation_stat_view'))>Rapports Consultatin
+                                    </td>
+                                     <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="produit_stat_view" @checked($personnel->hasPermissionTo('produit_stat_view'))> Rapports vente des produits
+                                    </td>
+                                    <td colspan="3"></td>
+                                </tr>
                                 <tr>
                                     <td>
                                         <b>Paramètres</b>

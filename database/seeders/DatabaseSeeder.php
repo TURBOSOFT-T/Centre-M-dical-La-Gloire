@@ -170,6 +170,12 @@ class DatabaseSeeder extends Seeder
         'hospitalisation_edit',
         'hospitalisation_delete',
 
+
+        'hospitalisation_stat_view',
+        'produit_stat_view',
+        'concultation_stat_view',
+        
+
         
 
     ];

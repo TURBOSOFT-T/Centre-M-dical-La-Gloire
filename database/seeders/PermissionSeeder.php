@@ -19,28 +19,12 @@ class PermissionSeeder extends Seeder
     private $permissions = [
 
 
-        'labo_view',
-        'labo_add',
-        'labo_edit',
-        'labo_delete',
+       
 
-        'hospitalisation_view',
-        'hospitalisation_add',
-        'hospitalisation_edit',
-        'hospitalisation_delete',
-
-        'consultation_delete',
-
-        'consultation_edit_champ',
-        'consultation_add_comment',
-        'consultation_add_evolution',
-        'consultation_add_exam',
-        'consultation_add_bilan',
-        'consultation_pay',
-        'consultation_caisse',
-        'consultation_notifications',
-
-        'consultation_confirm_modif'
+        'hospitalisation_stat_view',
+        'produit_stat_view',
+        'concultation_stat_view',
+        
 
 
 
