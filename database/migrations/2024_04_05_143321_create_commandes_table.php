@@ -53,6 +53,7 @@ return new class extends Migration
 
             $table->softDeletes();
             $table->foreign('commercial_id')->references('id')->on('users')->onDelete('cascade');
+             $table->foreignId('consultation_id')->nullable()->constrained('consultations')->onDelete('cascade')->after('id');
 
 
 

@@ -14,10 +14,12 @@ class PrescrireExamen extends Component
     // Champs du formulaire (Création & Édition)
     public $demande_id = null; // Utilisé lors de l'édition d'une prescription
     public $examen_id = '';
-    public array $caracteristiquesDisponibles = [];
-    public array $analysesSelectionnees = [];
+    
     public string $indication_medicale = '';
     public float $tarifTotal = 0.0;
+
+    public $analysesSelectionnees = []; // 1. Initialisation à vide ici
+    public $caracteristiquesDisponibles = [];
 
     // État d'édition
     public bool $isEditing = false;
@@ -43,6 +45,12 @@ class PrescrireExamen extends Component
     public function mount(Consultation $consultation)
     {
         $this->consultation = $consultation;
+
+           $this->caracteristiquesDisponibles = [/* ... */];
+
+        // 2. IMPORTANT : Ne remplissez PAS $analysesSelectionnees ici 
+        // Laissez-le vide pour que tout soit décoché par défaut.
+        $this->analysesSelectionnees = []; 
     }
 
     public function updatedExamenId($value)
@@ -85,16 +93,20 @@ class PrescrireExamen extends Component
         }
         $this->tarifTotal = $total;
     }
-
-    public function toggleToutCocher($cocher = true)
+    
+public function toggleToutCocher($cocher = false)
     {
         if ($cocher) {
             $this->analysesSelectionnees = array_keys($this->caracteristiquesDisponibles);
         } else {
-            $this->analysesSelectionnees = [];
+            $this->analysesSelectionnees = []; // Tout décoche
         }
+        
         $this->recalculerTarif();
     }
+
+
+ 
 
     /**
      * Charger un examen prescrit pour modification

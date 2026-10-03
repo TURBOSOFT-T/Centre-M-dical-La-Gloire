@@ -181,6 +181,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             </tr>
         @endif
     </table>
+    
 
     <!-- TABLEAU DÉSIGNATION -->
     <table class="details-table">

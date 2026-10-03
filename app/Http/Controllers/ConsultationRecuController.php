@@ -12,10 +12,42 @@ class ConsultationRecuController extends Controller
      */
     public function imprimerRecu($id)
     {
-        $consultation = Consultation::with(['patient', 'medecin', 'demandesExamens'])->findOrFail($id);
+        // Ajout de 'produits' dans le eager loading pour récupérer les médicaments prescrits
+        $consultation = Consultation::with(['patient', 'medecin', 'demandesExamens', 'produits'])->findOrFail($id);
 
-        // Vous pouvez retourner une vue Blade dédiée à l'impression (ex: resources/views/pdf/recu-caisse.blade.php)
-        return view('consultations.recu', compact('consultation'));
+        // Calculs unifiés pour s'assurer que le PDF affiche les montants corrects
+        $tarifConsultation = $consultation->tarif_brut ?? 5000;
+        $tarifExamens = $consultation->demandesExamens ? $consultation->demandesExamens->sum('tarif_brut') : 0;
+        
+        $tarifProduits = 0;
+        foreach ($consultation->produits as $prod) {
+            $qte = $prod->pivot->quantite ?? 1;
+            $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+            $tarifProduits += ($qte * $pu);
+        }
+
+        $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
+        $totalFacture = $totalBrut;
+
+        if ($consultation->patient && $consultation->patient->est_assure && $consultation->patient->assurance) {
+            $taux = (float) $consultation->patient->taux_couverture;
+            $partAssurance = round(($totalBrut * $taux) / 100);
+            $totalFacture = $totalBrut - $partAssurance;
+        }
+
+        $montantPaye = $consultation->montant_paye ?? 0;
+        $resteAPayer = max(0, $totalFacture - $montantPaye);
+
+        return view('consultations.recu', compact(
+            'consultation', 
+            'tarifConsultation', 
+            'tarifExamens', 
+            'tarifProduits', 
+            'totalBrut', 
+            'totalFacture', 
+            'montantPaye', 
+            'resteAPayer'
+        ));
     }
 
     /**

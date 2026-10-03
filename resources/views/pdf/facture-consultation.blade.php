@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="fr">
     @php
-$config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
+    $config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
 
-// Détermination de l'image à utiliser pour le logo
-$logoPath = public_path('/icons/logo.jpg');
-if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
-$logoPath = storage_path('app/public/' . $config->logo);
-} elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
-$logoPath = storage_path('app/public/' . $config->icon);
-}
+    // Détermination de l'image à utiliser pour le logo
+    $logoPath = public_path('/icons/logo.jpg');
+    if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
+        $logoPath = storage_path('app/public/' . $config->logo);
+    } elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
+        $logoPath = storage_path('app/public/' . $config->icon);
+    }
 
-$logoBase64 = '';
-if (file_exists($logoPath)) {
-$logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
-}
-@endphp
+    $logoBase64 = '';
+    if (file_exists($logoPath)) {
+        $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
+    }
+
+    // Calculs de sécurité directs au cas où ils manquent du contrôleur
+    $tarifConsultation = $tarifConsultation ?? ($consultation->tarif_brut ?? 5000);
+    $tarifExamens = $tarifExamens ?? ($consultation->demandesExamens ? $consultation->demandesExamens->sum('tarif_brut') : 0);
+    $tarifProduits = $consultation->tarif_produits ?? 0;
+    $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
+    @endphp
 <head>
     <meta charset="UTF-8">
     <title>Facture N° {{ $consultation->code_consultation }}</title>
@@ -145,6 +151,10 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             background-color: #fff3cd;
             color: #664d03;
         }
+        .badge-info {
+            background-color: #cff4fc;
+            color: #055160;
+        }
 
         /* Pied de page */
         .footer {
@@ -178,12 +188,11 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 <div class="clinic-sub">Soins généraux, Laboratoire d'Analyses & Radiologie</div>
                 <div class="clinic-sub">Téléphone : (+237) 600 00 00 00 | Douala, Cameroun</div>
             </td>
-
-           <td class="logo-cell">
-                        @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" width="100" height="100" class="logo">
-                        @endif
-                    </td>
+            <td class="logo-cell" style="text-align: center;">
+                @if(!empty($logoBase64))
+                <img src="{{ $logoBase64 }}" alt="logo" width="80" height="80" class="logo">
+                @endif
+            </td>
             <td>
                 <div class="invoice-title">Facture / Reçu</div>
                 <div class="invoice-code">N° {{ $consultation->code_consultation }}</div>
@@ -201,7 +210,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 <strong>Code Patient :</strong> {{ $consultation->patient->code_patient }}<br>
                 <strong>Téléphone :</strong> {{ $consultation->patient->telephone ?? '-' }}<br>
                 @if($consultation->patient->est_assure && $consultation->patient->assurance)
-                    <strong>Assurance :</strong> {{ $consultation->patient->assurance->code }} (Couverture : {{ $tauxAssurance }}%)
+                    <strong>Assurance :</strong> {{ $consultation->patient->assurance->code }} (Couverture : {{ $tauxAssurance ?? 0 }}%)
                 @else
                     <strong>Couverture :</strong> Patient non assuré (100% à charge)
                 @endif
@@ -220,14 +229,14 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         </tr>
     </table>
 
-    <!-- TABLEAU DÉTAILLÉ DES ACTES ET EXAMENS PRESCRITS -->
+    <!-- TABLEAU DÉTAILLÉ DES ACTES, EXAMENS ET PRODUITS -->
     <table class="details-table">
         <thead>
             <tr>
-                <th style="width: 10%;">Type</th>
-                <th style="width: 55%;">Désignation des Prestations & Sous-analyses</th>
+                <th style="width: 12%;">Type</th>
+                <th style="width: 53%;">Désignation des Prestations, Examens & Produits</th>
                 <th style="width: 10%; text-align: center;">Qté</th>
-                <th style="width: 25%; text-align: right;">Montant Brut</th>
+                <th style="width: 25%; text-align: right;">Montant Total</th>
             </tr>
         </thead>
         <tbody>
@@ -260,6 +269,28 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                     <td style="text-align: right;">{{ number_format($demande->tarif_brut, 0, ',', ' ') }} FCFA</td>
                 </tr>
             @endforeach
+
+            {{-- Produits et Médicaments prescrits --}}
+            @if($consultation->relationLoaded('produits') ? $consultation->produits : $consultation->produits()->exists())
+                @foreach($consultation->produits as $prod)
+                    @php
+                        $qte = $prod->pivot->quantite ?? 1;
+                        $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                        $montantLigne = $qte * $pu;
+                    @endphp
+                    <tr>
+                        <td><span class="badge badge-info">Produit</span></td>
+                        <td>
+                            <strong>{{ $prod->nom ?? 'Médicament / Article' }}</strong>
+                            @if(!empty($prod->pivot->posologie))
+                                <br><small style="color: #6c757d;">Posologie : {{ $prod->pivot->posologie }}</small>
+                            @endif
+                        </td>
+                        <td style="text-align: center;">{{ $qte }}</td>
+                        <td style="text-align: right;">{{ number_format($montantLigne, 0, ',', ' ') }} FCFA</td>
+                    </tr>
+                @endforeach
+            @endif
         </tbody>
     </table>
 
@@ -275,19 +306,25 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             <td style="text-align: right;">{{ number_format($tarifExamens, 0, ',', ' ') }} FCFA</td>
         </tr>
         @endif
+        @if($tarifProduits > 0)
+        <tr>
+            <td>Produits & Médicaments :</td>
+            <td style="text-align: right;">{{ number_format($tarifProduits, 0, ',', ' ') }} FCFA</td>
+        </tr>
+        @endif
         <tr>
             <td><strong>Total Brut :</strong></td>
             <td style="text-align: right;"><strong>{{ number_format($totalBrut, 0, ',', ' ') }} FCFA</strong></td>
         </tr>
-        @if($tauxAssurance > 0)
+        @if(isset($tauxAssurance) && $tauxAssurance > 0)
         <tr style="color: #198754;">
             <td>Prise en charge Assurance ({{ $tauxAssurance }}%) :</td>
-            <td style="text-align: right;">- {{ number_format($partAssurance, 0, ',', ' ') }} FCFA</td>
+            <td style="text-align: right;">- {{ number_format($partAssurance ?? 0, 0, ',', ' ') }} FCFA</td>
         </tr>
         @endif
         <tr class="total-row">
             <td>Net à Payer (Patient) :</td>
-            <td style="text-align: right; color: #0d6efd;">{{ number_format($partPatient, 0, ',', ' ') }} FCFA</td>
+            <td style="text-align: right; color: #0d6efd;">{{ number_format( $totalBrut, 0, ',', ' ') }} FCFA</td>
         </tr>
     </table>
 
@@ -299,7 +336,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 <small style="color: #6c757d;">(Signature)</small>
             </td>
             <td>
-                <strong>La Caisse / Le Perception</strong><br>
+                <strong>La Caisse / La Perception</strong><br>
                 <small style="color: #6c757d;">(Cachet & Signature)</small>
             </td>
         </tr>

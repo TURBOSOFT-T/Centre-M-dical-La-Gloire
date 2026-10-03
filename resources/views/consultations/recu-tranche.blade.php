@@ -47,17 +47,16 @@
 
         /* --- CONFIGURATION UNIVERSELLE POUR L'IMPRESSION --- */
         @media print {
-            /* Supprime les marges superflues du navigateur pour maximiser la surface imprimable */
             @page {
-                size: auto;   /* S'adapte au format par défaut de l'imprimante (A4, A5, ou rouleau continu) */
-                margin: 5mm;  /* Petite marge de sécurité pour éviter les coupures sur les bords */
+                size: auto;   
+                margin: 5mm;  
             }
 
             body {
                 padding: 0;
                 margin: 0;
                 width: 100%;
-                -webkit-print-color-adjust: exact; /* Force l'impression des couleurs de fond (table th, etc.) */
+                -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
             }
 
@@ -65,7 +64,6 @@
                 display: none !important; 
             }
 
-            /* Empêche les coupures disgracieuses au milieu des tableaux ou du texte */
             table, tr, td, th {
                 page-break-inside: avoid;
             }
@@ -73,6 +71,39 @@
     </style>
 </head>
 <body onload="window.print()">
+
+    @php
+        // Calculs de secours autonomes pour éviter toute erreur de variable manquante
+        $tarifConsultation = $consultation->tarif_brut ?? 5000;
+        
+        $tarifExamens = 0;
+        if ($consultation->relationLoaded('demandesExamens') && $consultation->demandesExamens) {
+            $tarifExamens = $consultation->demandesExamens->sum('tarif_brut');
+        }
+        
+        $tarifProduits = 0;
+        // On s'assure que les produits sont chargés ou on les charge dynamiquement
+        $produits = $consultation->relationLoaded('produits') ? $consultation->produits : $consultation->produits;
+        if ($produits) {
+            foreach ($produits as $prod) {
+                $qte = $prod->pivot->quantite ?? 1;
+                $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                $tarifProduits += ($qte * $pu);
+            }
+        }
+
+        $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
+        $totalFacture = $totalBrut;
+
+        if ($consultation->patient && $consultation->patient->est_assure && $consultation->patient->assurance) {
+            $taux = (float) $consultation->patient->taux_couverture;
+            $partAssurance = round(($totalBrut * $taux) / 100);
+            $totalFacture = $totalBrut - $partAssurance;
+        }
+
+        $montantPaye = $consultation->montant_paye ?? 0;
+        $resteAPayer = max(0, $totalFacture - $montantPaye);
+    @endphp
 
     <div class="no-print">
         <button onclick="window.print()">🖨️ Imprimer le Reçu</button>
@@ -93,22 +124,34 @@
         </tr>
         <tr>
             <td><strong>Médecin :</strong> {{ $consultation->medecin->nom ?? 'Non assigné' }}</td>
-            <td class="text-end"><strong>Paiement :</strong> <span style="text-transform: uppercase;">{{ $consultation->statut_paiement ?? 'Non défini' }}</span></td>
+            <td class="text-end"><strong>Paiement :</strong> 
+                <span style="text-transform: uppercase;">
+                    @if($consultation->est_paye || $resteAPayer == 0) Solde (100%) @elseif($montantPaye > 0) Partiel @else Impayé @endif
+                </span>
+            </td>
         </tr>
+        @if($consultation->patient && $consultation->patient->est_assure && $consultation->patient->assurance)
+        <tr>
+            <td colspan="2"><strong>Assurance :</strong> {{ $consultation->patient->assurance->code }} (Couverture : {{ $consultation->patient->taux_couverture }}%)</td>
+        </tr>
+        @endif
     </table>
 
     <table class="table">
         <thead>
             <tr>
                 <th>Prestation / Désignation</th>
-                <th class="text-end">Montant</th>
+                <th class="text-end">Montant (FCFA)</th>
             </tr>
         </thead>
         <tbody>
+            {{-- Consultation --}}
             <tr>
-                <td>Consultation ({{ ucfirst(str_replace('_', ' ', $consultation->type)) }})</td>
-                <td class="text-end">{{ number_format($consultation->tarif_brut, 0, ',', ' ') }}</td>
+                <td>Consultation ({{ ucfirst(str_replace('_', ' ', $consultation->type ?? 'standard')) }})</td>
+                <td class="text-end">{{ number_format($tarifConsultation, 0, ',', ' ') }}</td>
             </tr>
+
+            {{-- Examens --}}
             @if($consultation->relationLoaded('demandesExamens') && $consultation->demandesExamens)
                 @foreach($consultation->demandesExamens as $demande)
                 <tr>
@@ -117,24 +160,46 @@
                 </tr>
                 @endforeach
             @endif
+
+            {{-- Produits / Médicaments prescrits --}}
+            @if($produits)
+                @foreach($produits as $prod)
+                @php
+                    $qte = $prod->pivot->quantite ?? 1;
+                    $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                    $sousTotalProd = $qte * $pu;
+                @endphp
+                <tr>
+                    <td>Médicament / Produit : {{ $prod->nom ?? 'Produit' }} (Qte: {{ $qte }})</td>
+                    <td class="text-end">{{ number_format($sousTotalProd, 0, ',', ' ') }}</td>
+                </tr>
+                @endforeach
+            @endif
         </tbody>
         <tfoot>
-            @php
-            $totalExamens = ($consultation->relationLoaded('demandesExamens') && $consultation->demandesExamens) ? $consultation->demandesExamens->sum('tarif_brut') : 0;
-            $total = $consultation->tarif_brut + $totalExamens;
-            $montantPaye = $consultation->montant_paye ?? 0;
-            @endphp
+            {{-- Si une assurance s'applique --}}
+            @if($consultation->patient && $consultation->patient->est_assure && $consultation->patient->assurance)
+                <tr>
+                    <td><strong>Total Brut Prestations</strong></td>
+                    <td class="text-end"><strong>{{ number_format($totalBrut, 0, ',', ' ') }}</strong></td>
+                </tr>
+                <tr>
+                    <td>Part Prise en charge Assurance ({{ $consultation->patient->taux_couverture }}%)</td>
+                    <td class="text-end" style="color: #0d6efd;">- {{ number_format(($totalBrut * $consultation->patient->taux_couverture) / 100, 0, ',', ' ') }}</td>
+                </tr>
+            @endif
+
             <tr>
-                <td><strong>Total Général</strong></td>
-                <td class="text-end"><strong>{{ number_format($total, 0, ',', ' ') }}</strong></td>
+                <td><strong>Total Net Facture</strong></td>
+                <td class="text-end"><strong>{{ number_format($totalFacture, 0, ',', ' ') }}</strong></td>
             </tr>
             <tr>
-                <td>Montant Réglé</td>
+                <td>Montant Réglé (Caisse)</td>
                 <td class="text-end" style="color: green;">{{ number_format($montantPaye, 0, ',', ' ') }}</td>
             </tr>
             <tr>
                 <td><strong>Reste à Payer</strong></td>
-                <td class="text-end" style="color: red;"><strong>{{ number_format(max(0, $total - $montantPaye), 0, ',', ' ') }}</strong></td>
+                <td class="text-end" style="color: red;"><strong>{{ number_format($resteAPayer, 0, ',', ' ') }}</strong></td>
             </tr>
         </tfoot>
     </table>

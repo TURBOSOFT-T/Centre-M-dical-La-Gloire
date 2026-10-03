@@ -25,7 +25,7 @@ class EditCommande extends Component
     public $commercial_id;
     public $solde = 0;
     public $caisse_id;
-    public $transports = [];
+  
     public $transport_id;
     public $showTransportForm = false;
 
@@ -41,7 +41,7 @@ class EditCommande extends Component
         $this->adresse = $commande->adresse;
         $this->gouvernorat = $commande->gouvernorat;
         $this->phone = $commande->phone;
-        $this->transports = Transport::all();
+       
         $this->transport_id = $commande->transport_id ?? null;
     }
 

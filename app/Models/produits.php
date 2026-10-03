@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class produits extends Model
 {
@@ -61,6 +62,11 @@ class produits extends Model
         'slug',
 
     ];
+
+    public function getSlugAttribute()
+{
+    return Str::slug($this->nom ?? '');
+}
 // Helper pour vérifier rapidement si le produit est périmé
 public function getEstExpireAttribute(): bool
 {
@@ -264,10 +270,6 @@ public function getJoursRestantsAttribute(): int
     }
 
 
-    public function sous_categories()
-    {
-        return $this->belongsTo(Sous_category::class, 'sous_categorie_id');
-    }
 
     public function familles()
     {

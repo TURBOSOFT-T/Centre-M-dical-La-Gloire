@@ -93,7 +93,7 @@
         </div>
     </div>
 
-    <!-- TABLEAU PRINCIPAL DES CONSULTATIONS -->
+ <!-- TABLEAU PRINCIPAL DES CONSULTATIONS -->
     <div class="card border-0 shadow-sm radius-15 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -101,7 +101,6 @@
                     <thead class="table-light">
                         <tr>
                             <th>Patient</th>
-
                             <th>Tarif / Couverture</th>
                             <th>Paiement Caisse</th>
                             <th>Statut Médical</th>
@@ -111,30 +110,49 @@
                     </thead>
                     <tbody>
                         @forelse($consultations ?? [] as $c)
+                        @php
+                            // Calcul global unifié (Consultation + Examens + Produits - Assurance)
+                            $tarifConsultation = $c->tarif_brut ?? 5000;
+                            $tarifExamens = $c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0;
+                            
+                            $tarifProduits = 0;
+                            if ($c->relationLoaded('produits') ? $c->produits : $c->produits()->exists()) {
+                                foreach ($c->produits as $prod) {
+                                    $qte = $prod->pivot->quantite ?? 1;
+                                    $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                                    $tarifProduits += ($qte * $pu);
+                                }
+                            }
+
+                            $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
+                            $totalPrestations = $totalBrut;
+
+                            if ($c->patient && $c->patient->est_assure && $c->patient->assurance) {
+                                $taux = (float) $c->patient->taux_couverture;
+                                $partAssurance = round(($totalBrut * $taux) / 100);
+                                $totalPrestations = $totalBrut - $partAssurance;
+                            }
+
+                            $resteD = max(0, $totalPrestations - ($c->montant_paye ?? 0));
+                        @endphp
                         <tr>
                             <td>
                                 <div class="font-weight-bold">{{ $c->patient->nom_complet ?? ' ' }}</div>
                                 <small class="text-muted"><i class="bx bx-phone me-1"></i> Code: {{ $c->patient->code_patient  ?? ' '}}</small>
                             </td>
                             <td>
-                                @php
-
-                                $totalPrestations = ($c->tarif_brut ?? 5000) + ($c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0);
-                                @endphp
                                 <div class="font-weight-bold">{{ number_format($totalPrestations, 0, ',', ' ') }} FCFA</div>
                                 @if($c->demandesExamens && $c->demandesExamens->count() > 0)
                                 <small class="text-primary d-block">+ {{ $c->demandesExamens->count() }} examen(s)</small>
+                                @endif
+                                @if($tarifProduits > 0)
+                                <small class="text-info d-block">+ Produits prescrits</small>
                                 @endif
                                 @if($c->patient && $c->patient->est_assure && $c->patient->assurance)
                                 <small class="text-success"><i class="bx bx-shield-quarter me-1"></i>{{ $c->patient->assurance->code }} ({{ $c->patient->taux_couverture }}%)</small>
                                 @endif
                             </td>
                             <td>
-                                @php
-                                $totalD = ($c->tarif_brut ?? 5000) + ($c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0);
-                                $resteD = max(0, $totalD - ($c->montant_paye ?? 0));
-                                @endphp
-
                                 @if($c->est_paye || $resteD == 0)
                                 <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>Payé (100%)</span>
                                 @elseif(($c->montant_paye ?? 0) > 0)
@@ -152,13 +170,8 @@
                                 @case('termine') <span class="badge bg-success">Terminé</span> @break
                                 @case('annule') <span class="badge bg-danger">Annulé</span> @break
                                 @endswitch
-
-                                {{-- Badge de modification --}}
-
                             </td>
                             <td>
-
-                                {{-- Bouton pour voir uniquement les champs modifiés --}}
                                 @can('consultation_confirm_modif')
                                 @if($c->est_modifie)
                                 <button wire:click="voirModifications({{ $c->id }})" class="btn btn-sm btn-outline-warning me-1 position-relative" title="Voir les champs modifiés">
@@ -182,10 +195,6 @@
                                 @endif
                             </td>
                             <td class="text-end px-4">
-
-
-
-                                {{-- Bouton pour marquer comme vu par le responsable (Visible si modifié et non encore validé, ou selon vos rôles) --}}
                                 @can('consultation_confirm_modif')
                                 @if($c->est_modifie && !$c->vu_par_responsable)
                                 <button wire:click="marquerVuParResponsable({{ $c->id }})" class="btn btn-sm btn-outline-success me-1" title="Marquer comme vu par le responsable">
@@ -201,19 +210,16 @@
                                 @endif
                                 @endcan
 
-                                {{-- Imprimer la Facture Globalisee --}}
                                 <a href="{{ route('consultations.facture.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1" title="Imprimer le reçu / facture">
                                     <i class="bx bx-receipt"></i>
                                 </a>
 
-                                {{-- Imprimer le Bulletin de demande d'examens (si examens prescrits) --}}
                                 @if($c->demandesExamens && $c->demandesExamens->count() > 0)
                                 <a href="{{ route('consultations.examens-labo.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-warning me-1" title="Imprimer le bulletin d'examens de laboratoire">
                                     <i class="bx bx-test-tube"></i>
                                 </a>
                                 @endif
 
-                                {{-- Imprimer l'Ordonnance médicale --}}
                                 @if(!empty($c->ordonnance))
                                 <a href="{{ route('consultations.ordonnance.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="Imprimer l'ordonnance">
                                     <i class="bx bx-printer"></i>
@@ -269,7 +275,16 @@
 
                         {{-- Récapitulatif Financier --}}
                         @php
-                        $totalFacture = $consultationEnPaiement->tarif_brut + ($consultationEnPaiement->demandesExamens ? $consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0);
+
+                        $tarifProduits = 0;
+                            if ($consultationEnPaiement->relationLoaded('produits') ? $consultationEnPaiement->produits : $consultationEnPaiement->produits()->exists()) {
+                                foreach ($consultationEnPaiement->produits as $prod) {
+                                    $qte = $prod->pivot->quantite ?? 1;
+                                    $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                                    $tarifProduits += ($qte * $pu);
+                                }
+                            }
+                        $totalFacture =  $tarifProduits +$consultationEnPaiement->tarif_brut + ($consultationEnPaiement->demandesExamens ? $consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0);
                         $dejaPaye = $consultationEnPaiement->montant_paye ?? 0;
                         $resteAEncaisser = max(0, $totalFacture - $dejaPaye);
                         @endphp
@@ -572,7 +587,6 @@
                                         class="form-control @error('date_heure_rdv') is-invalid @elseif(!empty($date_heure_rdv) && !$errors->has('date_heure_rdv')) is-valid @enderror">
                                     @error('date_heure_rdv') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
                                 </div>
-
                                 <div class="mb-3">
                                     <label class="form-label font-weight-bold">Type de consultation <span class="text-danger">*</span></label>
                                     <select wire:model.live="type" class="form-select @error('type') is-invalid @elseif(!empty($type) && !$errors->has('type')) is-valid @enderror">
@@ -635,7 +649,7 @@
                             </div>
 
                             <!-- SECTION : PRESCRIPTION DES PRODUITS & MÉDICAMENTS -->
-                        
+
                             <!-- SECTION 3 : CONSTANTES -->
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-pulse me-1"></i> Constantes lors du rendez-vous</h6>
@@ -722,12 +736,12 @@
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Traitements</h6>
                             </div>
-                               <!-- ================= SECTION 5 : NOUVEAU BLOC DE PRESCRIPTION DES PRODUITS (PHARMACIE & STOCK) ================= -->
+                            <!-- ================= SECTION 5 : NOUVEAU BLOC DE PRESCRIPTION DES PRODUITS (PHARMACIE & STOCK) ================= -->
                             <div class="col-12 mt-4">
                                 <div class="card border shadow-sm radius-12">
                                     <div class="card-header bg-light py-3">
                                         <h6 class="mb-0 text-primary font-weight-bold">
-                                            <i class="bx bx-capsule me-1"></i> Prescription des Produits & Médicaments 
+                                            <i class="bx bx-capsule me-1"></i> Prescription des Produits & Médicaments
                                         </h6>
                                     </div>
                                     <div class="card-body">
@@ -754,11 +768,11 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                   @php
-                                                        $produitsDispos = App\Models\produits::where('stock', '>', 0)
-                                                            ->when($searchProduit, function($q) use ($searchProduit) {
-                                                                $q->where('nom', 'like', '%'.$searchProduit.'%');
-                                                            })->take(10)->get();
+                                                    @php
+                                                    $produitsDispos = App\Models\produits::where('stock', '>', 0)
+                                                    ->when($searchProduit, function($q) use ($searchProduit) {
+                                                    $q->where('nom', 'like', '%'.$searchProduit.'%');
+                                                    })->take(10)->get();
                                                     @endphp
 
                                                     @forelse($produitsDispos as $prod)
@@ -1064,7 +1078,19 @@
                                     @php
                                     $tarifConsultation = $selectedConsultation->tarif_brut ?? 5000;
                                     $tarifExamens = $selectedConsultation->demandesExamens ? $selectedConsultation->demandesExamens->sum('tarif_brut') : 0;
-                                    $totalGeneral = $tarifConsultation + $tarifExamens;
+
+                                    // Calcul du total des produits prescrits
+                                    $tarifProduits = 0;
+                                    if ($selectedConsultation->produits) {
+                                    foreach ($selectedConsultation->produits as $prod) {
+                                    $qte = $prod->pivot->quantite ?? 1;
+                                    $pu = $prod->pivot->prix_unitaire ?? $prod->prix ?? 0;
+                                    $tarifProduits += ($qte * $pu);
+                                    }
+                                    }
+
+                                    // Inclusion des produits dans le total général
+                                    $totalGeneral = $tarifConsultation + $tarifExamens + $tarifProduits;
 
                                     $tauxAssurance = ($selectedConsultation->patient?->est_assure && $selectedConsultation->patient?->assurance) ? $selectedConsultation->patient->taux_couverture : 0;
                                     $partAssurance = round(($totalGeneral * $tauxAssurance) / 100);
@@ -1079,6 +1105,11 @@
                                         @if($tarifExamens > 0)
                                         <div class="col-6 text-primary"><span>Examens Prescrits :</span></div>
                                         <div class="col-6 text-end font-weight-bold text-primary">+ {{ number_format($tarifExamens, 0, ',', ' ') }} FCFA</div>
+                                        @endif
+
+                                        @if($tarifProduits > 0)
+                                        <div class="col-6 text-success"><span>Produits & Médicaments :</span></div>
+                                        <div class="col-6 text-end font-weight-bold text-success">+ {{ number_format($tarifProduits, 0, ',', ' ') }} FCFA</div>
                                         @endif
 
                                         <div class="col-12">
@@ -1118,7 +1149,6 @@
                                 </div>
                             </div>
                         </div>
-
 
                         <!-- CARTE : ORIENTATION / PRISE EN CHARGE -->
                         <div class="col-12">
@@ -1175,7 +1205,66 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- SECTION : PRODUITS & MÉDICAMENTS PRESCRITS -->
+                        <div class="col-12 mt-3">
+                            <div class="card border-0 shadow-sm radius-12">
+                                <div class="card-body">
+                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3">
+                                        <i class="bx bx-capsule me-1"></i> Produits & Médicaments Prescrits
+                                    </h6>
 
+                                    @if($selectedConsultation->produits && $selectedConsultation->produits->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Produit</th>
+                                                    <th class="text-center">Quantité</th>
+                                                    <th>Voie d'administration</th>
+                                                    <th>Posologie</th>
+                                                    <th class="text-end">Prix Unitaire</th>
+                                                    <th class="text-end">Total Ligne</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @php
+                                                $montantTotalCommande = 0;
+                                                @endphp
+                                                @foreach($selectedConsultation->produits as $prod)
+                                                @php
+                                                $qte = $prod->pivot->quantite ?? 1;
+                                                $pu = $prod->prix ?? 0;
+                                                $totalLigne = $qte * $pu;
+
+                                                $montantTotalCommande += $totalLigne;
+                                                @endphp
+                                                <tr>
+                                                    <td class="fw-bold text-dark">{{ $prod->nom }}</td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-primary">{{ $qte }}</span>
+                                                    </td>
+                                                    <td>{{ $prod->pivot->voie_administration ?? '-' }}</td>
+                                                    <td>{{ $prod->pivot->posologie ?? '-' }}</td>
+                                                    <td class="text-end">{{ number_format($pu, 0, ',', ' ') }} FCFA</td>
+                                                    <td class="text-end fw-semibold text-success">{{ number_format($totalLigne, 0, ',', ' ') }} FCFA</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="d-flex justify-content-end mt-3 pt-2 border-top">
+                                        <div class="h6 fw-bold text-dark mb-0">
+                                            Montant Total : <span class="text-success fs-5">{{ number_format($montantTotalCommande, 0, ',', ' ') }} FCFA</span>
+                                        </div>
+                                    </div>
+                                    @else
+                                    <p class="mb-0 text-muted fst-italic">
+                                        <i class="bx bx-info-circle me-1"></i> Aucun produit ou médicament n'a été prescrit pour cette consultation.
+                                    </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                         <!-- 4. CLINIQUE & RÉSULTATS DES ANALYSES -->
                         <div class="col-12">
                             <div class="card border-0 shadow-sm radius-12">

@@ -41,10 +41,12 @@ class commandes extends Model
         'solde_utilise',
         'points_utilise',
         'montant_total',
-        'client_id'
+        'client_id',
+        'consultation_id',
 
 
     ];
+
 
     public function shop()
     {
@@ -54,10 +56,7 @@ class commandes extends Model
     {
         return $this->belongsTo(Table::class, 'table_id')->withDefault();
     }
-    public function transport()
-    {
-        return $this->belongsTo(Transport::class, 'transport_id', 'id');
-    }
+ 
 
     public function contenus()
     {

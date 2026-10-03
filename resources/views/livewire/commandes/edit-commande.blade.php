@@ -4,7 +4,7 @@
             <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
                 <thead class="table-dark">
                     <tr>
-                        <th></th>
+                        
                         <th>Product</th>
                         <th>Prix</th>
                         <th>Qty</th>
@@ -15,10 +15,7 @@
                 <tbody>
                     @foreach ($commande->contenus as $contenu)
                     <tr>
-                        <td>
-                            <img src="{{ Storage::url($contenu->produit->photo) }}" width="40" height="40"
-                                class="rounded shadow" alt="">
-                        </td>
+                       
                         <td>
                             {{ $contenu->produit->nom }}
                         </td>

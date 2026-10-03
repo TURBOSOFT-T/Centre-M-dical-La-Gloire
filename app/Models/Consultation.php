@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Consultation extends Model
 {
@@ -22,7 +23,7 @@ class Consultation extends Model
         'date_heure_rdv',
         'type',
         'statut',
-        'prise_en_charge', // <--- AJOUTÉ ICI
+        'prise_en_charge',
         'tarif_brut',
         'montant_paye',
         'historique_paiements',
@@ -63,65 +64,88 @@ class Consultation extends Model
     ];
 
     protected $casts = [
-        'date_heure_rdv'              => 'datetime',
-        'tarif_brut'                  => 'decimal:2',
-        'montant_paye'                => 'decimal:2',
-        'est_paye'                    => 'boolean',
-        'constantes'                  => 'array',
-        'evaluations'                 => 'array',
+        'date_heure_rdv'            => 'datetime',
+        'tarif_brut'                => 'decimal:2',
+        'montant_paye'              => 'decimal:2',
+        'est_paye'                  => 'boolean',
+        'constantes'                => 'array',
+        'evaluations'               => 'array',
         'visite_medicale_journaliere' => 'array',
-        'historique_paiements'        => 'array',
-        'bilan' => 'array',
-        'modifications_historique' => 'array',
-        'traitement'                  => 'array', // <--- AJOUTÉ ICI
-
-        // 'modifications_historique' => 'array'
+        'historique_paiements'      => 'array',
+        'bilan'                     => 'array',
+        'modifications_historique'  => 'array',
+        'traitement'                => 'array',
     ];
+
     /**
-     * Calcul du montant total cumulé (Consultation + Examens prescrits)
+     * Libellé lisible de la prise en charge.
      */
+    public function getPriseEnChargeLabelAttribute(): ?string
+    {
+        return match ($this->prise_en_charge) {
+            'mise_en_observation' => 'Mise en observation',
+            'hospitalisation'     => 'Hospitalisation',
+            default               => null,
+        };
+    }
 
     /**
- * Libellé lisible de la prise en charge.
- */
-public function getPriseEnChargeLabelAttribute(): ?string
-{
-    return match ($this->prise_en_charge) {
-        'mise_en_observation' => 'Mise en observation',
-        'hospitalisation'     => 'Hospitalisation',
-        default               => null,
-    };
-}
-
-/**
- * Classes de badge Bootstrap pour la prise en charge.
- */
-public function getPriseEnChargeBadgeClassesAttribute(): string
-{
-    return match ($this->prise_en_charge) {
-        'mise_en_observation' => 'bg-warning text-dark',
-        'hospitalisation'     => 'bg-danger text-white',
-        default               => 'bg-secondary text-white',
-    };
-}
-
-    public function getResteAPayerAttribute(): float
+     * Classes de badge Bootstrap pour la prise en charge.
+     */
+    public function getPriseEnChargeBadgeClassesAttribute(): string
     {
-        $total = $this->tarif_brut + ($this->demandesExamens ? $this->demandesExamens->sum('tarif_brut') : 0);
-        return max(0, $total - $this->montant_paye);
+        return match ($this->prise_en_charge) {
+            'mise_en_observation' => 'bg-warning text-dark',
+            'hospitalisation'     => 'bg-danger text-white',
+            default               => 'bg-secondary text-white',
+        };
     }
+
+    /**
+     * Calcul du montant total global de la facture (Consultation + Examens + Produits)
+     */
     public function getTotalFactureAttribute(): float
     {
-        $tarifConsultation = (float) ($this->tarif_brut ?? 0);
+        $tarifConsultation = (float) ($this->tarif_brut ?? 5000);
         $tarifExamens = $this->demandesExamens ? (float) $this->demandesExamens->sum('tarif_brut') : 0;
+        
+        $tarifProduits = 0;
+        if ($this->relationLoaded('produits') ? $this->produits : $this->produits()->exists()) {
+            foreach ($this->produits as $prod) {
+                $qte = $prod->pivot->quantite ?? 1;
+                $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                $tarifProduits += ($qte * $pu);
+            }
+        }
 
-        return $tarifConsultation + $tarifExamens;
+        return $tarifConsultation + $tarifExamens + $tarifProduits;
     }
 
     /**
-     * Calcul du reste à payer par le patient
+     * Calcul automatique du montant total des produits/médicaments prescrits.
      */
-    public function getResteAPayerAttribute2(): float
+    public function getTarifProduitsAttribute(): float
+    {
+        $tarifProduits = 0;
+        
+        // Vérifie si la relation est chargée ou peut l'être
+        $produits = $this->relationLoaded('produits') ? $this->produits : $this->produits;
+
+        if ($produits) {
+            foreach ($produits as $prod) {
+                $qte = $prod->pivot->quantite ?? 1;
+                $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                $tarifProduits += ($qte * $pu);
+            }
+        }
+
+        return $tarifProduits;
+    }
+
+    /**
+     * Calcul du reste à payer par le patient (en tenant compte de l'assurance)
+     */
+    public function getResteAPayerAttribute(): float
     {
         $total = $this->total_facture;
 
@@ -246,10 +270,13 @@ public function getPriseEnChargeBadgeClassesAttribute(): string
         return $this->hasMany(DemandeExamen::class, 'consultation_id');
     }
 
-    public function produits()
-{
-    return $this->belongsToMany(produits::class, 'consultation_produit', 'consultation_id', 'produit_id')
-                ->withPivot(['quantite', 'voie_administration', 'posologie', 'prix_unitaire'])
-                ->withTimestamps();
-}
+    /**
+     * Produits et médicaments prescrits liés à la consultation.
+     */
+    public function produits(): BelongsToMany
+    {
+        return $this->belongsToMany(produits::class, 'consultation_produit', 'consultation_id', 'produit_id')
+                    ->withPivot(['quantite', 'voie_administration', 'posologie', 'prix_unitaire'])
+                    ->withTimestamps();
+    }
 }

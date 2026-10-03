@@ -13,45 +13,62 @@ class PrescriptionController extends Controller
      */
     public function imprimerOrdonnance($id)
     {
-        $consultation = Consultation::with(['patient.assurance', 'medecin'])->findOrFail($id);
+        $consultation = Consultation::with(['patient.assurance', 'medecin', 'produits'])->findOrFail($id);
 
-        if (empty($consultation->ordonnance)) {
-            return back()->with('error', 'Aucune ordonnance n\'a été rédigée pour cette consultation.');
+        if (empty($consultation->ordonnance) && ($consultation->produits->isEmpty())) {
+            return back()->with('error', 'Aucune ordonnance ni produit n\'a été enregistré pour cette consultation.');
         }
 
         // Chargement de la vue Blade avec DomPDF
         $pdf = Pdf::loadView('pdf.ordonnance', compact('consultation'))
-            ->setPaper('a5', 'portrait'); // Format A5 standard pour ordonnance médicale (ou 'a4')
+            ->setPaper('a5', 'portrait');
 
-        // 'stream' permet de l'ouvrir directement dans le navigateur pour impression
-        return $pdf->stream('Ordonnance_' . $consultation->code_consultation . '.pdf');
+        return $pdf->stream('Ordonnance_' . ($consultation->code_consultation ?? $id) . '.pdf');
     }
-
-
     public function imprimerFactureConsultation($id)
-    {
-        $consultation = Consultation::with(['patient.assurance', 'medecin'])->findOrFail($id);
+{
+    $consultation = Consultation::with([
+        'patient.assurance', 
+        'medecin', 
+        'demandesExamens', 
+        'produits'
+    ])->findOrFail($id);
 
-        // Calculs financiers pour le tiers-payant
-        $tarifBrut = $consultation->tarif_brut ?? 5000;
-        $tauxAssurance = 0;
-        $partAssurance = 0;
+    $tarifConsultation = $consultation->tarif_brut ?? 5000;
+    $tarifExamens = $consultation->demandesExamens ? $consultation->demandesExamens->sum('tarif_brut') : 0;
 
-        if ($consultation->patient && $consultation->patient->est_assure) {
-            $tauxAssurance = $consultation->patient->taux_couverture ?? 0;
-            $partAssurance = round(($tarifBrut * $tauxAssurance) / 100);
+    // --- VOTRE BLOC DE CALCUL ---
+    $tarifProduits = 0;
+    if ($consultation->produits) {
+        foreach ($consultation->produits as $prod) {
+            $qte = $prod->pivot->quantite ?? 1;
+            $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+            $tarifProduits += ($qte * $pu);
         }
-
-        $partPatient = $tarifBrut - $partAssurance;
-
-        $pdf = Pdf::loadView('pdf.facture_consultation', compact(
-            'consultation',
-            'tarifBrut',
-            'tauxAssurance',
-            'partAssurance',
-            'partPatient'
-        ))->setPaper('a5', 'portrait');
-
-        return $pdf->stream('Facture_' . $consultation->code_consultation . '.pdf');
     }
+    // ----------------------------
+
+    $totalGeneral = $tarifConsultation + $tarifExamens + $tarifProduits;
+
+    // Gestion assurance...
+    $tauxAssurance = $consultation->patient && $consultation->patient->est_assure ? ($consultation->patient->taux_couverture ?? 0) : 0;
+    $partAssurance = round(($totalGeneral * $tauxAssurance) / 100);
+    $partPatient = $totalGeneral - $partAssurance;
+    $resteAEncaisser = max(0, $partPatient - ($consultation->montant_paye ?? 0));
+
+    // IL FAUT IMPÉRATIVEMENT METTRE 'tarifProduits' DANS LE COMPACT :
+    $pdf = Pdf::loadView('pdf.facture_consultation', compact(
+        'consultation',
+        'tarifConsultation',
+        'tarifExamens',
+        'tarifProduits', // <--- Indispensable ici
+        'totalGeneral',
+        'tauxAssurance',
+        'partAssurance',
+        'partPatient',
+        'resteAEncaisser'
+    ))->setPaper('a5', 'portrait');
+
+    return $pdf->stream('Facture_' . ($consultation->code_consultation ?? $id) . '.pdf');
+}
 }
