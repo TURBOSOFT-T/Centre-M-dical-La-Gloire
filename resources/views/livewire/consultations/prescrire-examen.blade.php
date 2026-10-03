@@ -38,11 +38,7 @@
                     @error('examen_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
-                {{-- Indication médicale --}}
-                <div class="col-md-6">
-                    <label class="form-label font-weight-bold">Indication / Justification médicale</label>
-                    <input type="text" wire:model="indication_medicale" class="form-control" placeholder="ex: Bilan pré-opératoire, suspicion d'anémie...">
-                </div>
+             
             </div>
 
             {{-- Sélection des sous-analyses --}}

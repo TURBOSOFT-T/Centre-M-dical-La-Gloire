@@ -22,6 +22,7 @@ class Consultation extends Model
         'date_heure_rdv',
         'type',
         'statut',
+        'prise_en_charge', // <--- AJOUTÉ ICI
         'tarif_brut',
         'montant_paye',
         'historique_paiements',
@@ -72,11 +73,37 @@ class Consultation extends Model
         'historique_paiements'        => 'array',
         'bilan' => 'array',
         'modifications_historique' => 'array',
+        'traitement'                  => 'array', // <--- AJOUTÉ ICI
+
         // 'modifications_historique' => 'array'
     ];
     /**
      * Calcul du montant total cumulé (Consultation + Examens prescrits)
      */
+
+    /**
+ * Libellé lisible de la prise en charge.
+ */
+public function getPriseEnChargeLabelAttribute(): ?string
+{
+    return match ($this->prise_en_charge) {
+        'mise_en_observation' => 'Mise en observation',
+        'hospitalisation'     => 'Hospitalisation',
+        default               => null,
+    };
+}
+
+/**
+ * Classes de badge Bootstrap pour la prise en charge.
+ */
+public function getPriseEnChargeBadgeClassesAttribute(): string
+{
+    return match ($this->prise_en_charge) {
+        'mise_en_observation' => 'bg-warning text-dark',
+        'hospitalisation'     => 'bg-danger text-white',
+        default               => 'bg-secondary text-white',
+    };
+}
 
     public function getResteAPayerAttribute(): float
     {
@@ -218,4 +245,11 @@ class Consultation extends Model
     {
         return $this->hasMany(DemandeExamen::class, 'consultation_id');
     }
+
+    public function produits()
+{
+    return $this->belongsToMany(produits::class, 'consultation_produit', 'consultation_id', 'produit_id')
+                ->withPivot(['quantite', 'voie_administration', 'posologie', 'prix_unitaire'])
+                ->withTimestamps();
+}
 }

@@ -609,7 +609,33 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-semibold">Orientation de la Prise en charge :</label>
+                                <div class="d-flex gap-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" wire:model="prise_en_charge" value="mise_en_observation" id="obs">
+                                        <label class="form-check-label" for="obs">
+                                            Mise en observation
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" wire:model="prise_en_charge" value="hospitalisation" id="hosp">
+                                        <label class="form-check-label" for="hosp">
+                                            Hospitalisation
+                                        </label>
+                                    </div>
+                                    <!-- Option pour décocher / vider si besoin -->
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" wire:model="prise_en_charge" value="" id="aucun">
+                                        <label class="form-check-label text-muted" for="aucun">
+                                            Aucune (Consultation simple)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <!-- SECTION : PRESCRIPTION DES PRODUITS & MÉDICAMENTS -->
+                        
                             <!-- SECTION 3 : CONSTANTES -->
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-pulse me-1"></i> Constantes lors du rendez-vous</h6>
@@ -633,7 +659,7 @@
                                 <label class="form-label font-weight-bold">Historique de la maladie</label>
                                 <textarea wire:model.live.debounce.500ms="historique_maladie" class="form-control" rows="3" placeholder="Évolution des symptômes..."></textarea>
                             </div>
-                             <div class="col-md-3">
+                            <div class="col-md-3">
                                 <label class="form-label font-weight-bold">Antécédents de la maladie</label>
                                 <textarea wire:model.live.debounce.500ms="antecedents_maladie" class="form-control" rows="3" placeholder="Antécédents spécifiques..."></textarea>
                             </div>
@@ -662,38 +688,214 @@
                                 <label class="form-label font-weight-bold">Hypothèse Diagnostique</label>
                                 <textarea wire:model.live.debounce.500ms="hypothese_diagnostique" class="form-control" rows="2" placeholder="Hypothèse / Diagnostic différentiel..."></textarea>
                             </div>
-
-                             <div class="col-md-4">
-                                <label class="form-label font-weight-bold">Examens demandés</label>
-                                <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Examens demandés......."></textarea>
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Examens demandés</h6>
                             </div>
-                              <div class="col-md-4">
-                                <label class="form-label font-weight-bold">Résultats</label>
-                                <textarea wire:model.live.debounce.500ms="resultats_analyses" class="form-control" rows="2" placeholder="Synthèse des examens..."></textarea>
+                            <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
+                            @can('consultation_add_exam')
+                            @if($isEditMode && isset($selectedConsultationId))
+                            @php
+                            $consultationActive = $consultations->find($selectedConsultationId);
+                            @endphp
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-test-tube me-1"></i> Prescription d'Examens & Analyses</h6>
+                                @livewire('consultations.prescrire-examen', ['consultation' => $consultationActive], key('prescrire-'.$selectedConsultationId))
                             </div>
 
-                            <div class="col-md-4">
+                            @if($consultationActive && $consultationActive->demandesExamens && $consultationActive->demandesExamens->count() > 0)
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-vial me-1"></i> Saisie des Résultats d'Analyses Biologiques</h6>
+                                @foreach($consultationActive->demandesExamens as $demande)
+                                @livewire('consultations.saisir-resultats-examen', ['demandeExamen' => $demande], key('saisir-res-'.$demande->id))
+                                @endforeach
+                            </div>
+                            @endif
+                            @endif
+                            @endcan
+
+                            <div class="col-md-12 mt-3">
                                 <label class="form-label font-weight-bold">Diagnostic positif</label>
                                 <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
                             </div>
-                          
 
-                           
-                            <div class="col-md-4">
-                                <label class="form-label font-weight-bold">Traitement en cours</label>
-                                <textarea wire:model.live.debounce.500ms="traitement" class="form-control" rows="2" placeholder="Protocoles appliqués sur place..."></textarea>
+
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Traitements</h6>
                             </div>
-                             <div class="col-md-4">
-                                <label class="form-label font-weight-bold">Evolution de la maladie</label>
-                                <textarea wire:model.live.debounce.500ms="evolution_maladie" class="form-control" rows="2" placeholder="Evolution de la maladie..."></textarea>
+                               <!-- ================= SECTION 5 : NOUVEAU BLOC DE PRESCRIPTION DES PRODUITS (PHARMACIE & STOCK) ================= -->
+                            <div class="col-12 mt-4">
+                                <div class="card border shadow-sm radius-12">
+                                    <div class="card-header bg-light py-3">
+                                        <h6 class="mb-0 text-primary font-weight-bold">
+                                            <i class="bx bx-capsule me-1"></i> Prescription des Produits & Médicaments 
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+
+                                        {{-- Barre de recherche des produits --}}
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0"><i class="bx bx-search"></i></span>
+                                                <input type="text" class="form-control border-start-0"
+                                                    wire:model.live.debounce.300ms="searchProduit"
+                                                    placeholder="Rechercher un médicament ou produit dans le stock...">
+                                            </div>
+                                        </div>
+
+                                        {{-- Liste des produits disponibles (filtrés par la recherche) --}}
+                                        <div class="table-responsive mb-4 border rounded" style="max-height: 200px; overflow-y: auto;">
+                                            <table class="table table-sm table-hover align-middle mb-0">
+                                                <thead class="table-light sticky-top">
+                                                    <tr>
+                                                        <th style="width: 50px;" class="text-center">Sélection</th>
+                                                        <th>Produit</th>
+                                                        <th class="text-center">Stock disponible</th>
+                                                        <th class="text-end">Prix unitaire</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                   @php
+                                                        $produitsDispos = App\Models\produits::where('stock', '>', 0)
+                                                            ->when($searchProduit, function($q) use ($searchProduit) {
+                                                                $q->where('nom', 'like', '%'.$searchProduit.'%');
+                                                            })->take(10)->get();
+                                                    @endphp
+
+                                                    @forelse($produitsDispos as $prod)
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <input type="checkbox" class="form-check-input"
+                                                                wire:click="toggleProduit({{ $prod->id }})"
+                                                                @if(isset($produitsSelectionnes[$prod->id]) && $produitsSelectionnes[$prod->id]['selected']) checked @endif>
+                                                        </td>
+                                                        <td>
+                                                            <span class="fw-bold text-dark">{{ $prod->nom }}</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge bg-{{ $prod->stock > 5 ? 'success' : 'danger' }}">
+                                                                {{ $prod->stock }} en stock
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-end fw-semibold text-primary">
+                                                            {{ number_format($prod->prix ?? 0, 0, ',', ' ') }} FCFA
+                                                        </td>
+                                                    </tr>
+                                                    @empty
+                                                    <tr>
+                                                        <td colspan="4" class="text-center py-3 text-muted">
+                                                            <i class="bx bx-info-circle me-1"></i> Aucun produit trouvé dans le stock.
+                                                        </td>
+                                                    </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        {{-- Produits sélectionnés avec champs dynamiques (Quantité, Voie d'administration, Posologie) --}}
+                                        @if(!empty($produitsSelectionnes))
+                                        <div class="border-top pt-3 mt-3">
+                                            <h6 class="fw-bold text-dark mb-3">
+                                                <i class="bx bx-list-check me-1 text-success"></i> Produits sélectionnés pour la prescription :
+                                            </h6>
+
+                                            <div class="vstack gap-3">
+                                                @foreach($produitsSelectionnes as $prodId => $det)
+                                                @if(!empty($det['selected']))
+                                                @php $prodObj = App\Models\produits::find($prodId); @endphp
+                                                @if($prodObj)
+                                                <div class="p-3 border rounded bg-white shadow-sm position-relative">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="fw-bold text-primary fs-6">
+                                                            <i class="bx bx-chevron-right me-1"></i> {{ $prodObj->nom }}
+                                                            <small class="text-muted fw-normal">({{ number_format($prodObj->prix ?? 0, 0, ',', ' ') }} FCFA / unité)</small>
+                                                        </span>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" wire:click="toggleProduit({{ $prodId }})" title="Retirer ce produit">
+                                                            <i class="bx bx-trash"></i> Retirer
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="row g-2">
+                                                        <div class="col-md-3">
+                                                            <label class="form-label small text-muted fw-semibold">Quantité :</label>
+                                                            <input type="number" class="form-control form-control-sm"
+                                                                wire:model.live="produitsSelectionnes.{{ $prodId }}.quantite"
+                                                                min="1">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label small text-muted fw-semibold">Voie d'administration :</label>
+                                                            <input type="text" class="form-control form-control-sm"
+                                                                wire:model.live="produitsSelectionnes.{{ $prodId }}.voie_administration"
+                                                                placeholder="Ex: Orale, IV, IM...">
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <label class="form-label small text-muted fw-semibold">Posologie :</label>
+                                                            <input type="text" class="form-control form-control-sm"
+                                                                wire:model.live="produitsSelectionnes.{{ $prodId }}.posologie"
+                                                                placeholder="Ex: 1 comprimé 3 fois par jour">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                                @endif
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        @else
+                                        <div class="text-center py-2 text-muted fst-italic">
+                                            <small>Cochez un produit dans la liste ci-dessus pour configurer sa posologie et sa voie d'administration.</small>
+                                        </div>
+                                        @endif
+
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label font-weight-bold">Traitement de Sortie & Recommandations</label>
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Evolutions de la maladie</h6>
+                            </div>
+
+                            <div class="col-12 mt-3">
+
+
+                                <div class="card bg-light border-0 p-3 mb-3">
+                                    <div class="input-group">
+                                        <input type="text" wire:model="nouvelleVisiteNote" class="form-control" placeholder="Saisir l'observation ou l'évolution du jour...">
+                                        <button type="button" wire:click="ajouterNoteVisite" class="btn btn-primary px-3">
+                                            <i class="bx bx-plus me-1"></i> Ajouter la note
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if(!empty($visite_medicale_journaliere))
+                                <div class="position-relative ps-3 my-3" style="border-left: 2px solid #0d6efd;">
+                                    @foreach(array_reverse($visite_medicale_journaliere) as $note)
+                                    <div class="position-relative mb-3 ps-3">
+                                        <span class="position-absolute bg-primary rounded-circle" style="width: 10px; height: 10px; left: -21px; top: 6px;"></span>
+                                        <div class="bg-white p-2 rounded border shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small class="fw-bold text-primary">{{ $note['medecin'] ?? 'Praticien' }}</small>
+                                                <small class="text-muted fs-7">{{ $note['date_heure'] ?? '' }}</small>
+                                            </div>
+                                            <p class="mb-0 text-dark small">{{ $note['observation'] ?? '' }}</p>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @else
+                                <small class="text-muted d-block text-center py-2">Aucune note de visite journalière enregistrée.</small>
+                                @endif
+                            </div>
+
+
+                            <div class="col-12 mt-3">
+                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Ordonnances de sortie et recommandations</h6>
+                            </div>
+                            <div class="col-md-12">
+
                                 <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
                             </div>
                             @endcan
                             <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
-                             @can('consultation_add_evolution')
+                            @can('consultation_add_evolution')
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2">
                                     <i class="bx bx-clipboard me-1"></i> Évaluation du patient
@@ -759,60 +961,11 @@
                             </div>
 
                             <!-- SECTION 7 : JOURNAL DE VISITE MÉDICALE JOURNALIÈRE -->
-                            <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-time-five me-1"></i> Visite Médicale Journalière </h6>
 
-                                <div class="card bg-light border-0 p-3 mb-3">
-                                    <div class="input-group">
-                                        <input type="text" wire:model="nouvelleVisiteNote" class="form-control" placeholder="Saisir l'observation ou l'évolution du jour...">
-                                        <button type="button" wire:click="ajouterNoteVisite" class="btn btn-primary px-3">
-                                            <i class="bx bx-plus me-1"></i> Ajouter la note
-                                        </button>
-                                    </div>
-                                </div>
-
-                                @if(!empty($visite_medicale_journaliere))
-                                <div class="position-relative ps-3 my-3" style="border-left: 2px solid #0d6efd;">
-                                    @foreach(array_reverse($visite_medicale_journaliere) as $note)
-                                    <div class="position-relative mb-3 ps-3">
-                                        <span class="position-absolute bg-primary rounded-circle" style="width: 10px; height: 10px; left: -21px; top: 6px;"></span>
-                                        <div class="bg-white p-2 rounded border shadow-sm">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <small class="fw-bold text-primary">{{ $note['medecin'] ?? 'Praticien' }}</small>
-                                                <small class="text-muted fs-7">{{ $note['date_heure'] ?? '' }}</small>
-                                            </div>
-                                            <p class="mb-0 text-dark small">{{ $note['observation'] ?? '' }}</p>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                </div>
-                                @else
-                                <small class="text-muted d-block text-center py-2">Aucune note de visite journalière enregistrée.</small>
-                                @endif
-                            </div>
                             @endcan
 
                             <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
-                            @can('consultation_add_exam')
-                            @if($isEditMode && isset($selectedConsultationId))
-                            @php
-                            $consultationActive = $consultations->find($selectedConsultationId);
-                            @endphp
-                            <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-test-tube me-1"></i> Prescription d'Examens & Analyses</h6>
-                                @livewire('consultations.prescrire-examen', ['consultation' => $consultationActive], key('prescrire-'.$selectedConsultationId))
-                            </div>
 
-                            @if($consultationActive && $consultationActive->demandesExamens && $consultationActive->demandesExamens->count() > 0)
-                            <div class="col-12 mt-3">
-                                <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-vial me-1"></i> Saisie des Résultats d'Analyses Biologiques</h6>
-                                @foreach($consultationActive->demandesExamens as $demande)
-                                @livewire('consultations.saisir-resultats-examen', ['demandeExamen' => $demande], key('saisir-res-'.$demande->id))
-                                @endforeach
-                            </div>
-                            @endif
-                            @endif
-                            @endcan
 
                         </div>
                     </div>
@@ -846,6 +999,7 @@
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content radius-15 border-0" style="max-height: 90vh;">
 
+                <!-- HEADER -->
                 <div class="modal-header bg-primary text-white">
                     <div class="d-flex align-items-center">
                         <div class="avatar avatar-md bg-white text-primary rounded-circle me-3 d-flex align-items-center justify-content-center font-weight-bold" style="width: 45px; height: 45px; font-size: 1.2rem;">
@@ -864,9 +1018,11 @@
                     <button type="button" class="btn-close btn-close-white" wire:click="closeViewModal"></button>
                 </div>
 
+                <!-- BODY -->
                 <div class="modal-body p-4" style="overflow-y: auto; background-color: #f8f9fa;">
                     <div class="row g-3">
-                        <!-- IDENTITÉ PATIENT & MÉDECIN -->
+
+                        <!-- 1. IDENTITÉ PATIENT & MÉDECIN -->
                         <div class="col-md-6">
                             <div class="card border-0 shadow-sm radius-12 h-100">
                                 <div class="card-body">
@@ -888,7 +1044,7 @@
                                         </div>
 
                                         <div class="col-6"><strong>Médecin Traitant :</strong></div>
-                                        <div class="col-6 text-end font-weight-bold text-primary">{{ $selectedConsultation->medecin?->nom ?? $selectedConsultation->medecin?->nom ?? 'Non assigné' }}</div>
+                                        <div class="col-6 text-end font-weight-bold text-primary">{{ $selectedConsultation->medecin?->nom ?? 'Non assigné' }}</div>
 
                                         <div class="col-6"><strong>Type de Consultation :</strong></div>
                                         <div class="col-6 text-end"><span class="badge bg-light text-dark">{{ ucfirst(str_replace('_', ' ', $selectedConsultation->type)) }}</span></div>
@@ -897,7 +1053,7 @@
                             </div>
                         </div>
 
-                        <!-- FACTURATION ET SOLDE -->
+                        <!-- 2. FACTURATION ET SOLDE -->
                         <div class="col-md-6">
                             <div class="card border-0 shadow-sm radius-12 h-100">
                                 <div class="card-body">
@@ -929,44 +1085,82 @@
                                             <hr class="my-1">
                                         </div>
 
-                                        <div class="col-6 font-weight-bold fs-6"><span>Total Général :</span></div>
-                                        <div class="col-6 text-end font-weight-bold fs-6 text-dark">{{ number_format($totalGeneral, 0, ',', ' ') }} FCFA</div>
+                                        <div class="col-6 font-weight-bold"><span>Total Général :</span></div>
+                                        <div class="col-6 text-end font-weight-bold text-dark">{{ number_format($totalGeneral, 0, ',', ' ') }} FCFA</div>
 
                                         @if($tauxAssurance > 0)
                                         <div class="col-6 text-success"><small>Couverture Assurance ({{ $tauxAssurance }}%) :</small></div>
                                         <div class="col-6 text-end text-success"><small>- {{ number_format($partAssurance, 0, ',', ' ') }} FCFA</small></div>
 
-                                        <div class="col-6 font-weight-bold text-dark"><span>Reste Patient :</span></div>
-                                        <div class="col-6 text-end font-weight-bold text-dark">{{ number_format($partPatient, 0, ',', ' ') }} FCFA</div>
+                                        <div class="col-6 text-dark"><span>Reste Patient :</span></div>
+                                        <div class="col-6 text-end text-dark">{{ number_format($partPatient, 0, ',', ' ') }} FCFA</div>
                                         @endif
 
                                         <div class="col-6 text-success font-weight-bold"><span>Total Encaissé :</span></div>
                                         <div class="col-6 text-end font-weight-bold text-success">{{ number_format($selectedConsultation->montant_paye ?? 0, 0, ',', ' ') }} FCFA</div>
 
-                                        <div class="col-6 font-weight-bold text-danger"><span>Solde Impayé :</span></div>
+                                        <div class="col-12">
+                                            <hr class="my-1">
+                                        </div>
+
+                                        <div class="col-6 font-weight-bold text-danger"><span>Reste à Payer :</span></div>
                                         <div class="col-6 text-end font-weight-bold text-danger">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</div>
 
-                                        <div class="col-6"><strong>Statut Caisse :</strong></div>
-                                        <div class="col-6 text-end">
+                                        <div class="col-6 mt-2"><strong>Statut Caisse :</strong></div>
+                                        <div class="col-6 text-end mt-2">
                                             @if($selectedConsultation->est_paye)
                                             <span class="badge bg-success"><i class="bx bx-check-circle me-1"></i>PAYÉ</span>
                                             @else
                                             <span class="badge bg-warning text-dark"><i class="bx bx-time-five me-1"></i>EN ATTENTE</span>
                                             @endif
                                         </div>
-
-
-                                        <tr style="border-top: 1px solid #0d6efd; font-weight: bold; font-size: 12px;">
-                                            <td style="padding-top: 4px; color: #d9534f;">Reste à Payer :</td>
-                                            <td style="text-align: right; padding-top: 4px; color: #d9534f;">{{ number_format($resteAEncaisser, 0, ',', ' ') }} FCFA</td>
-                                        </tr>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
 
-                        <!-- CARTE 3 : CONSTANTES PRISES -->
+                        <!-- CARTE : ORIENTATION / PRISE EN CHARGE -->
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm radius-12">
+                                <div class="card-body">
+                                    <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3">
+                                        <i class="bx bx-hospital me-1"></i> Orientation & Prise en charge
+                                    </h6>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-dark">Décision médicale :</span>
+                                        <div>
+                                            @if($selectedConsultation->prise_en_charge)
+                                            @php
+                                            $badgeClass = match($selectedConsultation->prise_en_charge) {
+                                            'mise_en_observation' => 'bg-warning text-dark',
+                                            'hospitalisation' => 'bg-danger text-white',
+                                            default => 'bg-secondary text-white'
+                                            };
+                                            $label = match($selectedConsultation->prise_en_charge) {
+                                            'mise_en_observation' => 'Mise en observation',
+                                            'hospitalisation' => 'Hospitalisation',
+                                            default => ucfirst(str_replace('_', ' ', $selectedConsultation->prise_en_charge))
+                                            };
+                                            @endphp
+                                            <span class="badge {{ $badgeClass }} px-3 py-2 fs-6">
+                                                <i class="bx bx-check-shield me-1"></i> {{ $label }}
+                                            </span>
+                                            @else
+                                            <span class="badge bg-light text-muted border px-3 py-2">
+                                                Consultation externe / Aucune orientation spécifique
+                                            </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                        <!-- 3. CONSTANTES VITALES -->
                         <div class="col-12">
                             <div class="card border-0 shadow-sm radius-12">
                                 <div class="card-body">
@@ -982,13 +1176,12 @@
                             </div>
                         </div>
 
-
-
-                        <!-- CARTE 4 : CLINIQUE & TABLEAU DES RÉSULTATS DES ANALYSES -->
+                        <!-- 4. CLINIQUE & RÉSULTATS DES ANALYSES -->
                         <div class="col-12">
                             <div class="card border-0 shadow-sm radius-12">
                                 <div class="card-body">
                                     <h6 class="text-primary font-weight-bold border-bottom pb-2 mb-3"><i class="bx bx-file me-1"></i> Examen Clinique</h6>
+
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Motif de consultation :</strong>
                                         <p class="mb-0 text-muted">{{ $selectedConsultation->motif ?? 'Aucun motif renseigné' }}</p>
@@ -996,34 +1189,41 @@
 
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Examen Général :</strong>
-                                        <p class="mb-0 text-muted">{{ $selectedConsultation->examen_general ?? 'Aucun examen physique renseigné' }}</p>
+                                        <p class="mb-0 text-muted">{{ $selectedConsultation->examen_general ?? 'Aucun examen général renseigné' }}</p>
                                     </div>
+
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Examen Physique :</strong>
                                         <p class="mb-0 text-muted">{{ $selectedConsultation->examen_physique ?? 'Aucun examen physique renseigné' }}</p>
                                     </div>
+
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Diagnostic :</strong>
                                         <p class="mb-0 text-muted">{{ $selectedConsultation->diagnostic ?? 'Aucun diagnostic renseigné' }}</p>
                                     </div>
+
                                     <div class="mb-3">
                                         <strong class="d-block text-dark">Ordonnance :</strong>
                                         <p class="mb-0 text-muted">{{ $selectedConsultation->ordonnance ?? 'Aucune ordonnance renseignée' }}</p>
                                     </div>
 
-                                    <!-- TABLEAU DYNAMIQUE DES RÉSULTATS D'ANALYSES PRESCRITES -->
+
+
+                                    <!-- SECTION DES ANALYSES PRESCRITES -->
                                     @if($selectedConsultation->demandesExamens && $selectedConsultation->demandesExamens->count() > 0)
                                     <div class="mt-4 border-top pt-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
                                             <strong class="text-dark"><i class="bx bx-vial me-1 text-primary"></i> Résultats des Examens Prescrits ({{ $selectedConsultation->demandesExamens->count() }}) :</strong>
-                                            <a href="{{ route('consultations.examens-labo.pdf', $selectedConsultation->id) }}" target="_blank" class="btn btn-sm btn-outline-warning radius-30">
-                                                <i class="bx bx-printer me-1"></i> Imprimer Bulletin Labo
-                                            </a>
 
-
+                                            <div>
+                                                <a href="{{ route('consultations.examens-labo.pdf', $selectedConsultation->id) }}" target="_blank" class="btn btn-sm btn-outline-warning radius-30 me-1">
+                                                    <i class="bx bx-printer me-1"></i> Imprimer Bulletin Labo
+                                                </a>
+                                                <a href="{{ route('consultations.resultats-analyses.pdf', $selectedConsultation->id) }}" target="_blank" class="btn btn-sm btn-outline-success radius-30">
+                                                    <i class="bx bx-printer me-1"></i> Imprimer Résultats
+                                                </a>
+                                            </div>
                                         </div>
-
-
 
                                         @foreach($selectedConsultation->demandesExamens as $dEx)
                                         <div class="card border mb-3">
@@ -1064,9 +1264,10 @@
                                                         </tbody>
                                                     </table>
                                                 </div>
+
                                                 @if(!empty($dEx->indication_medicale))
                                                 <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
-                                                    <strong>Indication medicale :</strong> {{ $dEx->indication_medicale }}
+                                                    <strong>Indication médicale :</strong> {{ $dEx->indication_medicale }}
                                                 </div>
                                                 @endif
 
@@ -1075,29 +1276,24 @@
                                                     <strong>Conclusion / Remarques :</strong> {{ $dEx->conclusion }}
                                                 </div>
                                                 @endif
-
                                             </div>
                                         </div>
                                         @endforeach
                                     </div>
-                                    <a href="{{ route('consultations.resultats-analyses.pdf', $selectedConsultation->id) }}"
-                                        target="_blank"
-                                        class="btn btn-sm btn-outline-success radius-30">
-                                        <i class="bx bx-printer me-1"></i> Imprimer les Résultats d'Analyses
-                                    </a>
                                     @endif
+
                                 </div>
-
-
                             </div>
                         </div>
 
                     </div>
                 </div>
 
+                <!-- FOOTER -->
                 <div class="modal-footer bg-white">
                     <button type="button" class="btn btn-secondary px-4 radius-30" wire:click="closeViewModal">Fermer</button>
                 </div>
+
             </div>
         </div>
     </div>

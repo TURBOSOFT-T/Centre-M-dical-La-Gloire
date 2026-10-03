@@ -115,6 +115,11 @@ class GestionConsultations extends Component
     public $nouveau_date_naissance;
     public $nouveau_groupe_sanguin;
 
+    public $prise_en_charge = '';
+
+    // Recherche et sélection des produits pour la prescription
+    public $searchProduit = '';
+    public $produitsSelectionnes = []; // Format : [produit_id => ['selected' => true, 'quantite' => 1, 'voie_administration' => '', 'posologie' => '']]
     // Méthode pour ouvrir la modale des modifications
     public function voirModifications($id)
     {
@@ -128,6 +133,27 @@ class GestionConsultations extends Component
     {
         $this->isModificationsModalOpen = false;
         $this->consultationModificationsDetails = null;
+    }
+
+    /**
+     * Active ou désactive un produit dans la prescription
+     */
+    public function toggleProduit($produitId)
+    {
+        if (isset($this->produitsSelectionnes[$produitId])) {
+            unset($this->produitsSelectionnes[$produitId]);
+        } else {
+            $produit = \App\Models\produits::find($produitId);
+            if ($produit) {
+                $this->produitsSelectionnes[$produitId] = [
+                    'selected' => true,
+                    'quantite' => 1,
+                    'voie_administration' => '',
+                    'posologie' => '',
+                    'prix_unitaire' => $produit->prix_vente ?? 0,
+                ];
+            }
+        }
     }
 
    protected function rules()
@@ -167,10 +193,16 @@ class GestionConsultations extends Component
     return $rules;
 }
 
-    public function mount()
+    public function mount($consultationId = null)
     {
         $this->date_heure_rdv = date('Y-m-d\TH:i');
         $this->medecin_id = auth()->id();
+        if ($consultationId) {
+        $consultation = Consultation::findOrFail($consultationId);
+        $this->consultation_id = $consultation->id;
+        // ... autres champs ...
+        $this->prise_en_charge = $consultation->prise_en_charge; // <--- Chargement de la valeur
+    }
     }
 
     /**
@@ -425,6 +457,8 @@ class GestionConsultations extends Component
 
         $this->nouvelleEvaluationNom = '';
         $this->nouvelleEvaluationValeur = '';
+        $this->searchProduit = '';
+        $this->produitsSelectionnes = [];
 
         $this->resetValidation();
     }
@@ -486,7 +520,8 @@ class GestionConsultations extends Component
         // Avant l'enregistrement dans saveConsultation() :
         $this->type = str_replace(' ', '_', strtolower(trim($c->type)));
         $this->statut = $c->statut ?? 'programme';
-
+        
+$this->prise_en_charge = str_replace(' ', '_', strtolower(trim($c->prise_en_charge))) ?? '';;
         // Anamnèse & Historique
         $this->motif = $c->motif ?? '';
         $this->historique_maladie = $c->historique_maladie ?? '';
@@ -528,6 +563,19 @@ class GestionConsultations extends Component
 
         $this->isEditMode = true;
         $this->isModalOpen = true;
+        // --- CHARGEMENT DES PRODUITS PRESCRITS ---
+        $this->produitsSelectionnes = [];
+        if ($c->produits) {
+            foreach ($c->produits as $prod) {
+                $this->produitsSelectionnes[$prod->id] = [
+                    'selected' => true,
+                    'quantite' => $prod->pivot->quantite ?? 1,
+                    'voie_administration' => $prod->pivot->voie_administration ?? '',
+                    'posologie' => $prod->pivot->posologie ?? '',
+                    'prix_unitaire' => $prod->pivot->prix_unitaire ?? $prod->prix_vente ?? 0,
+                ];
+            }
+        }
     }
 
     /**
@@ -580,6 +628,7 @@ class GestionConsultations extends Component
             'dossier_medical_id'          => $this->dossier_medical_id,
             'date_heure_rdv'              => $this->date_heure_rdv,
             'type'                        => str_replace(' ', '_', strtolower(trim($this->type))),
+            'prise_en_charge'               => str_replace(' ', '_', strtolower(trim($this->prise_en_charge))) ?: null,
             'statut'                      => $this->statut,
             'tarif_brut'                  => $this->tarif_brut,
             'motif'                       => $this->motif ?: null,
@@ -594,7 +643,7 @@ class GestionConsultations extends Component
             'resultats_analyses'          => $this->resultats_analyses ?: null,
             'resultats'                   => $this->resultats ?: null,
             'ordonnance'                  => $this->ordonnance ?: null,
-            'traitement'                  => $this->traitement ?: null,
+          'traitement' => is_array($this->traitement) ? $this->traitement : (!empty($this->traitement) ? json_decode($this->traitement, true) : null),
             'traitement_sortie'           => $this->traitement_sortie ?: null,
             'evolution_maladie'           => $this->evolution_maladie ?: null,
             'notes_privees'               => $this->notes_privees ?: null,
@@ -670,6 +719,53 @@ class GestionConsultations extends Component
             ['id' => $this->consultation_id],
             $dataToSave
         );
+
+       
+
+        // --- SYNCHRONISATION DES PRODUITS PRESCRITS & GESTION DES STOCKS ---
+        $syncData = [];
+        $montantProduits = 0;
+
+        foreach ($this->produitsSelectionnes as $produitId => $details) {
+            if (!empty($details['selected'])) {
+                $qte = (int) ($details['quantite'] ?? 1);
+                $produit = \App\Models\produits::find($produitId);
+
+                if ($produit) {
+                    // Si c'est une création, on décrémente directement le stock du produit
+                    if (!$isEdit) {
+                        $produit->decrement('stock', $qte);
+                    }
+
+                    $syncData[$produitId] = [
+                        'quantite' => $qte,
+                        'voie_administration' => $details['voie_administration'] ?? null,
+                        'posologie' => $details['posologie'] ?? null,
+                        'prix_unitaire' => $produit->prix_vente ?? 0,
+                    ];
+
+                    $montantProduits += (($produit->prix_vente ?? 0) * $qte);
+                }
+            }
+        }
+
+        $consultation->produits()->sync($syncData);
+
+        // --- GESTION DE LA COMMANDE EN ARRIÈRE-PLAN ---
+        // Si le statut est 'termine' et que la consultation est marquée comme payée, la commande passe à 'paye'
+        $statutCommande = ($consultation->statut === 'termine' && ($consultation->est_paye || $consultation->statut_paiement === 'paye')) ? 'paye' : 'en_attente';
+
+        if (class_exists(\App\Models\commandes::class) && $montantProduits > 0) {
+            \App\Models\commandes::updateOrCreate(
+                ['consultation_id' => $consultation->id],
+                [
+                    'patient_id' => $consultation->patient_id,
+                    'user_id' => auth()->id(),
+                    'montant_total' => $montantProduits,
+                    'statut' => $statutCommande,
+                ]
+            );
+        }
 
         // --- ENREGISTREMENT DE LA NOTIFICATION ---
         $nomPatient = $consultation->patient?->nom_complet
@@ -814,6 +910,7 @@ class GestionConsultations extends Component
                 'tarif_brut' => 'Tarif Brut',
                 'statut' => 'Statut',
                 'type' => 'Type de consultation',
+                'prise_en_charge'             => 'Prise en charge',
                 'resultats' => 'Résultats',
                 'historique_maladie' => 'Historique de la maladie',
                 'antecedents_maladie' => 'Antécédents',

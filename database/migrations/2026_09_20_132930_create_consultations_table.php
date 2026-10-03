@@ -89,7 +89,7 @@ return new class extends Migration
             $table->dateTime('date_vu_responsable')->nullable();
             $table->foreignId('responsable_id')->nullable()->constrained('users')->onDelete('set null')->after('date_vu_responsable');
             // Traitements
-            $table->text('traitement')->nullable();
+            $table->json('traitement')->nullable();
             $table->text('traitement_sortie')->nullable();
 
             // Données Structurées (JSON)
@@ -106,6 +106,8 @@ return new class extends Migration
             $table->text('historique_paiements')->nullable();
             // 'non_paye', 'partiel', 'paye'
             $table->enum('statut_paiement', ['non_paye', 'partiel', 'paye'])->default('non_paye');
+             $table->enum('prise_en_charge', ['mise_en_observation', 'hospitalisation'])->nullable();
+
 
 
             $table->timestamps();
