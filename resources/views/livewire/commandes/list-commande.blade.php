@@ -119,6 +119,7 @@
                         <th style="width: 30px;"></th>
                         <th style="width: 40px;"></th>
                         <th>Nom</th>
+                        <th>Code Patient</th>
                         <th>Responsable</th> 
                         <th>Montant</th>
                     
@@ -167,9 +168,14 @@
 
                             <td>
                                 {{ $commande->nom }}
+
                                 @if ($commande->note)
                                     <i class="ri-message-2-fill text-warning" title="Une note a été ajoutée"></i>
                                 @endif
+                            </td>
+
+                            <td>
+                                {{ $commande->patient->code_patient ?? '-------' }}
                             </td>
 
                             <td>
