@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-    @php
+@php
 $config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
 
 // Détermination de l'image à utiliser pour le logo
@@ -16,6 +16,7 @@ if (file_exists($logoPath)) {
 $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
 }
 @endphp
+
 <head>
     <meta charset="UTF-8">
     <title>Ordonnance Médicale - {{ $consultation->code_consultation }}</title>
@@ -23,6 +24,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         @page {
             margin: 15mm 15mm 15mm 15mm;
         }
+
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             color: #2b2b2b;
@@ -37,18 +39,21 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
+
         .clinic-name {
-            font-size: 16pt;
+            font-size: 8pt;
             font-weight: bold;
             color: #0d6efd;
             text-transform: uppercase;
             margin: 0;
         }
+
         .clinic-sub {
             font-size: 9pt;
             color: #555;
             margin-top: 3px;
         }
+
         .clinic-contact {
             font-size: 8pt;
             color: #666;
@@ -64,9 +69,11 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             padding: 8px 12px;
             margin-bottom: 20px;
         }
+
         .info-table {
             width: 100%;
         }
+
         .info-table td {
             padding: 2px 0;
             font-size: 10pt;
@@ -88,7 +95,8 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         .ordonnance-content {
             min-height: 250px;
             font-size: 11pt;
-            white-space: pre-line; /* Conserve les sauts de ligne */
+            white-space: pre-line;
+            /* Conserve les sauts de ligne */
             padding: 10px;
         }
 
@@ -97,15 +105,18 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             width: 100%;
             margin-top: 30px;
         }
+
         .signature-box {
             text-align: right;
             padding-right: 20px;
         }
+
         .signature-title {
             font-weight: bold;
             font-size: 10pt;
             margin-bottom: 50px;
         }
+
         .footer-note {
             position: fixed;
             bottom: 0;
@@ -119,20 +130,21 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         }
     </style>
 </head>
+
 <body>
 
     <!-- EN-TÊTE DU CENTRE MÉDICAL -->
     <table class="header-table">
         <tr>
-            <td style="width: 60%;">
+            <td style="width: 40%;">
                 <div class="clinic-name">Centre Médical La Gloire</div>
                 <div class="clinic-sub">Soins Généraux - Maternité - Soins Spécialisés</div>
             </td>
-             <td class="logo-cell">
-                        @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" width="100" height="100" class="logo">
-                        @endif
-                    </td>
+            <td class="logo-cell">
+                @if(!empty($logoBase64))
+                <img src="{{ $logoBase64 }}" alt="logo" width="50" height="60" class="logo">
+                @endif
+            </td>
             <td class="clinic-contact">
                 <strong>Douala, Cameroun</strong><br>
                 Téléphone : +237 6xx xx xx xx<br>
@@ -151,19 +163,19 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             <tr>
                 <td><strong>Code Dossier :</strong> {{ $consultation->patient->code_patient }}</td>
                 <td style="text-align: right;">
-                    <strong>Âge / Genre :</strong> 
+                    <strong>Âge / Genre :</strong>
                     {{ $consultation->patient->date_naissance ? $consultation->patient->date_naissance->age . ' ans' : '-' }} / {{ $consultation->patient->genre }}
                 </td>
             </tr>
             @if($consultation->patient->est_assure && $consultation->patient->assurance)
-                <tr>
-                    <td colspan="2">
-                        <strong>Couverture Santé :</strong> {{ $consultation->patient->assurance->code }} 
-                        @if($consultation->patient->matricule_assurance) 
-                            (Matricule: {{ $consultation->patient->matricule_assurance }})
-                        @endif
-                    </td>
-                </tr>
+            <tr>
+                <td colspan="2">
+                    <strong>Couverture Santé :</strong> {{ $consultation->patient->assurance->code }}
+                    @if($consultation->patient->matricule_assurance)
+                    (Matricule: {{ $consultation->patient->matricule_assurance }})
+                    @endif
+                </td>
+            </tr>
             @endif
         </table>
     </div>
@@ -193,8 +205,9 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
     <!-- BAS DE PAGE -->
     <div class="footer-note">
-        Centre Médical La Gloire - Réf: {{ $consultation->code_consultation }} - Imprimé le {{ date('d/m/Y H:i') }}
+        Centre Médical La Gloire - Réf: {{ $consultation->code_consultation }} - Fait le {{ date('d/m/Y H:i') }}
     </div>
 
 </body>
+
 </html>

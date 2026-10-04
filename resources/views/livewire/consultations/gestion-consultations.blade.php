@@ -914,10 +914,12 @@
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Ordonnances de sortie et recommandations</h6>
                             </div>
-                            <div class="col-md-12">
+                           <!--  <div class="col-md-12">
 
                                 <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
-                            </div>
+                            </div> -->
+                             <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea>
+                      
                             @endcan
                             <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
                             @can('consultation_add_evolution')
