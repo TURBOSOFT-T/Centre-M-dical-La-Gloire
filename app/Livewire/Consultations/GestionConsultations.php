@@ -112,6 +112,7 @@ class GestionConsultations extends Component
     public $nouveau_genre;
     public $nouveau_date_naissance;
     public $nouveau_groupe_sanguin;
+    public$historiquePaiements;
 
     public $prise_en_charge = '';
 
@@ -132,7 +133,19 @@ class GestionConsultations extends Component
         $this->isModificationsModalOpen = false;
         $this->consultationModificationsDetails = null;
     }
+public function openHistoriqueModal($id)
+{
+    $consultation = Consultation::findOrFail($id);
+    
+    // Vous pouvez stocker la consultation sélectionnée et ouvrir la modale
+    $this->selectedConsultation = $consultation;
+    $this->historiquePaiements = is_string($consultation->historique_paiements) 
+        ? json_decode($consultation->historique_paiements, true) 
+        : ($consultation->historique_paiements ?? []);
 
+    // Déclenchez l'ouverture de la modale (ex: via un événement AlpineJS ou un drapeau Livewire)
+    $this->dispatch('open-historique-modal'); 
+}
     /**
      * Active ou désactive un produit dans la prescription avec vérification du stock
      */

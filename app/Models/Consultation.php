@@ -279,4 +279,9 @@ class Consultation extends Model
                     ->withPivot(['quantite', 'voie_administration', 'posologie', 'prix_unitaire'])
                     ->withTimestamps();
     }
+
+public function commande()
+{
+    return $this->belongsTo(commandes::class, 'commande_id');
+}
 }

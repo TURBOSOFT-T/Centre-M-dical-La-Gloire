@@ -73,28 +73,55 @@
 <body onload="window.print()">
 
     @php
-        // Calculs de secours autonomes pour éviter toute erreur de variable manquante
+        // 1. Tarif Consultation de base
         $tarifConsultation = $consultation->tarif_brut ?? 5000;
         
+        // 2. Tarif Examens
         $tarifExamens = 0;
         if ($consultation->relationLoaded('demandesExamens') && $consultation->demandesExamens) {
             $tarifExamens = $consultation->demandesExamens->sum('tarif_brut');
         }
         
-        $tarifProduits = 0;
-        // On s'assure que les produits sont chargés ou on les charge dynamiquement
-        $produits = $consultation->relationLoaded('produits') ? $consultation->produits : $consultation->produits;
-        if ($produits) {
-            foreach ($produits as $prod) {
+        // 3. Produits prescrits directement (via relation pivot)
+        $tarifProduitsPrescrits = 0;
+        $produitsPrescrits = $consultation->relationLoaded('produits') ? $consultation->produits : collect();
+        if ($produitsPrescrits) {
+            foreach ($produitsPrescrits as $prod) {
                 $qte = $prod->pivot->quantite ?? 1;
                 $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
-                $tarifProduits += ($qte * $pu);
+                $tarifProduitsPrescrits += ($qte * $pu);
             }
         }
 
-        $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
+        // 4. Produits issus d'une commande liée (ex: $consultation->commande ou $consultation->commandes)
+        $tarifProduitsCommande = 0;
+        $lignesCommande = collect();
+        
+        // On vérifie si une relation "commande" ou "commandes" existe sur la consultation
+        $commande = null;
+        if ($consultation->relationLoaded('commande')) {
+            $commande = $consultation->commande;
+        } elseif (method_exists($consultation, 'commande') && $consultation->commande) {
+            $commande = $consultation->commande;
+        }
+
+        if ($commande && $commande->relationLoaded('lignes') && $commande->lignes) {
+            $lignesCommande = $commande->lignes;
+        } elseif ($commande && method_exists($commande, 'lignes') && $commande->lignes) {
+            $lignesCommande = $commande->lignes;
+        }
+
+        foreach ($lignesCommande as $ligne) {
+            $qteCmd = $ligne->quantite ?? 1;
+            $puCmd = $ligne->prix_unitaire ?? $ligne->prix ?? 0;
+            $tarifProduitsCommande += ($qteCmd * $puCmd);
+        }
+
+        // Total Brut Global
+        $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduitsPrescrits + $tarifProduitsCommande;
         $totalFacture = $totalBrut;
 
+        // Gestion Assurance
         if ($consultation->patient && $consultation->patient->est_assure && $consultation->patient->assurance) {
             $taux = (float) $consultation->patient->taux_couverture;
             $partAssurance = round(($totalBrut * $taux) / 100);
@@ -145,13 +172,13 @@
             </tr>
         </thead>
         <tbody>
-            {{-- Consultation --}}
+            {{-- 1. Consultation --}}
             <tr>
                 <td>Consultation ({{ ucfirst(str_replace('_', ' ', $consultation->type ?? 'standard')) }})</td>
                 <td class="text-end">{{ number_format($tarifConsultation, 0, ',', ' ') }}</td>
             </tr>
 
-            {{-- Examens --}}
+            {{-- 2. Examens --}}
             @if($consultation->relationLoaded('demandesExamens') && $consultation->demandesExamens)
                 @foreach($consultation->demandesExamens as $demande)
                 <tr>
@@ -161,17 +188,33 @@
                 @endforeach
             @endif
 
-            {{-- Produits / Médicaments prescrits --}}
-            @if($produits)
-                @foreach($produits as $prod)
+            {{-- 3. Produits prescrits directement --}}
+            @if($produitsPrescrits && $produitsPrescrits->count() > 0)
+                @foreach($produitsPrescrits as $prod)
                 @php
                     $qte = $prod->pivot->quantite ?? 1;
-                    $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                    $pu =  $prod->pivot->prix ?? $prod->prix ?? 0;
                     $sousTotalProd = $qte * $pu;
                 @endphp
                 <tr>
                     <td>Médicament / Produit : {{ $prod->nom ?? 'Produit' }} (Qte: {{ $qte }})</td>
                     <td class="text-end">{{ number_format($sousTotalProd, 0, ',', ' ') }}</td>
+                </tr>
+                @endforeach
+            @endif
+
+            {{-- 4. Produits issus d'une Commande liée --}}
+            @if($lignesCommande && $lignesCommande->count() > 0)
+                @foreach($lignesCommande as $ligne)
+                @php
+                    $qteCmd = $ligne->quantite ?? 1;
+                    $puCmd = $ligne->prix_unitaire ?? $ligne->prix ?? 0;
+                    $sousTotalCmd = $qteCmd * $puCmd;
+                    $nomProduit = $ligne->produit->nom ?? $ligne->nom ?? 'Article de commande';
+                @endphp
+                <tr>
+                    <td>Commande Produit : {{ $nomProduit }} (Qte: {{ $qteCmd }})</td>
+                    <td class="text-end">{{ number_format($sousTotalCmd, 0, ',', ' ') }}</td>
                 </tr>
                 @endforeach
             @endif
@@ -205,7 +248,7 @@
     </table>
 
     <div class="footer">
-        <p>Merci pour votre confiance. Bon rétablissement !</p>
+        <p>Merci pour votre confiance. Bon rétablissement!</p>
         <p><strong>Centre Médical La Gloire</strong></p>
     </div>
 

@@ -207,8 +207,19 @@
                                 <button wire:click="openPaiementModal({{ $c->id }})" class="btn btn-sm btn-success me-1 radius-30" title="Encaisser ou Versement partiel">
                                     <i class="bx bx-dollar-circle me-1"></i>Encaisser
                                 </button>
+                                @else
+                                <button wire:click="openPaiementModal({{ $c->id }})" class="btn btn-sm btn-info me-1 radius-30" title="Voir l'historique des paiements">
+                                    <i class="bx bx-history me-1"></i>Historique
+                                </button>
+
                                 @endif
-                                @endcan
+                               
+                            
+
+                                @endcan 
+
+
+          
 
                                 <a href="{{ route('consultations.facture.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1" title="Imprimer le reçu / facture">
                                     <i class="bx bx-receipt"></i>
