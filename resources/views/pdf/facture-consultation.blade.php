@@ -235,17 +235,19 @@
             <tr>
                 <th style="width: 12%;">Type</th>
                 <th style="width: 53%;">Désignation des Prestations, Examens & Produits</th>
-                <th style="width: 10%; text-align: center;">Qté</th>
+                <th style="width: 15%; text-align: center;">PU</th>
+                <th style="width: 5%; text-align: center;">Qté</th>
                 <th style="width: 25%; text-align: right;">Montant Total</th>
             </tr>
         </thead>
         <tbody>
             {{-- Acte de Consultation --}}
             <tr>
-                <td><span class="badge badge-success">Acte</span></td>
+                <td><span class="badge badge-success">Consultation</span></td>
                 <td>
                     <strong>Consultation Médicale ({{ ucfirst(str_replace('_', ' ', $consultation->type)) }})</strong>
                 </td>
+                <td style="text-align: center;">{{ number_format($tarifConsultation, 0, ',', ' ') }} FCFA</td>
                 <td style="text-align: center;">1</td>
                 <td style="text-align: right;">{{ number_format($tarifConsultation, 0, ',', ' ') }} FCFA</td>
             </tr>
@@ -265,6 +267,7 @@
                             </small>
                         @endif
                     </td>
+                    <td style="text-align: center;">{{ number_format($demande->tarif_brut, 0, ',', ' ') }} FCFA</td>
                     <td style="text-align: center;">1</td>
                     <td style="text-align: right;">{{ number_format($demande->tarif_brut, 0, ',', ' ') }} FCFA</td>
                 </tr>
@@ -279,14 +282,16 @@
                         $montantLigne = $qte * $pu;
                     @endphp
                     <tr>
-                        <td><span class="badge badge-info">Produit</span></td>
+                        <td><span class="badge badge-info">Médicament</span></td>
                         <td>
                             <strong>{{ $prod->nom ?? 'Médicament / Article' }}</strong>
                             @if(!empty($prod->pivot->posologie))
                                 <br><small style="color: #6c757d;">Posologie : {{ $prod->pivot->posologie }}</small>
                             @endif
                         </td>
+                        <td style="text-align: center;">{{ number_format($pu, 0, ',', ' ') }} FCFA</td>
                         <td style="text-align: center;">{{ $qte }}</td>
+                        
                         <td style="text-align: right;">{{ number_format($montantLigne, 0, ',', ' ') }} FCFA</td>
                     </tr>
                 @endforeach
