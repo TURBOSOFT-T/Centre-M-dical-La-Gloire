@@ -235,7 +235,12 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-           {{ $derniereConsultation->antecedents_maladie ?: 'Aucun antécédent médical spécifique consigné.' }}      
+           
+           @if($derniereConsultation)
+    <p>{{ $derniereConsultation->antecedents_maladie }}</p>
+@else
+    <p class="text-muted">Aucune consultation récente disponible.</p>
+@endif
         </div>
     </div>
 
