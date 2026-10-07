@@ -283,22 +283,22 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-            @if($derniereConsultation->produits && $derniereConsultation->produits->count() > 0)
-            <div class="col-12 mt-2">
-                <strong class="text-dark">Médicaments / Produits prescrits :</strong>
-                <ul class="list-group list-group-flush mt-1">
-                    @foreach($derniereConsultation->produits as $produit)
-                    <li class="list-group-item bg-white d-flex justify-content-between align-items-center py-2">
-                        <div>
-                            <span class="fw-bold">{{ $produit->nom ?? $produit->libelle }}</span>
-                            <br><small class="text-muted">Posologie : {{ $produit->pivot->posologie ?? 'N/A' }} | Voie : {{ $produit->pivot->voie_administration ?? 'N/A' }}</small>
-                        </div>
-                        <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite }}</span>
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
+         @if($derniereConsultation?->produits && $derniereConsultation->produits->count() > 0)
+    <div class="col-12 mt-2">
+        <strong class="text-dark">Médicaments / Produits prescrits :</strong>
+        <ul class="list-group list-group-flush mt-1">
+            @foreach($derniereConsultation->produits as $produit)
+                <li class="list-group-item bg-white d-flex justify-content-between align-items-center py-2">
+                    <div>
+                        <span class="fw-bold">{{ $produit->nom ?? $produit->libelle }}</span>
+                        <br><small class="text-muted">Posologie : {{ $produit->pivot->posologie ?? 'N/A' }} | Voie : {{ $produit->pivot->voie_administration ?? 'N/A' }}</small>
+                    </div>
+                    <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite }}</span>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
         </div>
     </div>
 
