@@ -168,7 +168,11 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             <td>
                 <div class="clinic-title">Centre Médical La Gloire</div>
                 <div class="clinic-sub">Service de Biologie Médicale & Résultats d'Analyses</div>
-                <div class="clinic-sub">Douala, Cameroun | Tél : (+237) 600 00 00 00</div>
+                <div class="clinic-sub">Tél : {{ $config->telephone }}</div>
+                <div class="clinic-sub">E-mail : {{ $config->email }}</div>
+                 <div class="clinic-sub">Adresse : {{ $config->addresse }}</div>
+
+
             </td>
             
  <td class="logo-cell">

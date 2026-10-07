@@ -185,8 +185,9 @@
         <tr>
             <td>
                 <div class="clinic-title">Centre Médical La Gloire</div>
-                <div class="clinic-sub">Soins généraux, Laboratoire d'Analyses & Radiologie</div>
-                <div class="clinic-sub">Téléphone : (+237) 600 00 00 00 | Douala, Cameroun</div>
+               <p class="mb-0 text-muted small"> Tél : {{ $config->telephone }}</p>
+                    <p class="mb-0 text-muted small"> E-mail : {{ $config->email }}</p>
+                    <p class="mb-0 text-muted small"> Adresse : {{ $config->addresse }}</p>
             </td>
             <td class="logo-cell" style="text-align: center;">
                 @if(!empty($logoBase64))

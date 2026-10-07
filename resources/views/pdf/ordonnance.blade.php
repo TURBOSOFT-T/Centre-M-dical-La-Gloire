@@ -146,9 +146,9 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 @endif
             </td>
             <td class="clinic-contact">
-                <strong>Douala, Cameroun</strong><br>
-                Téléphone : +237 6xx xx xx xx<br>
-                Email : contact@lagloire-medical.cm
+               <p class="mb-0 text-muted small"> Tél : {{ $config->telephone }}</p>
+                    <p class="mb-0 text-muted small"> E-mail : {{ $config->email }}</p>
+                    <p class="mb-0 text-muted small"> Adresse : {{ $config->addresse }}</p>
             </td>
         </tr>
     </table>

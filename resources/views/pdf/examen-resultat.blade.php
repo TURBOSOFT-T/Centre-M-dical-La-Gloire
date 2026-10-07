@@ -41,8 +41,9 @@
     <div class="row border-bottom pb-3 mb-4 align-items-center">
         <div class="col-8">
             <h3 class="fw-bold text-primary mb-1">CENTRE MÉDICAL LA GLOIRE</h3>
-            <p class="mb-0 text-muted small">Laboratoire d'Analyses Médicales & Biologiques</p>
-            <p class="mb-0 text-muted small">Douala, Cameroun - Tél : +237 600 00 00 00</p>
+            <p class="mb-0 text-muted small"> Tél : {{ $config->telephone }}</p>
+                    <p class="mb-0 text-muted small"> E-mail : {{ $config->email }}</p>
+                    <p class="mb-0 text-muted small"> Adresse : {{ $config->addresse }}</p>
         </div>
         <div class="col-4 text-end">
             <h5 class="fw-bold text-dark mb-0">BULLETIN DE RÉSULTATS</h5>
