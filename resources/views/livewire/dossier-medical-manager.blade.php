@@ -28,8 +28,8 @@
                     <button wire:click="openCreate" class="btn btn-primary d-flex align-items-center gap-2">
                         <i class="bi bi-folder-plus"></i> Nouveau Dossier Médical
                     </button>
-                    @endcan
                 </div>
+                @endcan
             </div>
         </div>
     </div>
@@ -276,7 +276,6 @@
                 @endif
             </div>
             <div class="d-flex gap-2">
-
                 <a href="{{ route('dossier-medical.rapport-pdf', $selectedDossier->id) }}" target="_blank" class="btn btn-success btn-sm me-2">
                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> Imprimer Rapport / Bilan Médical
                 </a>
@@ -368,90 +367,34 @@
                 <div class="col-md-6">
                     <div class="border rounded p-3 h-100 bg-body-tertiary">
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-heart-pulse me-1"></i> Antécédents Médicaux</h6>
-                        <p class="mb-0 text-dark">{{ $selectedDossier->antecedents_medicaux ?: 'Aucun antécédent médical renseigné.' }}</p>
+                        <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $selectedDossier->antecedents_medicaux ?: 'Aucun antécédent médical renseigné.' }}</p>
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="border rounded p-3 h-100 bg-body-tertiary">
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-bandaid me-1"></i> Antécédents Chirurgicaux</h6>
-                        <p class="mb-0 text-dark">{{ $selectedDossier->antecedents_chirurgicaux ?: 'Aucun antécédent chirurgical renseigné.' }}</p>
+                        <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $selectedDossier->antecedents_chirurgicaux ?: 'Aucun antécédent chirurgical renseigné.' }}</p>
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="border rounded p-3 h-100 bg-body-tertiary">
                         <h6 class="fw-bold text-danger mb-3"><i class="bi bi-exclamation-triangle me-1"></i> Allergies Connues</h6>
-                        <p class="mb-0 text-dark">{{ $selectedDossier->allergies ?: 'Aucune allergie signalée.' }}</p>
+                        <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $selectedDossier->allergies ?: 'Aucune allergie signalée.' }}</p>
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="border rounded p-3 h-100 bg-body-tertiary">
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-capsule me-1"></i> Traitements Chroniques</h6>
-                        <p class="mb-0 text-dark">{{ $selectedDossier->traitements_chroniques ?: 'Aucun traitement chronique enregistré.' }}</p>
+                        <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $selectedDossier->traitements_chroniques ?: 'Aucun traitement chronique enregistré.' }}</p>
                     </div>
                 </div>
             </div>
             @endif
 
-            {{-- TAB 2: CONSULTATIONS DU PATIENT --}}
-            @if($activeTab === 'consultations')
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold text-primary mb-0"><i class="bi bi-stethoscope me-1"></i> Historique des Consultations</h6>
-                <span class="badge bg-light text-dark border">Total : {{ $selectedDossier->consultations->count() }}</span>
-            </div>
-
-            @forelse($selectedDossier->consultations as $c)
-            <div class="card mb-3 border shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="fw-bold text-dark"><i class="bi bi-calendar3 me-1"></i> {{ \Carbon\Carbon::parse($c->date_consultation ?? $c->created_at)->format('d/m/Y à H:i') }}</span>
-                    </div>
-                    <div>
-                        <span class="badge bg-primary">
-                            <i class="bi bi-person-badge me-1"></i> Dr. {{ $c->medecin->nom ?? $c->medecin->name ?? 'Non spécifié' }} {{ $c->medecin->prenom ?? '' }}
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <strong class="text-secondary d-block mb-1"><i class="bi bi-chat-left-text me-1"></i> Motif de consultation :</strong>
-                            <p class="mb-0 text-dark bg-light p-2 rounded border-start border-3 border-primary">{{ $c->motif ?: 'Non renseigné' }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <strong class="text-secondary d-block mb-1"><i class="bi bi-clipboard2-pulse me-1"></i> Diagnostic :</strong>
-                            <p class="mb-0 text-dark bg-light p-2 rounded border-start border-3 border-success">{{ $c->diagnostic ?: 'Non renseigné' }}</p>
-                        </div>
-
-                        @if(!empty($c->observation) || !empty($c->symptomes))
-                        <div class="col-md-12">
-                            <strong class="text-secondary d-block mb-1"><i class="bi bi-search me-1"></i> Observations / Symptômes :</strong>
-                            <p class="mb-0 text-dark small">{{ $c->observation ?? $c->symptomes }}</p>
-                        </div>
-                        @endif
-
-                        @if(!empty($c->ordonnance) || !empty($c->traitement))
-                        <div class="col-md-12">
-                            <strong class="text-secondary d-block mb-1"><i class="bi bi-capsule me-1"></i> Ordonnance / Traitement prescrit :</strong>
-                            <div class="p-2 bg-warning-subtle text-dark rounded border border-warning-subtle small">
-                                {{ $c->ordonnance ?? $c->traitement }}
-                            </div>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            @empty
-            <div class="text-center py-5 text-muted border rounded bg-light">
-                <i class="bi bi-file-earmark-medical display-6 d-block mb-2"></i>
-                Aucune consultation enregistrée dans ce dossier médical.
-            </div>
-            @endforelse
-            @endif
-
-            {{-- TAB 3: HOSPITALISATIONS --}}
+                {{-- TAB 2: HOSPITALISATIONS --}}
             @if($activeTab === 'hospitalisations')
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -491,7 +434,7 @@
             </div>
             @endif
 
-            {{-- TAB 4: RENDEZ-VOUS DU PATIENT --}}
+             {{-- TAB 4: RENDEZ-VOUS DU PATIENT --}}
             @if($activeTab === 'rendezvous')
             @php
             $rendezVousList = $selectedDossier->patient->rendezVous ?? collect();
@@ -499,7 +442,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="fw-bold text-primary mb-0">
-                    <i class="bi bi-calendar-event me-1"></i> Rendez-vous de {{ $selectedDossier->patient->nom ?? 'Patient' }} {{ $selectedDossier->patient->prenom ?? '' }}
+                    <i class="bi bi-calendar-event me-1"></i> Rendez-vous du Patient
                 </h6>
                 <span class="badge bg-light text-dark border">
                     Total : {{ $rendezVousList->count() }}
@@ -507,7 +450,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle border mb-0">
+                <table class="table table-hover align-middle border">
                     <thead class="table-light">
                         <tr>
                             <th>Date & Heure</th>
@@ -523,10 +466,7 @@
                             <td>
                                 <div class="fw-bold text-dark">
                                     <i class="bi bi-clock me-1 text-primary"></i>
-                                    @php
-                                    $dateRaw = $rdv->date_rdv ?? $rdv->date_heure ?? $rdv->created_at;
-                                    @endphp
-                                    {{ $dateRaw ? \Carbon\Carbon::parse($dateRaw)->format('d/m/Y à H:i') : '-' }}
+                                    {{ $rdv->date_heure ? $rdv->date_heure->format('d/m/Y à H:i') : '-' }}
                                 </div>
                             </td>
                             <td>
@@ -541,38 +481,19 @@
                                 <span class="text-wrap">{{ $rdv->motif ?: 'Non précisé' }}</span>
                             </td>
                             <td>
-                                @php
-                                $statut = strtolower($rdv->statut ?? 'programme');
-                                @endphp
-                                @if(in_array($statut, ['programme', 'programmé', 'planifie', 'confirme']))
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                    <i class="bi bi-calendar-check me-1"></i>Programmé
+                                <span class="badge border {{ $rdv->statut_badge_classes }}">
+                                    {{ $rdv->statut_label }}
                                 </span>
-                                @elseif(in_array($statut, ['honore', 'honoré', 'effectue', 'termine', 'effectué']))
-                                <span class="badge bg-success-subtle text-success border border-success-subtle">
-                                    <i class="bi bi-check-circle me-1"></i>Honoré
-                                </span>
-                                @elseif(in_array($statut, ['annule', 'annulé']))
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
-                                    <i class="bi bi-x-circle me-1"></i>Annulé
-                                </span>
-                                @elseif(in_array($statut, ['reporte', 'reporté']))
-                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-                                    <i class="bi bi-arrow-repeat me-1"></i>Reporté
-                                </span>
-                                @else
-                                <span class="badge bg-secondary">{{ ucfirst($rdv->statut ?? 'N/A') }}</span>
-                                @endif
                             </td>
                             <td>
-                                <small class="text-muted">{{ $rdv->note ?? $rdv->observation ?? $rdv->remarque ?? '-' }}</small>
+                                <small class="text-muted">{{ $rdv->notes ?? $rdv->remarque ?? '-' }}</small>
                             </td>
                         </tr>
                         @empty
                         <tr>
                             <td colspan="5" class="text-center py-4 text-muted">
-                                <i class="bi bi-calendar-x display-6 d-block mb-2"></i>
-                                Aucun rendez-vous enregistré.
+                                <i class="bi bi-calendar-x display-6 d-block mb-2 text-secondary"></i>
+                                Aucun rendez-vous enregistré pour ce patient.
                             </td>
                         </tr>
                         @endforelse
@@ -581,127 +502,62 @@
             </div>
             @endif
 
-            {{-- TAB 5: EXAMENS BIOLOGIQUES DU PATIENT --}}
-            @if($activeTab === 'examens')
+            {{-- TAB 5: CONSULTATIONS DU PATIENT --}}
+            @if($activeTab === 'consultations')
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold text-primary mb-0"><i class="bi bi-vial me-1"></i> Historique des Examens Biologiques & Laboratoire</h6>
-                <span class="badge bg-light text-dark border">Total : {{ $selectedDossier->demandesExamens->count() }}</span>
+                <h6 class="fw-bold text-primary mb-0"><i class="bi bi-stethoscope me-1"></i> Historique des Consultations</h6>
+                <span class="badge bg-light text-dark border">Total : {{ $selectedDossier->consultations->count() }}</span>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle border mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Code Demande</th>
-                            <th>Examen</th>
-                            <th>Prescrit le</th>
-                            <th>Statut</th>
+            @forelse($selectedDossier->consultations as $c)
+            <div class="card mb-3 border shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fw-bold text-dark"><i class="bi bi-calendar3 me-1"></i> {{ \Carbon\Carbon::parse($c->date_consultation ?? $c->created_at)->format('d/m/Y à H:i') }}</span>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary">
+                            <i class="bi bi-person-badge me-1"></i> Dr. {{ $c->medecin->nom ?? $c->medecin->name ?? 'Non spécifié' }} {{ $c->medecin->prenom ?? '' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <strong class="text-secondary d-block mb-1"><i class="bi bi-chat-left-text me-1"></i> Motif de consultation :</strong>
+                            <p class="mb-0 text-dark bg-light p-2 rounded border-start border-3 border-primary" style="white-space: pre-line;">{{ $c->motif ?: 'Non renseigné' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong class="text-secondary d-block mb-1"><i class="bi bi-clipboard2-pulse me-1"></i> Diagnostic :</strong>
+                            <p class="mb-0 text-dark bg-light p-2 rounded border-start border-3 border-success" style="white-space: pre-line;">{{ $c->diagnostic ?: 'Non renseigné' }}</p>
+                        </div>
 
-                            <th class="text-end px-4">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($selectedDossier->demandesExamens as $demande)
-                        <tr>
-                            <td class="fw-bold text-primary">{{ $demande->code_demande }}</td>
-                            <td>
-                                <div class="fw-semibold text-dark">{{ $demande->examen->nom ?? 'Examen inconnu' }}</div>
-                            </td>
-                            <td><small class="text-muted">{{ $demande->created_at ? $demande->created_at->format('d/m/Y H:i') : '-' }}</small></td>
-                            <td>
-                                @if($demande->statut === 'termine')
-                                <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>Disponible</span>
-                                @elseif($demande->statut === 'en_cours')
-                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-hourglass-split me-1"></i>En cours</span>
-                                @else
-                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">En attente</span>
-                                @endif
-                            </td>
+                        @if(!empty($c->observation) || !empty($c->symptomes))
+                        <div class="col-md-12">
+                            <strong class="text-secondary d-block mb-1"><i class="bi bi-search me-1"></i> Observations / Symptômes :</strong>
+                            <p class="mb-0 text-dark small" style="white-space: pre-line;">{{ $c->observation ?? $c->symptomes }}</p>
+                        </div>
+                        @endif
 
-                            <td class="text-end px-4">
-                                @if($demande->statut === 'termine')
-                                <button wire:click="voirResultatsExamen({{ $demande->id }})" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-file-text me-1"></i> Résultats
-                                </button>
-                                @else
-                                <span class="text-muted small">Résultats en attente</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                <i class="bi bi-vial-x display-6 d-block mb-2"></i>
-                                Aucun examen biologique prescrit dans ce dossier.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        @if(!empty($c->ordonnance) || !empty($c->traitement))
+                        <div class="col-md-12">
+                            <strong class="text-secondary d-block mb-1"><i class="bi bi-capsule me-1"></i> Ordonnance / Traitement prescrit :</strong>
+                            <div class="p-2 bg-warning-subtle text-dark rounded border border-warning-subtle small" style="white-space: pre-line;">
+                                {{ $c->ordonnance ?? $c->traitement }}
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
             </div>
+            @empty
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-journal-x display-5 d-block mb-2"></i>
+                Aucune consultation enregistrée pour ce dossier.
+            </div>
+            @endforelse
             @endif
 
-        </div>
-    </div>
-    @endif
-
-    {{-- MODALE DE VISUALISATION DES RÉSULTATS D'EXAMEN --}}
-    @if($isModalResultatsOpen && $selectedDemandeExamen)
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content shadow border-0">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-file-earmark-medical me-2"></i> Résultats d'Examen : {{ $selectedDemandeExamen->examen->nom ?? '' }}
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" wire:click="fermerModalResultats"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3 mb-3 border-bottom pb-3">
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">Examen</small>
-                            <span class="fw-bold text-dark">{{ $selectedDemandeExamen->examen->nom ?? 'N/A' }}</span>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                            <small class="text-muted d-block">Réalisé le</small>
-                            <span class="fw-semibold text-dark">{{ $selectedDemandeExamen->date_realisation ? \Carbon\Carbon::parse($selectedDemandeExamen->date_realisation)->format('d/m/Y à H:i') : '-' }}</span>
-                        </div>
-                    </div>
-
-                    {{-- Tableau des sous-analyses et résultats --}}
-                    <h6 class="fw-bold text-primary mb-2">Détails des Analyses</h6>
-                    <div class="table-responsive mb-3">
-                        <table class="table table-bordered align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Paramètre / Sous-analyse</th>
-                                    <th>Résultat Obtenu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($selectedDemandeExamen->analyses_demandees ?? [] as $item)
-                                <tr>
-                                    <td class="fw-semibold">{{ $item['nom'] ?? 'Paramètre' }}</td>
-                                    <td class="fw-bold text-primary">{{ $item['resultat'] ?? 'N/A' }}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="2" class="text-center text-muted">Aucun paramètre saisi.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if($selectedDemandeExamen->conclusion)
-                    <div class="p-3 bg-light rounded border border-start border-4 border-primary">
-                        <strong class="text-primary d-block mb-1"><i class="bi bi-chat-left-quote me-1"></i> Conclusion du Biologiste :</strong>
-                        <p class="mb-0 text-dark">{{ $selectedDemandeExamen->conclusion }}</p>
-                    </div>
-                    @endif
-                </div>
-
-            </div>
         </div>
     </div>
     @endif

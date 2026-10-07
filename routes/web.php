@@ -101,6 +101,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('dossier-medical.rapport-pdf');
 });
 
+
+Route::get('/dossiers/{dossier}/rapport-pdf/{consultation?}', [DossierMedicalPdfController::class, 'genererRapportPdf'])
+    ->name('dossiers.rapport-pdf');
 use App\Http\Controllers\ExamenExportController;
 
 Route::get('/examens/export-sql', [ExamenExportController::class, 'export'])->name('examens.export.sql');

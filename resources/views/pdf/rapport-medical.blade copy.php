@@ -283,11 +283,63 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         </div>
     </div>
 
-   
+    {{-- SECTION : DÉTAILS DE LA DERNIÈRE CONSULTATION --}}
+    @if(isset($derniereConsultation) && $derniereConsultation)
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">5. SYNTHÈSE DE LA DERNIÈRE CONSULTATION ({{ optional($derniereConsultation->date_heure_rdv ?? $derniereConsultation->created_at)->format('d/m/Y') }})</h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Médecin Traitant :</strong> Dr. {{ optional($derniereConsultation->medecin)->nom ?? optional($derniereConsultation->medecin)->name ?? 'Non spécifié' }}</p>
+                    <p class="mb-1"><strong>Motif de consultation :</strong> {{ $derniereConsultation->motif ?: 'N/A' }}</p>
+                    <p class="mb-1"><strong>Diagnostic Posé :</strong> <strong class="text-success">{{ $derniereConsultation->diagnostic ?: 'N/A' }}</strong></p>
+                    <p class="mb-0"><strong>Hypothèse Diagnostique :</strong> {{ $derniereConsultation->hypothese_diagnostique ?: 'N/A' }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Examen Clinique / Physique :</strong> {{ $derniereConsultation->examen_physique ?: 'N/A' }}</p>
+                    @if(!empty($derniereConsultation->constantes) && is_array($derniereConsultation->constantes))
+                    <p class="mb-0"><strong>Constantes :</strong>
+                        @foreach($derniereConsultation->constantes as $key => $val)
+                        <span class="badge bg-secondary me-1">{{ ucfirst($key) }}: {{ $val }}</span>
+                        @endforeach
+                    </p>
+                    @endif
+                </div>
+            </div>
+
+            <table class="table table-bordered mb-4 align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Date</th>
+                <th>Médecin Praticien</th>
+                <th>Motif</th>
+                <th>Diagnostic Posé</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($dossier->consultations as $c)
+            <tr>
+                <td>{{ optional($c->date_heure_rdv ?? $c->created_at)->format('d/m/Y') }}</td>
+                <td>Dr. {{ optional($c->medecin)->nom ?? optional($c->medecin)->name ?? 'Praticien' }}</td>
+                <td>{{ $c->motif ?: '-' }}</td>
+                <td><strong class="text-success">{{ $c->diagnostic ?: '-' }}</strong></td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="4" class="text-center text-muted">Aucune consultation enregistrée.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+        
+        </div>
+    </div>
+    @endif
+  
   
 
     {{-- Perspectives & Recommandations Thérapeutiques (Issues de la dernière consultation) --}}
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">5. PERSPECTIVES & RECOMMANDATIONS THÉRAPEUTIQUES</h6>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">6. PERSPECTIVES & RECOMMANDATIONS THÉRAPEUTIQUES</h6>
     <div class="card mb-4 border-primary p-3 bg-white">
         {{-- Affichage de l'ordonnance si renseignée --}}
         @if(!empty($derniereConsultation->ordonnance))

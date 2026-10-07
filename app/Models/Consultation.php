@@ -128,7 +128,6 @@ class Consultation extends Model
     {
         $tarifProduits = 0;
         
-        // Vérifie si la relation est chargée ou peut l'être
         $produits = $this->relationLoaded('produits') ? $this->produits : $this->produits;
 
         if ($produits) {
@@ -149,7 +148,6 @@ class Consultation extends Model
     {
         $total = $this->total_facture;
 
-        // Si le patient a une assurance, calcul du reste à charge
         if ($this->patient && $this->patient->est_assure && $this->patient->assurance) {
             $taux = (float) $this->patient->taux_couverture;
             $partAssurance = round(($total * $taux) / 100);
@@ -186,9 +184,6 @@ class Consultation extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Libellé lisible du statut de la consultation.
-     */
     public function getStatutLabelAttribute(): string
     {
         return match ($this->statut) {
@@ -201,9 +196,6 @@ class Consultation extends Model
         };
     }
 
-    /**
-     * Classes de badge Bootstrap en fonction du statut.
-     */
     public function getStatutBadgeClassesAttribute(): string
     {
         return match ($this->statut) {
@@ -216,17 +208,11 @@ class Consultation extends Model
         };
     }
 
-    /**
-     * Helper pour récupérer une constante précise (ex: tension, température).
-     */
     public function getConstante(string $key, $default = null)
     {
         return $this->constantes[$key] ?? $default;
     }
 
-    /**
-     * Helper pour récupérer une valeur d'évaluation clinique.
-     */
     public function getEvaluation(string $key, $default = null)
     {
         return $this->evaluations[$key] ?? $default;
@@ -238,41 +224,26 @@ class Consultation extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Médecin traitant ayant réalisé la consultation.
-     */
     public function medecin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'medecin_id');
     }
 
-    /**
-     * Patient associé à la consultation.
-     */
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class, 'patient_id');
     }
 
-    /**
-     * Dossier médical rattaché.
-     */
     public function dossierMedical(): BelongsTo
     {
         return $this->belongsTo(DossierMedical::class, 'dossier_medical_id');
     }
 
-    /**
-     * Demandes d'examens biologiques ou d'imagerie associées.
-     */
     public function demandesExamens(): HasMany
     {
         return $this->hasMany(DemandeExamen::class, 'consultation_id');
     }
 
-    /**
-     * Produits et médicaments prescrits liés à la consultation.
-     */
     public function produits(): BelongsToMany
     {
         return $this->belongsToMany(produits::class, 'consultation_produit', 'consultation_id', 'produit_id')
@@ -280,8 +251,8 @@ class Consultation extends Model
                     ->withTimestamps();
     }
 
-public function commande()
-{
-    return $this->belongsTo(commandes::class, 'commande_id');
-}
+    public function commande()
+    {
+        return $this->belongsTo(commandes::class, 'commande_id');
+    }
 }

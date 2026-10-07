@@ -87,12 +87,15 @@ class Patient extends Model
             $patient->rendezVous()->delete();
         });
     }
-
-    public function getNomCompletAttribute()
-    {
-        return trim("{$this->nom} {$this->prenom}");
-    }
-
+public function getAgeAttribute(): ?int
+{
+    return $this->date_naissance ? \Carbon\Carbon::parse($this->date_naissance)->age : null;
+}
+ 
+public function getNomCompletAttribute(): string
+{
+    return "{$this->nom} {$this->prenom}";
+}
     /**
      * Relation avec l'organisme d'assurance
      */

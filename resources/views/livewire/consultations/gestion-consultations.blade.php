@@ -93,7 +93,7 @@
         </div>
     </div>
 
- <!-- TABLEAU PRINCIPAL DES CONSULTATIONS -->
+    <!-- TABLEAU PRINCIPAL DES CONSULTATIONS -->
     <div class="card border-0 shadow-sm radius-15 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -111,29 +111,29 @@
                     <tbody>
                         @forelse($consultations ?? [] as $c)
                         @php
-                            // Calcul global unifié (Consultation + Examens + Produits - Assurance)
-                            $tarifConsultation = $c->tarif_brut ?? 5000;
-                            $tarifExamens = $c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0;
-                            
-                            $tarifProduits = 0;
-                            if ($c->relationLoaded('produits') ? $c->produits : $c->produits()->exists()) {
-                                foreach ($c->produits as $prod) {
-                                    $qte = $prod->pivot->quantite ?? 1;
-                                    $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
-                                    $tarifProduits += ($qte * $pu);
-                                }
-                            }
+                        // Calcul global unifié (Consultation + Examens + Produits - Assurance)
+                        $tarifConsultation = $c->tarif_brut ?? 5000;
+                        $tarifExamens = $c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0;
 
-                            $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
-                            $totalPrestations = $totalBrut;
+                        $tarifProduits = 0;
+                        if ($c->relationLoaded('produits') ? $c->produits : $c->produits()->exists()) {
+                        foreach ($c->produits as $prod) {
+                        $qte = $prod->pivot->quantite ?? 1;
+                        $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                        $tarifProduits += ($qte * $pu);
+                        }
+                        }
 
-                            if ($c->patient && $c->patient->est_assure && $c->patient->assurance) {
-                                $taux = (float) $c->patient->taux_couverture;
-                                $partAssurance = round(($totalBrut * $taux) / 100);
-                                $totalPrestations = $totalBrut - $partAssurance;
-                            }
+                        $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
+                        $totalPrestations = $totalBrut;
 
-                            $resteD = max(0, $totalPrestations - ($c->montant_paye ?? 0));
+                        if ($c->patient && $c->patient->est_assure && $c->patient->assurance) {
+                        $taux = (float) $c->patient->taux_couverture;
+                        $partAssurance = round(($totalBrut * $taux) / 100);
+                        $totalPrestations = $totalBrut - $partAssurance;
+                        }
+
+                        $resteD = max(0, $totalPrestations - ($c->montant_paye ?? 0));
                         @endphp
                         <tr>
                             <td>
@@ -213,13 +213,13 @@
                                 </button>
 
                                 @endif
-                               
-                            
-
-                                @endcan 
 
 
-          
+
+                                @endcan
+
+
+
 
                                 <a href="{{ route('consultations.facture.pdf', $c->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1" title="Imprimer le reçu / facture">
                                     <i class="bx bx-receipt"></i>
@@ -288,14 +288,14 @@
                         @php
 
                         $tarifProduits = 0;
-                            if ($consultationEnPaiement->relationLoaded('produits') ? $consultationEnPaiement->produits : $consultationEnPaiement->produits()->exists()) {
-                                foreach ($consultationEnPaiement->produits as $prod) {
-                                    $qte = $prod->pivot->quantite ?? 1;
-                                    $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
-                                    $tarifProduits += ($qte * $pu);
-                                }
-                            }
-                        $totalFacture =  $tarifProduits +$consultationEnPaiement->tarif_brut + ($consultationEnPaiement->demandesExamens ? $consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0);
+                        if ($consultationEnPaiement->relationLoaded('produits') ? $consultationEnPaiement->produits : $consultationEnPaiement->produits()->exists()) {
+                        foreach ($consultationEnPaiement->produits as $prod) {
+                        $qte = $prod->pivot->quantite ?? 1;
+                        $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
+                        $tarifProduits += ($qte * $pu);
+                        }
+                        }
+                        $totalFacture = $tarifProduits +$consultationEnPaiement->tarif_brut + ($consultationEnPaiement->demandesExamens ? $consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0);
                         $dejaPaye = $consultationEnPaiement->montant_paye ?? 0;
                         $resteAEncaisser = max(0, $totalFacture - $dejaPaye);
                         @endphp
@@ -914,12 +914,22 @@
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Ordonnances de sortie et recommandations</h6>
                             </div>
-                           <!--  <div class="col-md-12">
+                            <!--  <div class="col-md-12">
 
                                 <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
                             </div> -->
-                             <textarea wire:model.live.debounce.500ms="ordonnance" class="form-control" rows="2" placeholder="Traitements prescrits..."></textarea>
-                      
+                                     <div class="mb-3" wire:ignore>
+                                
+                                <textarea
+                                    rows="5"
+                                    id="ordonnance"
+                                    wire:model="ordonnance"
+                                    name="ornnance"
+                                    class="form-control">{{ old('ordnnance', $produit->ornnance ?? '') }}</textarea>
+                                @error('ordonnance')
+                                <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
                             @endcan
                             <!-- SECTION 6 : ÉVALUATIONS CLINIQUES DYNAMIQUES -->
                             @can('consultation_add_evolution')
@@ -1564,6 +1574,21 @@
     @endif
 </div>
 
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#ordnnance'))
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                @this.set('onnance', editor.getData());
+            });
+        })
+        .catch(error => {
+            console.error(error);
+        });
+</script>
+
 <!-- SCRIPTS JS : SCROLL AUTOMATIQUE ET CONFIRMATION -->
 <script>
     function toggle_confirmation(id) {
@@ -1573,6 +1598,8 @@
         }
     }
 </script>
+
+
 
 @script
 <script>

@@ -19,6 +19,7 @@ class DossierMedicalManager extends Component
     public $activeTab = 'apercu'; // 'apercu', 'consultations', 'hospitalisations', 'rendezvous', 'factures', 'examens'
 
     public $selectedDossier = null;
+    public $derniereConsultation = null;
 
     // Gestion de la modale de visualisation des résultats d'examens
     public $isModalResultatsOpen = false;
@@ -35,6 +36,49 @@ class DossierMedicalManager extends Component
     public $allergies = '';
     public $traitements_chroniques = '';
     public $statut = 'actif';
+
+    public function mount(DossierMedical $dossier = null)
+    {
+        if ($dossier && $dossier->exists) {
+            $this->selectedDossier = $dossier;
+            $this->chargerDerniereConsultation();
+        }
+    }
+
+    public function imprimerBilan(DossierMedical $dossier)
+    {
+        $derniereConsultation = $dossier->consultations()
+            ->with(['medecin', 'produits', 'demandesExamens.examen'])
+            ->latest('id')
+            ->first();
+
+        return view('dossiers.rapport', [
+            'dossier' => $dossier,
+            'patient' => $dossier->patient,
+            'derniereConsultation' => $derniereConsultation,
+        ]);
+    }
+
+    // Fonction pour générer ou exporter le rapport de sortie basé sur la dernière consultation
+    public function genererRapportBilan()
+    {
+        if (!$this->derniereConsultation && $this->selectedDossier) {
+            $this->derniereConsultation = $this->selectedDossier->consultations()
+                ->with(['produits', 'medecin', 'demandesExamens.examen'])
+                ->latest('created_at')
+                ->first();
+        }
+
+        if (!$this->derniereConsultation) {
+            session()->flash('error', 'Aucune consultation enregistrée pour générer le bilan.');
+            return;
+        }
+
+        return redirect()->route('dossiers.rapport-pdf', [
+            'dossier' => $this->selectedDossier->id ?? $this->dossier->id,
+            'consultation' => $this->derniereConsultation->id
+        ]);
+    }
 
     // Réinitialise la pagination lors d'une recherche
     public function updatingSearch()
@@ -111,18 +155,37 @@ class DossierMedicalManager extends Component
         session()->flash('message', 'Dossier médical créé avec succès (Code : ' . $codeDossier . ').');
         $this->backToIndex();
     }
-public function openShow($id)
-{
-    $this->selectedDossier = DossierMedical::with([
-        'patient.assurance',
-        'consultations.demandesExamens.examen', // Charge correctement les examens via les consultations
-        'hospitalisations',
-        'rendezVous',
-    ])->findOrFail($id);
 
-    $this->activeTab = 'apercu';
-    $this->mode = 'show';
-}
+    public function chargerDerniereConsultation()
+    {
+        if (isset($this->selectedDossier)) {
+            $this->derniereConsultation = $this->selectedDossier->consultations()
+                ->with(['produits', 'medecin', 'demandesExamens.examen'])
+                ->latest('created_at') 
+                ->first();
+        }
+    }
+
+    public function openShow($id)
+    {
+        $this->selectedDossier = DossierMedical::with([
+            'patient.assurance',
+            'consultations.medecin',
+            'consultations.demandesExamens.examen',
+            'consultations.produits',
+            'consultations.commande.lignes.produit', 
+            'hospitalisations',
+            'rendezVous',
+        ])->findOrFail($id);
+
+        $this->derniereConsultation = $this->selectedDossier->consultations()
+            ->with(['produits', 'medecin', 'demandesExamens.examen'])
+            ->latest('created_at')
+            ->first();
+
+        $this->activeTab = 'apercu';
+        $this->mode = 'show';
+    }
 
     public function openEdit($id)
     {
@@ -226,7 +289,7 @@ public function openShow($id)
             'selectedDossier', 'dossierId', 'patient_id', 'searchPatient',
             'selectedPatientName', 'groupe_sanguin', 'antecedents_medicaux',
             'antecedents_chirurgicaux', 'allergies', 'traitements_chroniques',
-            'selectedDemandeExamen', 'isModalResultatsOpen'
+            'selectedDemandeExamen', 'isModalResultatsOpen', 'derniereConsultation'
         ]);
         $this->statut = 'actif';
     }
