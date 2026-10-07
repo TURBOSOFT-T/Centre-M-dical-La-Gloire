@@ -33,6 +33,9 @@
                 </button>
                 @endcan
                 <!-- Filtre Rapide Caisse : Consultations Impayées -->
+                   @php
+                $countEnAttentePaiement = \App\Models\Consultation::where('est_paye', false)->count();
+                @endphp
                 @can('consultation_pay')
                 <button wire:click="filtrerEnAttentePaiement" class="btn btn-outline-danger position-relative me-2 radius-30">
                     <i class="bx bx-receipt me-1"></i> Impayés à la Caisse
