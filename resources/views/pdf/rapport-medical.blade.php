@@ -235,61 +235,75 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-           
+
+            @if($derniereConsultation)
+            <p>{{ $derniereConsultation->antecedents_maladie }}</p>
+            @else
+            <p class="text-muted">Aucune consultation récente disponible.</p>
+            @endif
+        </div>
+    </div>
+
+
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. EXAMEN GENERAL </h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
+
            @if($derniereConsultation)
-    <p>{{ $derniereConsultation->antecedents_maladie }}</p>
+    <!-- Tout le contenu de la dernière consultation ici -->
+    <p>{{ $derniereConsultation->examen_general }}</p>
 @else
-    <p class="text-muted">Aucune consultation récente disponible.</p>
+    <div class="alert alert-warning">
+        Aucune consultation n'a encore été enregistrée pour ce dossier.
+    </div>
 @endif
+
         </div>
     </div>
 
 
-     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. EXAMEN GENERAL </h6>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. EXAMEN PHYSIQUE </h6>
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-           {{ $derniereConsultation->examen_general ?: 'Aucun examen général effectué.' }}      
-        </div>
-    </div>
-
-
-       <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. EXAMEN PHYSIQUE </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
-
-           {{ $derniereConsultation->examen_physique ?: 'Aucun examen physique effectué.' }}      
-        </div>
-    </div>
-
-
-
-    
-     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">4. TRAITEMENT RECU </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
-
-               @if($derniereConsultation->produits && $derniereConsultation->produits->count() > 0)
-                <div class="col-12 mt-2">
-                    <strong class="text-dark">Médicaments / Produits prescrits :</strong>
-                    <ul class="list-group list-group-flush mt-1">
-                        @foreach($derniereConsultation->produits as $produit)
-                        <li class="list-group-item bg-white d-flex justify-content-between align-items-center py-2">
-                            <div>
-                                <span class="fw-bold">{{ $produit->nom ?? $produit->libelle }}</span>
-                                <br><small class="text-muted">Posologie : {{ $produit->pivot->posologie ?? 'N/A' }} | Voie : {{ $produit->pivot->voie_administration ?? 'N/A' }}</small>
-                            </div>
-                            <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite }}</span>
-                        </li>
-                        @endforeach
-                    </ul>
+            @if($derniereConsultation)
+                <p>{{ $derniereConsultation->examen_physique }}</p>
+            @else
+                <div class="alert alert-warning">
+                    Aucune consultation n'a encore été enregistrée pour ce dossier.
                 </div>
-                @endif    
+            @endif
         </div>
     </div>
 
-   
-  
+
+
+
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">4. TRAITEMENT RECU </h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
+
+            @if($derniereConsultation->produits && $derniereConsultation->produits->count() > 0)
+            <div class="col-12 mt-2">
+                <strong class="text-dark">Médicaments / Produits prescrits :</strong>
+                <ul class="list-group list-group-flush mt-1">
+                    @foreach($derniereConsultation->produits as $produit)
+                    <li class="list-group-item bg-white d-flex justify-content-between align-items-center py-2">
+                        <div>
+                            <span class="fw-bold">{{ $produit->nom ?? $produit->libelle }}</span>
+                            <br><small class="text-muted">Posologie : {{ $produit->pivot->posologie ?? 'N/A' }} | Voie : {{ $produit->pivot->voie_administration ?? 'N/A' }}</small>
+                        </div>
+                        <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite }}</span>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+        </div>
+    </div>
+
+
+
 
     {{-- Perspectives & Recommandations Thérapeutiques (Issues de la dernière consultation) --}}
     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">5. PERSPECTIVES & RECOMMANDATIONS THÉRAPEUTIQUES</h6>
@@ -297,12 +311,12 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         {{-- Affichage de l'ordonnance si renseignée --}}
         @if(!empty($derniereConsultation->ordonnance))
         <div class="mb-3 p-2 bg-light border rounded">
-           
+
             <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $derniereConsultation->ordonnance }}</p>
         </div>
         @endif
 
-        
+
     </div>
 
     {{-- Signatures --}}
