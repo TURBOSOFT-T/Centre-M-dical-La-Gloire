@@ -50,7 +50,25 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     @yield('header')
 
+<script>
+    function playSound(type = 'success') {
+        // Vous pouvez adapter le fichier selon le type (succès, erreur, etc.)
+        let audioPath1 = "{{ asset('audio/notification.mp3') }}";
+         const audioPath = new Audio('/icons/system-notification-199277.wav');
+        
+        let audio = new Audio(audioPath);
+        audio.play().catch(error => {
+            console.log("Lecture audio bloquée par les politiques du navigateur : ", error);
+        });
+    }
 
+    // Écouteur d'événement Livewire v3 pour déclencher le son à distance
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('play-notification', (event) => {
+            playSound(event.type);
+        });
+    });
+</script>
 
     <script>
         function url(url) {

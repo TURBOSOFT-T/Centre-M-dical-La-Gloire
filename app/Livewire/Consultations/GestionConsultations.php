@@ -946,6 +946,8 @@ public function openHistoriqueModal($id)
 if (method_exists($consultation, 'produits')) {
             $consultation->produits()->sync($syncData);
         }
+        $this->dispatch('play-notification', type: 'success');
+       
         session()->flash('message', $isEdit ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
         $this->closeModal();
     }

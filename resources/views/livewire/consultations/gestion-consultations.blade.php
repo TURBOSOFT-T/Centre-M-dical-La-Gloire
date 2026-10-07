@@ -5,7 +5,15 @@
         <i class="bx bx-check-circle me-1"></i> {{ session('message') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let audio =  new Audio('/icons/system-notification-199277.wav');
+            audio.play().catch(e => console.log("Autoplay bloqué :", e));
+        });
+    </script>
     @endif
+
+   
 
     <!-- EN-TÊTE AVEC FILTRE RAPIDE CAISSE -->
     <div class="card mb-4 border-0 shadow-sm radius-12">
