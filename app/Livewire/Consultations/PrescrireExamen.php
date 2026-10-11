@@ -224,7 +224,7 @@ class PrescrireExamen extends Component
 
         $demande->delete();
 
-        session()->flash('success_examen', 'L\'examen prescrit a été retiré de la consultation.');
+       // session()->flash('success_examen', 'L\'examen prescrit a été retiré de la consultation.');
         
         if ($this->demande_id == $demandeId) {
             $this->annulerEdition();

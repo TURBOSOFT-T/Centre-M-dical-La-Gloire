@@ -176,11 +176,12 @@
 
                                 {{-- Supprimer --}}
                                 <button wire:click="supprimerExamen({{ $demande->id }})"
-                                    wire:confirm="Êtes-vous sûr de vouloir supprimer cet examen prescrit ?"
+                                  
                                     class="btn btn-sm btn-outline-danger radius-8"
                                     title="Retirer cet examen">
                                     <i class="bx bx-trash"></i>
                                 </button>
+
                             </td>
                         </tr>
                         @endforeach
@@ -190,4 +191,13 @@
         </div>
         @endif
     </div>
+
+    <script>
+    function toggle_confirmation(id) {
+        const btn = document.getElementById('confirmBtn' + id);
+        if (btn) {
+            btn.classList.toggle('d-none');
+        }
+    }
+</script>
 </div>
