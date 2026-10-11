@@ -18,8 +18,8 @@ class PrescrireExamen extends Component
     public string $indication_medicale = '';
     public float $tarifTotal = 0.0;
 
-    public $analysesSelectionnees = []; // 1. Initialisation à vide ici
     public $caracteristiquesDisponibles = [];
+    public array $analysesSelectionnees = []; // Décoché par défaut
 
     // État d'édition
     public bool $isEditing = false;
@@ -36,7 +36,7 @@ class PrescrireExamen extends Component
     protected function messages(): array
     {
         return [
-            'examen_id.required'             => 'Veuillez sélectionner un examen dans le catalogue.',
+            'examen_id.required'            => 'Veuillez sélectionner un examen dans le catalogue.',
             'analysesSelectionnees.required' => 'Vous devez cocher au moins une analyse/sous-examen.',
             'analysesSelectionnees.min'      => 'Veuillez cocher au moins une analyse.',
         ];
@@ -45,18 +45,14 @@ class PrescrireExamen extends Component
     public function mount(Consultation $consultation)
     {
         $this->consultation = $consultation;
-
-           $this->caracteristiquesDisponibles = [/* ... */];
-
-        // 2. IMPORTANT : Ne remplissez PAS $analysesSelectionnees ici 
-        // Laissez-le vide pour que tout soit décoché par défaut.
-        $this->analysesSelectionnees = []; 
+        $this->caracteristiquesDisponibles = [];
+        $this->analysesSelectionnees = []; // Tout décoché par défaut
     }
 
     public function updatedExamenId($value)
     {
         if (!$this->isEditing) {
-            $this->analysesSelectionnees = [];
+            $this->analysesSelectionnees = []; // RESTE VIDE (Décoché par défaut)
             $this->tarifTotal = 0.0;
 
             if (!empty($value)) {
@@ -66,7 +62,7 @@ class PrescrireExamen extends Component
                         ? $examen->caracteristiques
                         : json_decode($examen->caracteristiques ?? '[]', true);
 
-                    $this->analysesSelectionnees = array_keys($this->caracteristiquesDisponibles);
+                    // On ne coche plus automatiquement ici
                     $this->recalculerTarif();
                 } else {
                     $this->caracteristiquesDisponibles = [];
@@ -93,20 +89,21 @@ class PrescrireExamen extends Component
         }
         $this->tarifTotal = $total;
     }
-    
-public function toggleToutCocher($cocher = false)
+
+    public function toggleToutCocher($cocher = true)
     {
         if ($cocher) {
-            $this->analysesSelectionnees = array_keys($this->caracteristiquesDisponibles);
+            $source = is_array($this->caracteristiquesDisponibles) 
+                ? $this->caracteristiquesDisponibles 
+                : collect($this->caracteristiquesDisponibles)->all();
+
+            $this->analysesSelectionnees = array_keys($source);
         } else {
-            $this->analysesSelectionnees = []; // Tout décoche
+            $this->analysesSelectionnees = []; // Tout décocher
         }
         
         $this->recalculerTarif();
     }
-
-
- 
 
     /**
      * Charger un examen prescrit pour modification
