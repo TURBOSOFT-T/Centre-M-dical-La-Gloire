@@ -23,7 +23,7 @@ return new class extends Migration
             // Spécificités Médicales / Pharmacie
             $table->boolean('avec_dci')->default(false);
             $table->string('dci')->nullable(); // Dénomination Commune Internationale (ex: Paracétamol)
-            $table->integer('grammage')->nullable(); // Ex: 500mg, 1g
+            $table->string('grammage')->nullable(); // Ex: 500mg, 1g
             $table->string('voie')->nullable(); // Ex: Comprimé sécable, Sirop, Voie orale, Injectable
             $table->boolean('sur_ordonnance')->default(false); // Si le médicament nécessite une prescription
 

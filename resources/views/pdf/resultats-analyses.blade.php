@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-    @php
+@php
 $config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
 
 // Détermination de l'image à utiliser pour le logo
@@ -16,6 +16,7 @@ if (file_exists($logoPath)) {
 $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
 }
 @endphp
+
 <head>
     <meta charset="UTF-8">
     <title>Résultats d'Analyses - {{ $consultation->code_consultation }}</title>
@@ -36,20 +37,24 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             border-bottom: 2px solid #0d6efd;
             padding-bottom: 10px;
         }
+
         .header-table td {
             vertical-align: middle;
         }
+
         .clinic-title {
             font-size: 18px;
             font-weight: bold;
             color: #0d6efd;
             text-transform: uppercase;
         }
+
         .clinic-sub {
             font-size: 10px;
             color: #555;
             margin-top: 2px;
         }
+
         .document-title {
             text-align: right;
             font-size: 15px;
@@ -57,6 +62,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             color: #212529;
             text-transform: uppercase;
         }
+
         .consultation-code {
             text-align: right;
             font-size: 11px;
@@ -73,11 +79,13 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             border: 1px solid #dee2e6;
             border-radius: 4px;
         }
+
         .info-table td {
             padding: 8px 12px;
             width: 50%;
             vertical-align: top;
         }
+
         .info-title {
             font-weight: bold;
             color: #0d6efd;
@@ -95,6 +103,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             border-radius: 6px;
             overflow: hidden;
         }
+
         .examen-header {
             background-color: #e2e8f0;
             padding: 6px 10px;
@@ -103,10 +112,12 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             color: #1e293b;
             border-bottom: 1px solid #cbd5e1;
         }
+
         .results-table {
             width: 100%;
             border-collapse: collapse;
         }
+
         .results-table th {
             background-color: #f1f5f9;
             color: #475569;
@@ -117,14 +128,17 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             text-transform: uppercase;
             border-bottom: 1px solid #cbd5e1;
         }
+
         .results-table td {
             padding: 6px 10px;
             border-bottom: 1px solid #e2e8f0;
             vertical-align: middle;
         }
+
         .results-table tr:last-child td {
             border-bottom: none;
         }
+
         .conclusion-box {
             background-color: #f8fafc;
             border-top: 1px solid #cbd5e1;
@@ -139,6 +153,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             margin-top: 25px;
             border-collapse: collapse;
         }
+
         .signatures td {
             width: 50%;
             text-align: center;
@@ -160,6 +175,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         }
     </style>
 </head>
+
 <body>
 
     <!-- EN-TÊTE -->
@@ -170,16 +186,16 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 <div class="clinic-sub">Service de Biologie Médicale & Résultats d'Analyses</div>
                 <div class="clinic-sub">Tél : {{ $config->telephone }}</div>
                 <div class="clinic-sub">E-mail : {{ $config->email }}</div>
-                 <div class="clinic-sub">Adresse : {{ $config->addresse }}</div>
+                <div class="clinic-sub">Adresse : {{ $config->addresse }}</div>
 
 
             </td>
-            
- <td class="logo-cell">
-                        @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" width="100" height="100" class="logo">
-                        @endif
-                    </td>
+
+            <td class="logo-cell">
+                @if(!empty($logoBase64))
+                <img src="{{ $logoBase64 }}" alt="logo" width="100" height="100" class="logo">
+                @endif
+            </td>
             <td>
                 <div class="document-title">Compte-Rendu d'Analyses</div>
                 <div class="consultation-code">Consultation N° {{ $consultation->code_consultation }}</div>
@@ -195,8 +211,8 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 <div class="info-title">Identité du Patient</div>
                 <strong>Nom & Prénom :</strong> {{ $consultation->patient->nom_complet }}<br>
                 <strong>Code Patient :</strong> {{ $consultation->patient->code_patient }}<br>
-                <strong>Sexe / Âge :</strong> 
-                {{ $consultation->patient->genre === 'M' ? 'Masculin' : 'Féminin' }} 
+                <strong>Sexe / Âge :</strong>
+                {{ $consultation->patient->genre === 'M' ? 'Masculin' : 'Féminin' }}
                 ({{ $consultation->patient->date_naissance ? $consultation->patient->date_naissance->age . ' ans' : '-' }})<br>
                 <strong>Téléphone :</strong> {{ $consultation->patient->telephone ?? '-' }}
             </td>
@@ -204,11 +220,11 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 <div class="info-title">Prescription & Réalisation</div>
                 <strong>Médecin Prescripteur :</strong> Dr. {{ $consultation->medecin?->name ?? $consultation->medecin?->nom ?? 'Non assigné' }}<br>
                 <strong>Date de Consultation :</strong> {{ $consultation->date_heure_rdv ? $consultation->date_heure_rdv->format('d/m/Y à H:i') : '-' }}<br>
-                <strong>Biologiste / Technicien :</strong> 
+                <strong>Biologiste / Technicien :</strong>
                 @if($demandes->first()?->realisateur)
-                    {{ $demandes->first()->realisateur->name ?? $demandes->first()->realisateur->nom }}
+                {{ $demandes->first()->realisateur->name ?? $demandes->first()->realisateur->nom }}
                 @else
-                    Laboratoire Central
+                Laboratoire Central
                 @endif
             </td>
         </tr>
@@ -216,54 +232,54 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
     <!-- BOUCLE SUR CHAQUE EXAMEN ET SES RÉSULTATS -->
     @foreach($demandes as $demande)
-        <div class="examen-section">
-            <div class="examen-header">
-                {{ $demande->examen->nom ?? 'Examen de Laboratoire' }} 
-                <span style="font-weight: normal; font-size: 10px; color: #475569; float: right;">
-                    Réf Demande : {{ $demande->code_demande }} | Statut : {{ ucfirst($demande->statut) }}
-                </span>
-            </div>
-
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40%;">Paramètre / Sous-analyse</th>
-                        <th style="width: 30%; text-align: center;">Valeur Trouvée (Résultat)</th>
-                        <th style="width: 30%; text-align: center;">Valeurs de Référence (Normes)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if(is_array($demande->analyses_demandees) && count($demande->analyses_demandees) > 0)
-                        @foreach($demande->analyses_demandees as $analyse)
-                            <tr>
-                                <td><strong>{{ $analyse['nom'] ?? '-' }}</strong></td>
-                                <td style="text-align: center; font-weight: bold; color: #0d6efd;">
-                                    {{ $analyse['resultat'] ?? 'En attente' }}
-                                </td>
-                                <td style="text-align: center; color: #64748b;">
-                                    {{ $analyse['norme'] ?? '-' }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    @else
-                        <tr>
-                            <td colspan="3" style="text-align: center; color: #64748b;">Aucun sous-paramètre renseigné.</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
-  @if($demande->indication_medicale )
-    <div class="conclusion-box">
-        <strong>Indication medicale :</strong> {{ $demande->indication_medicale }}
-    </div>
-    @endif
-    
-            @if(!empty($demande->conclusion))
-                <div class="conclusion-box">
-                    <strong>Conclusion / Interprétation :</strong> {{ $demande->conclusion }}
-                </div>
-            @endif
+    <div class="examen-section">
+        <div class="examen-header">
+            {{ $demande->examen->nom ?? 'Examen de Laboratoire' }}
+            <span style="font-weight: normal; font-size: 10px; color: #475569; float: right;">
+                Réf Demande : {{ $demande->code_demande }} | Statut : {{ ucfirst($demande->statut) }}
+            </span>
         </div>
+
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th style="width: 40%;">Paramètre / Sous-analyse</th>
+                    <th style="width: 30%; text-align: center;">Valeur Trouvée (Résultat)</th>
+                    <th style="width: 30%; text-align: center;">Valeurs de Référence (Normes)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(is_array($demande->analyses_demandees) && count($demande->analyses_demandees) > 0)
+                @foreach($demande->analyses_demandees as $analyse)
+                <tr>
+                    <td><strong>{{ $analyse['nom'] ?? '-' }}</strong></td>
+                    <td style="text-align: center; font-weight: bold; color: #0d6efd;">
+                        {{ $analyse['resultat'] ?? 'En attente' }}
+                    </td>
+                    <td style="text-align: center; color: #64748b;">
+                        {{ $analyse['norme'] ?? '-' }}
+                    </td>
+                </tr>
+                @endforeach
+                @else
+                <tr>
+                    <td colspan="3" style="text-align: center; color: #64748b;">Aucun sous-paramètre renseigné.</td>
+                </tr>
+                @endif
+            </tbody>
+        </table>
+        @if($demande->indication_medicale )
+        <div class="conclusion-box">
+            <strong>Indication medicale :</strong> {{ $demande->indication_medicale }}
+        </div>
+        @endif
+
+        @if(!empty($demande->conclusion))
+        <div class="conclusion-box">
+            <strong>Conclusion / Interprétation :</strong> {{ $demande->conclusion }}
+        </div>
+        @endif
+    </div>
     @endforeach
 
     <!-- SIGNATURES -->
@@ -286,4 +302,5 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     </div>
 
 </body>
+
 </html>

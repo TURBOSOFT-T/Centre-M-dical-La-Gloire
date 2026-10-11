@@ -44,7 +44,7 @@ class AjouterCommande extends Component
         $this->key = '';
         $this->produits = [];
     }
-   protected function rules()
+    protected function rules()
     {
         return [
             'nom' => 'required|string|max:100',
@@ -63,7 +63,7 @@ class AjouterCommande extends Component
             'taux_couverture' => 'nullable|integer|min:0|max:100',
 
             'telephone' => 'required|string|max:20|unique:patients,telephone,' . $this->patient_id,
-          
+
             'email' => 'nullable|email|max:100',
             'adresse' => 'nullable|string|max:150',
             'ville' => 'nullable|string|max:100',
@@ -84,23 +84,23 @@ class AjouterCommande extends Component
             $this->clients = [];
         }
     }
-public function import($clientId)
-{
-    // Si $clientId est un entier, on récupère le modèle Client
-    $client = Patient::find($clientId);
+    public function import($clientId)
+    {
+        // Si $clientId est un entier, on récupère le modèle Client
+        $client = Patient::find($clientId);
 
-    if ($client) {
-        $this->nom = $client->nom;
-        $this->prenom = $client->prenom;
-        $this->adresse = $client->adresse;
-        $this->telephone = $client->telephone;
+        if ($client) {
+            $this->nom = $client->nom;
+            $this->prenom = $client->prenom;
+            $this->adresse = $client->adresse;
+            $this->telephone = $client->telephone;
 
-        $this->recherche = "";
-        $this->clients = [];
+            $this->recherche = "";
+            $this->clients = [];
 
-        session()->flash("message", "Patient/Client importé avec succès.");
+            session()->flash("message", "Patient/Client importé avec succès.");
+        }
     }
-}
     public function import1($client)
     {
         $this->nom = $client["nom"];
@@ -262,22 +262,22 @@ public function import($clientId)
     }
     public function order()
     {
-     $validatedData =   $this->validate([
+        $validatedData =   $this->validate([
             'nom' => 'required|string|max:100',
             'prenom' => 'nullable|string|max:100',
             'adresse' => 'nullable|string|max:150',
-          
-        //    'telephone' => 'required|string|max:20|unique:patients,telephone,' . $this->patient_id,
-         
-            
+
+            //    'telephone' => 'required|string|max:20|unique:patients,telephone,' . $this->patient_id,
+
+
             'shop_id' => 'required',
         ]);
 
         $user_id = Auth::check() ? Auth::id() : null;
         $caisse_id = Auth::id();
         $final_shop_id = $this->shop_id;
-  // 5. Génération automatique du code patient et de l'UUID (Création vs Modification)
-        if ( empty($this->patient_id)) {
+        // 5. Génération automatique du code patient et de l'UUID (Création vs Modification)
+        if (empty($this->patient_id)) {
             if (empty($validatedData['code_patient'])) {
                 $validatedData['code_patient'] = 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5));
             }
@@ -289,22 +289,40 @@ public function import($clientId)
             $validatedData['is_synced'] = false;
         }
 
+
+        $patientExistant = null;
+        if (!empty($this->telephone)) {
+            $patientExistant = Patient::where('telephone', $this->telephone)->first();
+        }
+
+        if ($patientExistant) {
+            $this->patient_id = $patientExistant->id;
+            session()->flash('info', "Ce patient existait déjà dans la base de données. Il a été associé automatiquement.");
+        } else {
+            $nouveauPatient = Patient::create([
+                'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+                'uuid'         => (string) Str::uuid(),
+                'nom'          => $this->nom,
+                'telephone'    => $this->telephone,
+                'is_synced'    => false,
+            ]);
+
+            $this->patient_id = $nouveauPatient->id;
+        }
+
         // 6. Enregistrement / Mise à jour sécurisé
         $patient = Patient::updateOrCreate(
-         ['telephone' => $this->telephone],    
-        [
-        $validatedData,    
-        'id' => $this->patient_id,],
-        
-        $validatedData);
-
-        // Gestion du client
-       /*  $client = Patient::updateOrCreate(
-              ['uuid' => $this->Str::uuid()],
             ['telephone' => $this->telephone],
-            ['nom' => $this->nom],
-           
-        ); */
+
+            [
+                'uuid'         => (string) Str::uuid(),
+                $validatedData,
+                'id' => $this->patient_id,
+            ],
+
+            $validatedData
+        );
+
 
         $reference = 'CMlG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
         $panier = session()->get('panier', []);
@@ -372,5 +390,4 @@ public function import($clientId)
             session()->flash('warning', 'Votre panier est vide.');
         }
     }
-   
 }

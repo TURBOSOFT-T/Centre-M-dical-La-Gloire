@@ -231,7 +231,21 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             </div>
         </div>
     </div>
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. ANTECEDENTS </h6>
+
+
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. MOTIF DE CONSULTATION </h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
+
+
+            @if($derniereConsultation)
+            <p>{{ $derniereConsultation->motif }}</p>
+            @else
+            <p class="text-muted">Aucun motif.</p>
+            @endif
+        </div>
+    </div>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. ANTECEDENTS </h6>
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
@@ -245,33 +259,160 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     </div>
 
 
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. EXAMEN GENERAL </h6>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. EXAMEN GENERAL </h6>
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-           @if($derniereConsultation)
-    <!-- Tout le contenu de la dernière consultation ici -->
-    <p>{{ $derniereConsultation->examen_general }}</p>
-@else
-    <div class="alert alert-warning">
-        Aucune consultation n'a encore été enregistrée pour ce dossier.
-    </div>
-@endif
+            @if($derniereConsultation)
+            <!-- Tout le contenu de la dernière consultation ici -->
+            <p>{{ $derniereConsultation->examen_general }}</p>
+            @else
+            <div class="alert alert-warning">
+                Aucune consultation n'a encore été enregistrée pour ce dossier.
+            </div>
+            @endif
 
         </div>
     </div>
 
 
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. EXAMEN PHYSIQUE </h6>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">4. EXAMEN PHYSIQUE </h6>
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
             @if($derniereConsultation)
-                <p>{{ $derniereConsultation->examen_physique }}</p>
+            <p>{{ $derniereConsultation->examen_physique }}</p>
             @else
-                <div class="alert alert-warning">
-                    Aucune consultation n'a encore été enregistrée pour ce dossier.
+            <div class="alert alert-warning">
+                Aucune consultation n'a encore été enregistrée pour ce dossier.
+            </div>
+            @endif
+        </div>
+    </div>
+
+
+    {{-- SECTION : DÉTAILS DE LA DERNIÈRE CONSULTATION --}}
+    @if(isset($derniereConsultation) && $derniereConsultation)
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">5. SYNTHÈSE DE LA DERNIÈRE CONSULTATION ({{ optional($derniereConsultation->date_heure_rdv ?? $derniereConsultation->created_at)->format('d/m/Y') }})</h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
+           
+
+            <table class="table table-bordered mb-4 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Médecin Praticien</th>
+                        <th>Motif</th>
+                        <th>Diagnostic Posé</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($dossier->consultations as $c)
+                    <tr>
+                        <td>{{ optional($c->date_heure_rdv ?? $c->created_at)->format('d/m/Y') }}</td>
+                        <td>Dr. {{ optional($c->medecin)->nom ?? optional($c->medecin)->name ?? 'Praticien' }}</td>
+                        <td>{{ $c->motif ?: '-' }}</td>
+                        <td><strong class="text-success">{{ $c->diagnostic ?: '-' }}</strong></td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Aucune consultation enregistrée.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    @endif
+
+    <!-- SECTION DES ANALYSES PRESCRITES -->
+    @if($derniereConsultation->demandesExamens && $derniereConsultation->demandesExamens->count() > 0)
+    <div class="mt-4 border-top pt-3">
+         <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">6. EXAMENS FAITS ET RESULTATS    ({{ $derniereConsultation->demandesExamens->count() }})</h6>
+    
+        <div class="d-flex justify-content-between align-items-center mb-3">
+           
+        </div>
+
+        @foreach($derniereConsultation->demandesExamens as $dEx)
+        <div class="card border mb-3">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                <span class="font-weight-bold text-primary">
+                    <i class="bx bx-chevron-right me-1"></i> {{ $dEx->examen->nom ?? 'Examen' }} (Code: {{ $dEx->code_demande }})
+                </span>
+                <span class="badge {{ $dEx->statut_badge ?? 'bg-secondary' }}">{{ ucfirst($dEx->statut) }}</span>
+            </div>
+            <div class="card-body p-2">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle mb-1">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sous-analyse</th>
+                                <th class="text-center">Valeur / Résultat</th>
+                                <th class="text-center">Valeurs de Référence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(is_array($dEx->analyses_demandees) && count($dEx->analyses_demandees) > 0)
+                            @foreach($dEx->analyses_demandees as $an)
+                            <tr>
+                                <td class="fw-bold">{{ $an['nom'] ?? '-' }}</td>
+                                <td class="text-center text-primary font-weight-bold">
+                                    {{ !empty($an['resultat']) ? $an['resultat'] : 'En attente' }}
+                                </td>
+                                <td class="text-center text-muted">
+                                    {{ !empty($an['norme']) ? $an['norme'] : '-' }}
+                                </td>
+                            </tr>
+                            @endforeach
+                            @else
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Aucune donnée disponible.</td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
+
+                @if(!empty($dEx->indication_medicale))
+                <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
+                    <strong>Indication médicale :</strong> {{ $dEx->indication_medicale }}
+                </div>
+                @endif
+
+                @if(!empty($dEx->conclusion))
+                <div class="alert alert-info py-1 px-2 mb-0 mt-2 small">
+                    <strong>Conclusion / Remarques :</strong> {{ $dEx->conclusion }}
+                </div>
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">7. TRAITEMENT RECU </h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
+
+            @if($derniereConsultation?->produits && $derniereConsultation->produits->count() > 0)
+            <div class="col-12 mt-2">
+                <strong class="text-dark">Médicaments / Produits prescrits :</strong>
+                <ul class="list-group list-group-flush mt-1">
+                    @foreach($derniereConsultation->produits as $produit)
+                    <li class="list-group-item bg-white d-flex justify-content-between align-items-center py-2">
+                        <div>
+                            <span class="fw-bold">{{ $produit->nom ?? $produit->libelle }}</span>
+                            <br><small class="text-muted">Posologie : {{ $produit->pivot->posologie ?? 'N/A' }} | Voie : {{ $produit->pivot->voie_administration ?? 'N/A' }}</small>
+                        </div>
+                        <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite }}</span>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
             @endif
         </div>
     </div>
@@ -279,34 +420,8 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
 
 
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">4. TRAITEMENT RECU </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
-
-         @if($derniereConsultation?->produits && $derniereConsultation->produits->count() > 0)
-    <div class="col-12 mt-2">
-        <strong class="text-dark">Médicaments / Produits prescrits :</strong>
-        <ul class="list-group list-group-flush mt-1">
-            @foreach($derniereConsultation->produits as $produit)
-                <li class="list-group-item bg-white d-flex justify-content-between align-items-center py-2">
-                    <div>
-                        <span class="fw-bold">{{ $produit->nom ?? $produit->libelle }}</span>
-                        <br><small class="text-muted">Posologie : {{ $produit->pivot->posologie ?? 'N/A' }} | Voie : {{ $produit->pivot->voie_administration ?? 'N/A' }}</small>
-                    </div>
-                    <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite }}</span>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-        </div>
-    </div>
-
-
-
-
     {{-- Perspectives & Recommandations Thérapeutiques (Issues de la dernière consultation) --}}
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">5. PERSPECTIVES & RECOMMANDATIONS THÉRAPEUTIQUES</h6>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">8. PERSPECTIVES & RECOMMANDATIONS THÉRAPEUTIQUES</h6>
     <div class="card mb-4 border-primary p-3 bg-white">
         {{-- Affichage de l'ordonnance si renseignée --}}
         @if(!empty($derniereConsultation->ordonnance))

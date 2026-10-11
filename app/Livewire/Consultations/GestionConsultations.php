@@ -293,6 +293,7 @@ public function openHistoriqueModal($id)
     }
 
     #[On('examenPrescrit')]
+    
     public function rafraichirConsultation()
     {
         if ($this->selectedConsultationId) {
@@ -423,48 +424,8 @@ public function openHistoriqueModal($id)
         $this->closePaiementModal();
     }
 
-    public function enregistrerVersement2()
-    {
-        if (!$this->consultationEnPaiement) return;
+   
 
-        $totalDu = $this->consultationEnPaiement->tarif_brut + $this->consultationEnPaiement->demandesExamens->sum('tarif_brut');
-        $resteAEncaisser = max(0, $totalDu - ($this->consultationEnPaiement->montant_paye ?? 0));
-
-        $tarifProduits = 0;
-        if ($this->consultationEnPaiement->relationLoaded('produits') ? $this->consultationEnPaiement->produits : $this->consultationEnPaiement->produits()->exists()) {
-            foreach ($this->consultationEnPaiement->produits as $prod) {
-                $qte = $prod->pivot->quantite ?? 1;
-                $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
-                $tarifProduits += ($qte * $pu);
-            }
-        }
-        $this->validate([
-            'montantEncaissement' => "required|numeric|min:1|max:{$resteAEncaisser}",
-        ], [
-            'montantEncaissement.max' => 'Le versement ne peut pas dépasser le reste à payer (' . number_format($resteAEncaisser, 0, ',', ' ') . ' FCFA).',
-        ]);
-
-        $nouveauMontantPaye = (float) ($this->consultationEnPaiement->montant_paye ?? 0) + (float) $this->montantEncaissement;
-
-        $historique = is_array($this->consultationEnPaiement->historique_paiements) ? $this->consultationEnPaiement->historique_paiements : [];
-        $historique[] = [
-            'date'     => date('d/m/Y H:i'),
-            'montant' => $this->montantEncaissement,
-            'mode'    => $this->modePaiement,
-            'caissier' => auth()->user()->nom ?? 'Caisse',
-        ];
-
-        $estPayeComplet = $nouveauMontantPaye >= $totalDu;
-
-        $this->consultationEnPaiement->update([
-            'montant_paye'         => $nouveauMontantPaye,
-            'est_paye'             => $estPayeComplet,
-            'historique_paiements' => $historique,
-        ]);
-
-        session()->flash('message', 'Encaissement de ' . number_format($this->montantEncaissement, 0, ',', ' ') . ' FCFA enregistré avec succès.');
-        $this->closePaiementModal();
-    }
 
     public function filtrerEnAttentePaiement()
     {
@@ -1295,6 +1256,8 @@ if (method_exists($consultation, 'produits')) {
                   ->orWhere('description', 'like', '%' . $this->searchProduit . '%');
             })->limit(10)->get();
         }
+
+        
 
         return view('livewire.consultations.gestion-consultations', [
             'consultations' => $consultations,

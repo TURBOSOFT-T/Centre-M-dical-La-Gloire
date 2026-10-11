@@ -37,12 +37,12 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             position: fixed;
             top: 40%;
             left: 5%;
-            width: 90%;
+            width: 80%;
             text-align: center;
             opacity: 0.08;
             font-size: 110px;
             font-weight: bold;
-            color: #000000;
+            color: #886f6f;
             transform: rotate(-35deg);
             transform-origin: 50% 50%;
             z-index: -1000;
@@ -57,14 +57,14 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
         /* Styles de l'en-tête de l'entreprise */
         .invoice-header {
-            width: 70%;
+            width: 80%;
             margin-bottom: 30px;
             border-bottom: 2px solid #333;
             padding-bottom: 15px;
         }
 
         .header-table {
-            width: 70%;
+            width: 80%;
             border-collapse: collapse;
             border: none;
         }
@@ -78,7 +78,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         .company-details {
             text-align: left;
             /* Aligné à gauche */
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.5;
         }
 
@@ -99,7 +99,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         }
 
         table {
-            width: 70%;
+            width: 80%;
             border-collapse: collapse;
             margin-top: 20px;
             background-color: transparent;
@@ -200,10 +200,10 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 @endphp
                 @foreach ($commande->contenus as $item)
                 <tr>
-                    <td class="text-left" colspan="1">{{ $item->produit->nom }}</td>
+                    <td class="text-left" colspan="1" style=" font-weight: bold;">{{ $item->produit->nom }}</td>
                     <td class="text-left">{{ $item->quantite }}</td>
-                    <td class="text-left">{{ $item->prix_unitaire }} <x-devise></x-devise></td>
-                    <td class="text-left">{{ $item->prix_unitaire * $item->quantite }} <x-devise></x-devise></td>
+                    <td class="text-left" style="font-weight: bold;">{{ $item->prix_unitaire }} <x-devise></x-devise></td>
+                    <td class="text-left" style="font-weight: bold;">{{ $item->prix_unitaire * $item->quantite }} <x-devise></x-devise></td>
                 </tr>
                 @php
                 $total += ($item->prix_unitaire * $item->quantite);
@@ -218,7 +218,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                         <b>{{ \App\Helpers\TranslationHelper::TranslateText('Total de la commande') }}:</b>
                     </td>
                     <td>
-                        <b>{{ $total }} <x-devise></x-devise></b>
+                        <b style="font-weight: bold;">{{ $total }} <x-devise></x-devise></b>
                     </td>
                 </tr>
             </tbody>

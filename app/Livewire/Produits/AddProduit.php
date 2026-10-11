@@ -106,7 +106,7 @@ class AddProduit extends Component
 
             'avec_dci'   => 'required|boolean',
             'dci'        => 'required_if:avec_dci,true|nullable|string',
-            'grammage'        => 'nullable|integer|min:0',
+            'grammage'        => 'nullable',
             // Validation de la péremption et du lot
             'date_peremption'   => 'nullable|date',
             'numero_lot'        => 'nullable|string|max:255',
@@ -168,7 +168,7 @@ class AddProduit extends Component
                 'is_new'            => 'nullable|boolean',
                 'avec_dci'   => 'required|boolean',
                 'dci'        => 'required_if:avec_dci,true|nullable|string',
-                'grammage'        => 'required_if:avec_dci,true|nullable|integer|min:0',
+               
             ]);
 
             $this->produit->nom = $this->nom;

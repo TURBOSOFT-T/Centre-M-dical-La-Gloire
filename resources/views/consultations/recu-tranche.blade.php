@@ -172,52 +172,7 @@
             </tr>
         </thead>
         <tbody>
-            {{-- 1. Consultation --}}
-            <tr>
-                <td>Consultation ({{ ucfirst(str_replace('_', ' ', $consultation->type ?? 'standard')) }})</td>
-                <td class="text-end">{{ number_format($tarifConsultation, 0, ',', ' ') }}</td>
-            </tr>
-
-            {{-- 2. Examens --}}
-            @if($consultation->relationLoaded('demandesExamens') && $consultation->demandesExamens)
-                @foreach($consultation->demandesExamens as $demande)
-                <tr>
-                    <td>Examen : {{ $demande->examen->nom ?? 'Examen médical' }}</td>
-                    <td class="text-end">{{ number_format($demande->tarif_brut ?? 0, 0, ',', ' ') }}</td>
-                </tr>
-                @endforeach
-            @endif
-
-            {{-- 3. Produits prescrits directement --}}
-            @if($produitsPrescrits && $produitsPrescrits->count() > 0)
-                @foreach($produitsPrescrits as $prod)
-                @php
-                    $qte = $prod->pivot->quantite ?? 1;
-                    $pu =  $prod->pivot->prix ?? $prod->prix ?? 0;
-                    $sousTotalProd = $qte * $pu;
-                @endphp
-                <tr>
-                    <td>Médicament / Produit : {{ $prod->nom ?? 'Produit' }} (Qte: {{ $qte }})</td>
-                    <td class="text-end">{{ number_format($sousTotalProd, 0, ',', ' ') }}</td>
-                </tr>
-                @endforeach
-            @endif
-
-            {{-- 4. Produits issus d'une Commande liée --}}
-            @if($lignesCommande && $lignesCommande->count() > 0)
-                @foreach($lignesCommande as $ligne)
-                @php
-                    $qteCmd = $ligne->quantite ?? 1;
-                    $puCmd = $ligne->prix_unitaire ?? $ligne->prix ?? 0;
-                    $sousTotalCmd = $qteCmd * $puCmd;
-                    $nomProduit = $ligne->produit->nom ?? $ligne->nom ?? 'Article de commande';
-                @endphp
-                <tr>
-                    <td>Commande Produit : {{ $nomProduit }} (Qte: {{ $qteCmd }})</td>
-                    <td class="text-end">{{ number_format($sousTotalCmd, 0, ',', ' ') }}</td>
-                </tr>
-                @endforeach
-            @endif
+           
         </tbody>
         <tfoot>
             {{-- Si une assurance s'applique --}}
