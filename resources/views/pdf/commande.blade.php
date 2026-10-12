@@ -25,120 +25,123 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         {{ \App\Helpers\TranslationHelper::TranslateText('Reçu de commande') }}
     </title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            color: #333;
-            position: relative;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        color: #333;
+        position: relative;
+    }
 
-        /* Style du filigrane anti-fraude */
-        .watermark {
-            position: fixed;
-            top: 40%;
-            left: 5%;
-            width: 80%;
-            text-align: center;
-            opacity: 0.08;
-            font-size: 110px;
-            font-weight: bold;
-            color: #886f6f;
-            transform: rotate(-35deg);
-            transform-origin: 50% 50%;
-            z-index: -1000;
-            user-select: none;
-        }
+    /* Style du filigrane anti-fraude */
+    .watermark {
+        position: fixed;
+        top: 40%;
+        left: 5%;
+        width: 80%;
+        text-align: center;
+        opacity: 0.08;
+        font-size: 110px;
+        font-weight: bold;
+        color: #886f6f;
+        transform: rotate(-35deg);
+        transform-origin: 50% 50%;
+        z-index: -1000;
+        user-select: none;
+    }
 
-        .container {
-            padding: 20px;
-            position: relative;
-            z-index: 1;
-        }
+    .container {
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+    }
 
-        /* Styles de l'en-tête de l'entreprise */
-        .invoice-header {
-            width: 80%;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-        }
+    /* Styles de l'en-tête de l'entreprise */
+    .invoice-header {
+        width: 80%;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #333;
+        padding-bottom: 15px;
+    }
 
-        .header-table {
-            width: 80%;
-            border-collapse: collapse;
-            border: none;
-        }
+    .header-table {
+        width: 80%;
+        border-collapse: collapse;
+        border: none;
+    }
 
-        .header-table td {
-            border: none;
-            padding: 0;
-            vertical-align: middle;
-        }
+    .header-table td {
+        border: none;
+        padding: 0;
+        vertical-align: middle;
+    }
 
-        .company-details {
-            text-align: left;
-            /* Aligné à gauche */
-            font-size: 14px;
-            line-height: 1.5;
-        }
+    .company-details {
+        text-align: left;
+        font-size: 14px;
+        line-height: 1.5;
+    }
 
-        .company-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+    .company-name {
+        font-size: 18px; /* <-- Taille de l'en-tête à 18px */
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
 
-        .logo-cell {
-            text-align: right;
-            /* Aligne le logo à droite */
-        }
+    /* Si vous voulez aussi appliquer 18px aux titres de section h3 / h5 */
+    h3, h5 {
+        font-size: 18px;
+    }
 
-        .logo {
-            max-width: 150px;
-            height: auto;
-        }
+    .logo-cell {
+        text-align: right;
+    }
 
-        table {
-            width: 80%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: transparent;
-        }
+    .logo {
+        max-width: 150px;
+        height: auto;
+    }
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
+    table {
+        width: 80%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: transparent;
+    }
 
-        th {
-            background-color: #f2f2f2;
-        }
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
 
-        .tr-montant {
-            color: white !important;
-            background-color: #000000;
-        }
+    th {
+        background-color: #f2f2f2;
+    }
 
-        .tr-montant td {
-            border: 1px solid #000000;
-        }
+    .tr-montant {
+        color: white !important;
+        background-color: #000000;
+    }
 
-        .text-right {
-            text-align: right !important;
-        }
+    .tr-montant td {
+        border: 1px solid #000000;
+    }
 
-        .text-center {
-            text-align: center !important;
-        }
+    .text-right {
+        text-align: right !important;
+    }
 
-        hr {
-            border: 0;
-            border-top: 1px solid #ddd;
-            margin: 20px 0;
-        }
-    </style>
+    .text-center {
+        text-align: center !important;
+    }
+
+    hr {
+        border: 0;
+        border-top: 1px solid #ddd;
+        margin: 20px 0;
+    }
+</style>
 </head>
 
 <body>
