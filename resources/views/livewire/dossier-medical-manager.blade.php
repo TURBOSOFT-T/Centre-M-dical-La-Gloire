@@ -349,12 +349,7 @@
                         <span class="badge bg-info text-dark ms-1">{{ $selectedDossier->rendezVous->count() }}</span>
                     </button>
                 </li>
-                <li class="nav-item">
-                    <button class="nav-link {{ $activeTab === 'examens' ? 'active fw-bold' : '' }}" wire:click="switchTab('examens')">
-                        <i class="bi bi-vial me-1"></i> Examens Biol.
-                        <span class="badge bg-warning text-dark ms-1">{{ $selectedDossier->demandesExamens->count() }}</span>
-                    </button>
-                </li>
+               
             </ul>
         </div>
 

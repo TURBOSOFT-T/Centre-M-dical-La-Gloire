@@ -235,6 +235,7 @@ class HospitalisationManager extends Component
             'date_sortie_prevue' => $dateSortiePrevue ?: null,
             'motif_admission' => $this->motif_admission,
             'diagnostic_entree' => $this->diagnostic_entree,
+            'nombre_jours'      =>$this->nombre_jours,
             'tarif_journalier' => floatval($this->tarif_journalier),
             'frais_soins_chambre' => floatval($this->frais_soins_chambre),
             'part_assurance' => floatval($this->part_assurance),

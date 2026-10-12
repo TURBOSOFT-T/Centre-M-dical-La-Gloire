@@ -235,28 +235,34 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. MOTIF DE LA CONSULTATION </h6>
     <div class="card mb-4 border-primary shadow-sm">
+         @if(!empty($derniereConsultation->motif))
         <div class="card-body bg-light">
 
-            {{ $derniereConsultation->motif ?: 'Aucun motif spécifique.' }}
+            {{ $derniereConsultation->motif  ??  'Aucun motif spécifique.' }}
         </div>
+        @endif
     </div>
 
 
     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. HISTORIQUE DE LA MALADIE </h6>
     <div class="card mb-4 border-primary shadow-sm">
+         @if(!empty($derniereConsultation->historique_maladie))
         <div class="card-body bg-light">
 
-            {{ $derniereConsultation->historique_maladie ?: 'RAS.' }}
+            {{ $derniereConsultation->historique_maladie ??  'RAS.' }}
         </div>
+        @endif
     </div>
 
 
     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. ANTECEDENTS </h6>
     <div class="card mb-4 border-primary shadow-sm">
+         @if(!empty($derniereConsultation->antecedents_maladie))
         <div class="card-body bg-light">
 
-            {{ $derniereConsultation->antecedents_maladie ?: 'Aucun antécédent médical spécifique consigné.' }}
+            {{ $derniereConsultation->antecedents_maladie ??  'Aucun antécédent médical spécifique consigné.' }}
         </div>
+        @endif
     </div>
 
 
@@ -264,7 +270,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-            {{ $derniereConsultation->examen_general ?: 'Aucun examen général effectué.' }}
+            {{ $derniereConsultation->examen_general ??  'Aucun examen général effectué.' }}
         </div>
     </div>
 
@@ -273,7 +279,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-            {{ $derniereConsultation->examen_physique ?: 'Aucun examen physique effectué.' }}
+            {{ $derniereConsultation->examen_physique ??  'Aucun examen physique effectué.' }}
         </div>
     </div>
 
@@ -353,7 +359,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         @if(!empty($derniereConsultation->ordonnance))
         <div class="mb-3 p-2 bg-light border rounded">
 
-            <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $derniereConsultation->ordonnance }}</p>
+            <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $derniereConsultation->ordonnance ?? '' }}</p>
         </div>
         @endif
 

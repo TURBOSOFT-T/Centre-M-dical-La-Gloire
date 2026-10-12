@@ -687,6 +687,8 @@ public function openHistoriqueModal($id)
                 ]);
 
                 $this->patient_id = $nouveauPatient->id;
+
+                
             }
         }
 

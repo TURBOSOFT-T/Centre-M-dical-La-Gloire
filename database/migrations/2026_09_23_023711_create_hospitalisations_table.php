@@ -30,6 +30,7 @@ return new class extends Migration
             $table->dateTime('date_entree')->nullable();
             $table->dateTime('date_sortie_prevue')->nullable();
             $table->dateTime('date_sortie_effective')->nullable();
+             $table->string('nombre_jours')->nullable();
 
 
                $table->enum('type_prise_en_charge', ['observation', 'hospitalisation'])
