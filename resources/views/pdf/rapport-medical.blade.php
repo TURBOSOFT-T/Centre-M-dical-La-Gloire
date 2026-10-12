@@ -285,12 +285,11 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
 
 
-
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">6. TRAITEMENT RECU </h6>
+<h6 class="fw-bold text-primary border-bottom pb-2 mb-3">6. TRAITEMENT RECU </h6>
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
-            @if($derniereConsultation->produits && $derniereConsultation->produits->count() > 0)
+            @if($derniereConsultation?->produits && $derniereConsultation->produits->count() > 0)
             <div class="col-12 mt-2">
                 <strong class="text-dark">Médicaments / Produits prescrits :</strong>
                 <ul class="list-group list-group-flush mt-1">
@@ -305,6 +304,8 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                     @endforeach
                 </ul>
             </div>
+            @else
+            <p class="text-muted mb-0">Aucun traitement consigné pour cette consultation.</p>
             @endif
         </div>
     </div>
