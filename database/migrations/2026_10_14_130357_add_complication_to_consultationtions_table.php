@@ -6,19 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('consultations', function (Blueprint $table) {
-            $table->json('bilan')->nullable()->after('ordonnance'); // Stockage des examens à cocher
-            $table->text('terrain')->nullable()->after('antecedents_maladie'); // Particularités / Allergies / Terrain
-            $table->text('resultats')->nullable()->after('resultats_analyses'); // Résultats textuels détaillés
+            //
+             $table->text('complication')->nullable();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('consultations', function (Blueprint $table) {
-            $table->dropColumn(['bilan', 'terrain', 'resultats']);
+            //
         });
     }
 };

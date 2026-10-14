@@ -235,7 +235,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. MOTIF DE LA CONSULTATION </h6>
     <div class="card mb-4 border-primary shadow-sm">
-         @if(!empty($derniereConsultation->motif))
+        @if(!empty($derniereConsultation->motif))
         <div class="card-body bg-light">
 
             {{ $derniereConsultation->motif  ??  'Aucun motif spécifique.' }}
@@ -244,9 +244,9 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     </div>
 
 
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. HISTORIQUE DE LA MALADIE </h6>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. HISTOIRE DE LA MALADIE </h6>
     <div class="card mb-4 border-primary shadow-sm">
-         @if(!empty($derniereConsultation->historique_maladie))
+        @if(!empty($derniereConsultation->historique_maladie))
         <div class="card-body bg-light">
 
             {{ $derniereConsultation->historique_maladie ??  'RAS.' }}
@@ -257,7 +257,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. ANTECEDENTS </h6>
     <div class="card mb-4 border-primary shadow-sm">
-         @if(!empty($derniereConsultation->antecedents_maladie))
+        @if(!empty($derniereConsultation->antecedents_maladie))
         <div class="card-body bg-light">
 
             {{ $derniereConsultation->antecedents_maladie ??  'Aucun antécédent médical spécifique consigné.' }}
@@ -284,8 +284,24 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     </div>
 
 
+     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">6. DIAGNOSTIQUE POSITIF </h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
 
-<h6 class="fw-bold text-primary border-bottom pb-2 mb-3">6. TRAITEMENT RECU </h6>
+            {{ $derniereConsultation->diagnostic ??  'Aucun diagnostique effectué.' }}
+        </div>
+    </div>
+
+ <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">7. COMPLICATION </h6>
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body bg-light">
+
+            {{ $derniereConsultation->diagnostic ??  'Aucune complication.' }}
+        </div>
+    </div>
+
+
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">8. TRAITEMENT RECU </h6>
     <div class="card mb-4 border-primary shadow-sm">
         <div class="card-body bg-light">
 
@@ -312,7 +328,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     {{-- Section 7 : Évolution de la maladie et visites journalières --}}
     <div style="margin-top: 20px; margin-bottom: 20px;">
 
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">7. ÉVOLUTION DE LA MALADIE</h6>
+        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">9. ÉVOLUTION DE LA MALADIE</h6>
 
         <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px;">
 
@@ -354,7 +370,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     </div>
 
     {{-- Perspectives & Recommandations Thérapeutiques (Issues de la dernière consultation) --}}
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">8. ORDONNANCE DE SORTIE</h6>
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">10. ORDONNANCE DE SORTIE</h6>
     <div class="card mb-4 border-primary p-3 bg-white">
         {{-- Affichage de l'ordonnance si renseignée --}}
         @if(!empty($derniereConsultation->ordonnance))
@@ -367,11 +383,11 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
     </div>
 
-  
+
     {{-- Signatures --}}
     <div class="row mt-5 pt-3">
         <div class="col-6">
-            Date de sortie : {{ date('d/m/Y') }}<br>
+            Date du prochaine rendez-vous: .........................<br>
         </div>
         <div class="col-6 text-center">
             <p class="mb-5 fw-bold">Le Médecin traitant</p>

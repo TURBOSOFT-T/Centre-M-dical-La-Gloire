@@ -33,7 +33,7 @@ return new class extends Migration
             $table->enum('type', [
                 'consultation_generale',
                 'medecin_general',
-                'sage_femme',
+             
                 'specialiste',
                 'suivi',
                 'urgence',
@@ -75,6 +75,7 @@ return new class extends Migration
             $table->text('examen_general')->nullable();
             $table->text('hypothese_diagnostique')->nullable();
             $table->text('diagnostic')->nullable();
+             $table->text('complication')->nullable();
             $table->text('resultats_analyses')->nullable();
             $table->text('ordonnance')->nullable();
             $table->text('notes_privees')->nullable();

@@ -54,7 +54,7 @@ class GestionConsultations extends Component
 
     // Traitements & Prescriptions
     public $ordonnance;
-    public $traitement;
+    public $traitement, $complication;
     public $traitement_sortie, $evolution_maladie;
     public $notes_privees;
 
@@ -509,6 +509,7 @@ public function openHistoriqueModal($id)
 
         $this->ordonnance = '';
         $this->traitement = '';
+        $this->complication = '';
         $this->traitement_sortie = '';
         $this->notes_privees = '';
 
@@ -600,6 +601,7 @@ public function openHistoriqueModal($id)
         $this->resultats_analyses = $c->resultats_analyses ?? '';
 
         $this->ordonnance = $c->ordonnance ?? '';
+        $this->complication = $c->complication ?? ' ';
         $this->traitement = $c->traitement ?? '';
         $this->traitement_sortie = $c->traitement_sortie ?? '';
         $this->notes_privees = $c->notes_privees ?? '';
@@ -722,6 +724,7 @@ public function openHistoriqueModal($id)
             'traitement_sortie'             => $this->traitement_sortie ?: null,
             'evolution_maladie'             => $this->evolution_maladie ?: null,
             'notes_privees'                 => $this->notes_privees ?: null,
+            'complication'                     => $this->complication ?: null,
             'constantes'                    => [
                 'poids'       => $this->poids,
                 'tension'     => $this->tension,
@@ -756,6 +759,13 @@ public function openHistoriqueModal($id)
                 'evolution_maladie'           => 'Evolution de la maladie',
                 'visite_medicale_journaliere' => 'Visite médicale journalière',
                 'constantes'                  => 'Constantes vitales',
+                'mode_de_vie'                 => 'Mode de vie',
+                'resultats_analyses'          => 'Résultats d\'analyses',
+                'traitement'                  => 'Traitement',
+                'complication'                  => 'Complication',
+                'traitement_sortie'           => 'Traitement de sortie',
+                'notes_privees'               => 'Notes privées',
+                
             ];
 
             foreach ($champsASuivre as $champ => $libelle) {

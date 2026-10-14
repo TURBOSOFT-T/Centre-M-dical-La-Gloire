@@ -37,6 +37,9 @@ return new class extends Migration
             $table->unsignedBigInteger('caisse_id')->nullable();
             $table->unsignedBigInteger('seller_id')->nullable();
             $table->unsignedBigInteger('table_id')->nullable();
+         
+            $table->unsignedBigInteger('consultation_id')->nullable();
+
             $table->unsignedBigInteger('shop_id')->nullable()->default(null);
             //  $table->unsignedBigInteger('transport_id')->nullable();
             //  $table->integer("montant_points", 10,3)->nullable();
@@ -53,7 +56,7 @@ return new class extends Migration
 
             $table->softDeletes();
             $table->foreign('commercial_id')->references('id')->on('users')->onDelete('cascade');
-             $table->foreignId('consultation_id')->nullable()->constrained('consultations')->onDelete('cascade')->after('id');
+           //  $table->foreignId('consultation_id')->nullable()->constrained('consultations')->onDelete('cascade');
 
 
 

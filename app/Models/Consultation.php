@@ -34,6 +34,7 @@ class Consultation extends Model
         'historique_maladie',
         'antecedents_maladie',
         'mode_de_vie',
+        'complication',
 
         // Examens Cliniques & Diagnostics
         'examen_physique',

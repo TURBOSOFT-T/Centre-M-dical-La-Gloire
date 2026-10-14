@@ -754,6 +754,10 @@
                                 <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
                             </div>
 
+                            <div class="col-md-12 mt-3">
+                                <label class="form-label font-weight-bold">Complications</label>
+                                <textarea wire:model.live.debounce.500ms="complication" class="form-control" rows="2" placeholder="Complications observées..."></textarea>
+                            </div>
 
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Traitements</h6>
