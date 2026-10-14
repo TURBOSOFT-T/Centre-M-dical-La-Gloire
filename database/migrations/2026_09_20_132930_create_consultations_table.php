@@ -82,7 +82,8 @@ return new class extends Migration
             $table->json('bilan')->nullable(); // Stockage des examens à cocher
             $table->text('terrain')->nullable(); // Particularités / Allergies / Terrain
             $table->text('resultats')->nullable(); // Résultats tex
-             $table->json('modifications_historique');
+            
+              $table->json('modifications_historique')->nullable();
               $table->text('evolution_maladie')->nullable();
 
             $table->boolean('est_modifie')->default(false); // Indique si la fiche a été modifiée

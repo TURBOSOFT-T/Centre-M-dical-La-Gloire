@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use App\Models\{User, config, Marque, Service, Category, Shop};
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -44,8 +45,8 @@ class DatabaseSeeder extends Seeder
         'consultation_add_bilan',
         'consultation_caisse',
         'consultation_pay',
-         'consultation_notifications',
-          'consultation_confirm_modif',
+        'consultation_notifications',
+        'consultation_confirm_modif',
 
         'boutique_view',
         'boutique_add',
@@ -159,7 +160,7 @@ class DatabaseSeeder extends Seeder
         'setting_view',
         'message_view',
         'gestion_stock',
-        
+
         'labo_view',
         'labo_add',
         'labo_edit',
@@ -174,9 +175,9 @@ class DatabaseSeeder extends Seeder
         'hospitalisation_stat_view',
         'produit_stat_view',
         'concultation_stat_view',
-        
 
-        
+
+
 
     ];
 
@@ -188,6 +189,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
+           // Schema::disableForeignKeyConstraints(),
             CategorieSeeder::class,
             MarqueSeeder::class,
             AssuranceSeeder::class,
@@ -198,9 +200,24 @@ class DatabaseSeeder extends Seeder
             VisiteSeeder::class,
 
             ExamenSeeder::class,
+         //   ProduitSeeder::class,
+            
+         //   ProductShopSeeder::class,
 
-            AdminUserSeeder::class
+
+            AdminUserSeeder::class,
+           // Schema::enableForeignKeyConstraints(),
         ]);
+
+        Schema::disableForeignKeyConstraints();
+
+        $this->call([
+            ProduitSeeder::class,
+            ProductShopSeeder::class,
+        ]);
+
+        // Réactive les contraintes
+        Schema::enableForeignKeyConstraints();
 
 
 

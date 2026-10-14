@@ -1,268 +1,63 @@
-@php
-$config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
+APP_NAME=CMLG
+APP_ENV=local
+APP_KEY=base64:lGmRm9p08p9pFaYAWj6Y4cgJBxWZhVqf01FAy6CroTQ=
+APP_DEBUG=true
+APP_URL=https://swootbio.com
 
-// Détermination de l'image à utiliser pour le logo
-$logoPath = public_path('/icons/logo.jpg');
-if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
-$logoPath = storage_path('app/public/' . $config->logo);
-} elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
-$logoPath = storage_path('app/public/' . $config->icon);
-}
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+DB_CONNECTION=sqlite
+DB_DATABASE=C:\Users\User\Desktop\Centre-M-dical-La-Gloire\database\database.sqlite
 
-$logoBase64 = '';
-if (file_exists($logoPath)) {
-$logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
-}
-@endphp
-<!DOCTYPE html>
-<html lang="en">
+#DB_CONNECTION=mysql
+#DB_HOST=127.0.0.1
+#DB_PORT=3306
+#DB_DATABASE=cmg
+#DB_USERNAME=root
+#DB_PASSWORD=
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>
-        {{ \App\Helpers\TranslationHelper::TranslateText('Reçu de commande') }}
-    </title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            color: #333;
-            position: relative;
-        }
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
 
-        /* Style du filigrane anti-fraude */
-        .watermark {
-            position: fixed;
-            top: 40%;
-            left: 5%;
-            width: 90%;
-            text-align: center;
-            opacity: 0.08;
-            font-size: 110px;
-            font-weight: bold;
-            color: #000000;
-            transform: rotate(-35deg);
-            transform-origin: 50% 50%;
-            z-index: -1000;
-            user-select: none;
-        }
+MEMCACHED_HOST=127.0.0.1
 
-        .container {
-            padding: 20px;
-            position: relative;
-            z-index: 1;
-        }
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
 
-        /* Styles de l'en-tête de l'entreprise */
-        .invoice-header {
-            width: 100%;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-        }
+MAIL_MAILER=smtp
+MAIL_HOST=ssl0.ovh.net
+MAIL_PORT=587
+MAIL_USERNAME=no-reply@apa.tn
+MAIL_PASSWORD=dS6@JA$mxk8N7JM
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=no-reply@konica.tn
+MAIL_FROM_NAME="KONICA"
 
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: none;
-        }
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
 
-        .header-table td {
-            border: none;
-            padding: 0;
-            vertical-align: middle;
-        }
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER=mt1
 
-        .company-details {
-            text-align: left;
-            /* Aligné à gauche */
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .company-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .logo-cell {
-            text-align: right;
-            /* Aligne le logo à droite */
-        }
-
-        .logo {
-            max-width: 150px;
-            height: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: transparent;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .tr-montant {
-            color: white !important;
-            background-color: #000000;
-        }
-
-        .tr-montant td {
-            border: 1px solid #000000;
-        }
-
-        .text-right {
-            text-align: right !important;
-        }
-
-        .text-center {
-            text-align: center !important;
-        }
-
-        hr {
-            border: 0;
-            border-top: 1px solid #ddd;
-            margin: 20px 0;
-        }
-    </style>
-</head>
-
-<body>
-    <!-- Filigrane de sécurité -->
-    <div class="watermark">
-        {{ strtoupper(\App\Helpers\TranslationHelper::TranslateText($commande->statut ?? 'EN ATTENTE')) }}
-    </div>
-
-    <div class="container">
-        <!-- En-tête de l'entreprise -->
-        <div class="invoice-header">
-            <table class="header-table">
-                <tr>
-                    <!-- Informations de l'entreprise à gauche -->
-                    <td class="company-details">
-                        <div class="company-name">{{ config('app.name') }}, {{ \App\Helpers\TranslationHelper::TranslateText('notre Centre') }}</div>
-                        @if($config)
-
-                        @if(!empty($config->telephone))
-                        <div><strong>Tél :</strong> {{ $config->telephone }}</div>
-                        @endif
-                        @if(!empty($config->email))
-                        <div><strong>Email :</strong> {{ $config->email }}</div>
-                        @endif
-                        @if(!empty($config->addresse))
-                        <div><strong>Adresse :</strong> {{ $config->addresse }}</div>
-                        @endif
-                        @endif
-                    </td>
-
-                    <!-- Logo à droite -->
-                    <td class="logo-cell">
-                        @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo" class="logo">
-                        @endif
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- <h1>
-            {{ \App\Helpers\TranslationHelper::TranslateText('Reçu de commande') }}
-        </h1> -->
-        <h5>{{ \App\Helpers\TranslationHelper::TranslateText('Reference de la commande') }}: {{ $commande->reference }}</h5>
-        <p><strong>{{ \App\Helpers\TranslationHelper::TranslateText('Date de commande') }}:</strong> {{ $commande->created_at }}</p>
-
-        <h3>{{ \App\Helpers\TranslationHelper::TranslateText('Produits commandés') }} :</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>{{ \App\Helpers\TranslationHelper::TranslateText('Produit') }}</th>
-                    <th>{{ \App\Helpers\TranslationHelper::TranslateText('Quantité') }}</th>
-                    <th>{{ \App\Helpers\TranslationHelper::TranslateText('Prix unitaire') }}</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                $total = 0;
-                @endphp
-                @foreach ($commande->contenus as $item)
-                <tr>
-                    <td>{{ $item->produit->nom }}</td>
-                    <td>{{ $item->quantite }}</td>
-                    <td>{{ $item->prix_unitaire }} <x-devise></x-devise></td>
-                    <td>{{ $item->prix_unitaire * $item->quantite }} <x-devise></x-devise></td>
-                </tr>
-                @php
-                $total += ($item->prix_unitaire * $item->quantite);
-                @endphp
-                @endforeach
-
-                @if($commande->frais)
-                <tr>
-                    <td><b>{{ \App\Helpers\TranslationHelper::TranslateText('Frais de livraison') }}</b></td>
-                    <td>1</td>
-                    <td>{{ $commande->frais }} <x-devise></x-devise></td>
-                    <td>{{ $commande->frais }} <x-devise></x-devise></td>
-                </tr>
-                @php $total += $commande->frais; @endphp
-                @endif
-
-                @if($commande->coupon)
-                <tr>
-                    <td><b>{{ \App\Helpers\TranslationHelper::TranslateText('Coupon de réduction') }}</b></td>
-                    <td>1</td>
-                    <td>{{ $commande->coupon }} <x-devise></x-devise></td>
-                    <td style="color: #dc3545;">-{{ $commande->coupon }} <x-devise></x-devise></td>
-                </tr>
-                @php $total -= $commande->coupon; @endphp
-                @endif
-
-                <tr class="tr-montant">
-                    <td colspan="3" class="text-right">
-                        <b>{{ \App\Helpers\TranslationHelper::TranslateText('Total de la commande') }}:</b>
-                    </td>
-                    <td>
-                        <b>{{ $total }} <x-devise></x-devise></b>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h4>{{ \App\Helpers\TranslationHelper::TranslateText('Informations sur la livraison') }} :</h4>
-        <p><strong>{{ \App\Helpers\TranslationHelper::TranslateText('Nom complet') }}:</strong> {{ $commande->prenom }} {{ $commande->nom }}</p>
-
-        @if($commande->adresse)
-        <p><strong>{{ \App\Helpers\TranslationHelper::TranslateText('Adresse') }}:</strong> {{ $commande->adresse }}</p>
-        @endif
-
-        <p><strong>{{ \App\Helpers\TranslationHelper::TranslateText('Numéro de téléphone') }}:</strong> {{ $commande->phone ?? 'N/A' }}</p>
-
-        @if($commande->gouvernorat)
-        <p><strong>{{ \App\Helpers\TranslationHelper::TranslateText('Ville') }}:</strong> {{ $commande->gouvernorat }}</p>
-        @endif
-
-        <hr>
-
-        <p>
-            {{ \App\Helpers\TranslationHelper::TranslateText('Merci de votre confiance') }}!
-            <br>
-            {{ \App\Helpers\TranslationHelper::TranslateText('Si vous avez des questions ou des préoccupations, n\'hésitez pas à nous contacter') }}.
-        </p>
-    </div>
-</body>
-
-</html>
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_HOST="${PUSHER_HOST}"
+VITE_PUSHER_PORT="${PUSHER_PORT}"
+VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+CAMPAY_TOKEN=b81_fxJ5kdNsObHr7Z-5dQFwEwQR5CvkL3MJpNDiKzXWlVX2Ds5nNP2VLB70-4O8Esybp6G_OZCjUwOoITh_Cw
+CAMPAY_USERNAME=votre_username_campay
+CAMPAY_PASSWORD=votre_password_campay
