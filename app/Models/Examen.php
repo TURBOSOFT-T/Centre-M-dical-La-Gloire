@@ -11,21 +11,21 @@ class Examen extends Model
 
     protected $table = "examens";
 
-    protected $primaryKey = "id";
+   // protected $primaryKey = "id";
 
     protected $fillable = [
         'nom',
         'caracteristiques',
         'type', 
-        'user_id',
+      //  'user_id',
     ];
 
     protected $casts = [
         'caracteristiques' => 'array',
     ];
 
-    public function user()
+   /*  public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
-    }
+    } */
 }
