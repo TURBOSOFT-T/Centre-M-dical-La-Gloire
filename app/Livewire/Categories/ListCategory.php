@@ -42,18 +42,6 @@ class ListCategory extends Component
     }
 
 
-    public function add_top($id)
-    {
-        $produit = produits::find($id);
-        if ($produit) {
-            if ($produit->top == 1) {
-                $produit->top = 0;
-            } else {
-                $produit->top = 1;
-            }
-            $produit->save();
-        }
-    }
 
 
     public function filtrer()

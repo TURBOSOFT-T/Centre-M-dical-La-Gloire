@@ -3,7 +3,7 @@
 namespace App\Livewire\categories;
 
 use App\Models\Category;
-use Illuminate\Support\Facades\Storage;
+
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -11,7 +11,7 @@ class AddCategory extends Component
 {
     use WithFileUploads;
 
-    public $posts, $title, $body, $post_id;
+    public $posts, $title, $body;
     public $updateMode = false;
    
 
@@ -42,10 +42,7 @@ class AddCategory extends Component
         return view('livewire.categories.add-category');
     }
 
-
-
-
-    
+ 
 
     //validation
     public function create()
@@ -63,21 +60,12 @@ class AddCategory extends Component
       
           ];
 
-       
 
 
         $category = new Category();
         $category->nom = $this->nom;
      
-        
-      
-      /*   if ($this->photos) {
-            $photosPaths = [];
-            foreach ($this->photos as $photo) {
-                $photosPaths[] = $photo->store('categories', 'public');
-            }
-            $category->photos = json_encode($photosPaths);
-        } */
+     
         $category->save();
 
         //reset input
@@ -96,9 +84,6 @@ class AddCategory extends Component
         if($this->category){
             $this->validate([
                 'nom' => 'required|string',
-              
-              
-              
              
                
             ]);
@@ -110,13 +95,6 @@ class AddCategory extends Component
             
 
 
-        /*     if ($this->photos) {
-                $photosPaths = [];
-                foreach ($this->photos as $photo) {
-                    $photosPaths[] = $photo->store('categorys', 'public');
-                }
-                $this->category->photos = json_encode($photosPaths);
-            } */
             $this->category->save();
     
   
@@ -128,13 +106,6 @@ class AddCategory extends Component
 
         }
     }
-
-
-
-
-
-
-
 
 
 

@@ -87,16 +87,12 @@
                             <a href="{{ route('home') }}">{{ __('accueil') }}</a>
 
                         </li>
-                        <li><a href="{{ route('about') }}">
-                                {{ \App\Helpers\TranslationHelper::TranslateText('A propos de nous') }}
-                            </a></li>
+                        
 
 
 
 
-                        <li><a href="{{ route('contact') }}">
-                                {{ \App\Helpers\TranslationHelper::TranslateText('Contact') }}
-                            </a></li>
+                        
 
 
                         </li>

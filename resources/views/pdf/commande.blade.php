@@ -57,14 +57,14 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
     /* Styles de l'en-tête de l'entreprise */
     .invoice-header {
-        width: 80%;
+        width: 70%;
         margin-bottom: 30px;
         border-bottom: 2px solid #333;
         padding-bottom: 15px;
     }
 
     .header-table {
-        width: 80%;
+        width: 70%;
         border-collapse: collapse;
         border: none;
     }
@@ -102,7 +102,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     }
 
     table {
-        width: 80%;
+        width: 70%;
         border-collapse: collapse;
         margin-top: 20px;
         background-color: transparent;
