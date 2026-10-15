@@ -23,7 +23,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<title>{{ config('app.name') }}</title>
 	<!--favicon-->
-	<link rel="icon" href="{{ Storage::url($config->icon) }}" type="image/png" />
+	<link rel="icon" href="{{ Storage::url($config->icon ?? '') }}" type="image/png" />
 	<!-- loader-->
 	<link href="/admin/assets/css/pace.min.css" rel="stylesheet" />
 	<script src="/admin/assets/js/pace.min.js"></script>
