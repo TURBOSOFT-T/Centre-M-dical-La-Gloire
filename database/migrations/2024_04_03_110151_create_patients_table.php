@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('patients', function (Blueprint $table) {
-           $table->id();
-$table->uuid('uuid')->nullable();
- $table->boolean('is_synced')->default(false);
+            $table->id();
+            $table->uuid('uuid')->nullable();
+            $table->boolean('is_synced')->default(false);
             // Code / Identifiant Unique du Patient (ex: PAT-2026-0001)
             $table->string('code_patient')->unique();
             $table->unsignedBigInteger('assurance_id')->nullable();
@@ -22,7 +22,7 @@ $table->uuid('uuid')->nullable();
             // Informations d'état civil
             $table->string('nom');
             $table->string('prenom')->nullable();
-            $table->enum('genre', ['M', 'F']);
+            $table->enum('genre', ['M', 'F'])->default('M');
             $table->date('date_naissance')->nullable();
             $table->string('lieu_naissance')->nullable();
             $table->string('lieu_residence')->nullable();
