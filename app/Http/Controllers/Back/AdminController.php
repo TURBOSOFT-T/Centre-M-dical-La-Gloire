@@ -480,6 +480,7 @@ class AdminController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
+            
         $ipAddress = request()->ip();
         return view('admin.parametres.index', compact('connexions'));
     }

@@ -189,24 +189,24 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
-           // Schema::disableForeignKeyConstraints(),
+                // Schema::disableForeignKeyConstraints(),
             CategorieSeeder::class,
             MarqueSeeder::class,
             AssuranceSeeder::class,
             PatientSeeder::class,
             VisiteurSeeder::class,
 
-            // 4. Visites (dépend des patients, visiteurs et users)
+                // 4. Visites (dépend des patients, visiteurs et users)
             VisiteSeeder::class,
 
             ExamenSeeder::class,
-         //   ProduitSeeder::class,
-            
-         //   ProductShopSeeder::class,
+                //   ProduitSeeder::class,
+
+                //   ProductShopSeeder::class,
 
 
             AdminUserSeeder::class,
-           // Schema::enableForeignKeyConstraints(),
+            // Schema::enableForeignKeyConstraints(),
         ]);
 
         Schema::disableForeignKeyConstraints();
@@ -228,7 +228,7 @@ class DatabaseSeeder extends Seeder
         $user->nom = 'Centre Médical';
         $user->prenom = 'La Gloire';
         $user->email = 'Centremedicallagloire56@gmail.com';
-        $user->role = "admin";
+        $user->role = "gerant";
         $user->adresse = 'Douala, Cameroun';
         $user->phone = '682840743';
         $user->code_postal = '00237';
