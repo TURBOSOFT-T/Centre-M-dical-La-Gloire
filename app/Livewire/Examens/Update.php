@@ -77,8 +77,7 @@ class Update extends Component
         // Mise à jour du modèle
         $this->examen->nom = $this->nom;
         $this->examen->type = $this->type; // <--- Sauvegarde du type
-      //  $this->examen->user_id = auth()->id(); // <--- Met à jour l'ID de l'admin/utilisateur effectuant la modification
-        $this->examen->caracteristiques = $filteredCaracteristiques;
+       $this->examen->caracteristiques = $filteredCaracteristiques;
         $this->examen->save();
 
         session()->flash('success', 'Examen modifié avec succès !');
