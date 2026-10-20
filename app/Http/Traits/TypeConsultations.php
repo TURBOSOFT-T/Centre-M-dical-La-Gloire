@@ -10,7 +10,7 @@ trait TypeConsultations
         return [
             "Medecin general",
             "Specialiste",
-            "Suivi",
+          
             "Urgence",
             "Sage femme",
             "Pédiatrie",
