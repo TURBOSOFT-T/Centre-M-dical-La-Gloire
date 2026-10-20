@@ -427,8 +427,18 @@
 
             <td>
                 <div class="patient-label">Organisme d'assurance : <strong>{{ $patient?->assurance?->nom ?? 'Aucune' }}</strong></div>
-                <div class="patient-label">Assuré principal : <strong>{{ $patient?->nom_assure ?? 'Patient lui-même' }}</strong></div>
                 <div class="patient-label">Taux de couverture : <strong>{{ $tauxAssurance }} %</strong></div>
+                <div class="patient-label">Tel : <strong>{{ $patient?->assurance?->telephone ?? 'N/A' }}</strong></div>
+                <div class="patient-label">BP: <strong>{{ $patient?->assurance?->bp ?? 'N/A' }}</strong></div>
+                
+                <div class="patient-label">NIU : <strong>{{ $patient?->assurance?->niu ?? 'N/A' }} </strong></div>
+                <div class="patient-label">Registre de Commerce : <strong>{{ $patient?->assurance?->numero_rc ?? 'N/A' }} </strong></div>
+                
+
+                <div class="patient-label">Assuré principal : <strong>{{ $patient?->nom_assure ?? 'Patient lui-même' }}</strong></div>
+
+                <div class="patient-label">Société : <strong>{{ $patient?->societe ?? 'N/A' }}</strong></div>
+                 <div class="patient-label">Matricule assuré principal : <strong>{{ $patient?->matricule_assure_principal ?? 'N/A' }}</strong></div>
             </td>
         </tr>
     </table>

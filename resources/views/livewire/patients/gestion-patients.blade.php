@@ -256,10 +256,22 @@
                                             <input type="text" wire:model="matricule_assurance" class="form-control" placeholder="N° de carte assuré">
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <label class="form-label">Nom de l'Assuré Principal</label>
                                             <input type="text" wire:model="nom_assure" class="form-control" placeholder="Laissez vide si le patient est lui-même l'assuré principal">
                                             <small class="text-muted">À remplir si le souscripteur est un parent, conjoint ou employeur.</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Société / Organisme</label>
+                                            <input type="text" wire:model="societe" class="form-control" placeholder="Nom de la société ou organisme">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">N° Matricule Assuré</label>
+                                            <input type="text" wire:model="matricule_assure" class="form-control" placeholder="Matricule de l'assuré">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">N° Matricule Assuré Principal</label>
+                                            <input type="text" wire:model="matricule_assure_principal" class="form-control" placeholder="Matricule de l'assuré principal">
                                         </div>
                                     </div>
                                     @endif

@@ -18,6 +18,9 @@ class Assurance extends Model
         'adresse',
         'taux_couverture_defaut',
         'est_actif',
+        'bp',
+        'niu',
+        'numero_rc',
     ];
 
     protected $casts = [

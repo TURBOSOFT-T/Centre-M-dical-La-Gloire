@@ -32,6 +32,26 @@ class AjouterCommande extends Component
     use ListGouvernorats;
 
 
+public $shops;
+
+public function mount()
+{
+    // Récupérer la liste des boutiques
+    $shopsQuery = Shop::query();
+    
+    // Optionnel : filtrer selon les permissions de l'utilisateur connecté
+    // Ex: if (auth()->user()->shop_id) { ... }
+
+    $this->shops = $shopsQuery->get();
+
+    // Sélectionner la première boutique par défaut s'il y en a et que shop_id est vide
+    if (!$this->shop_id && $this->shops->isNotEmpty()) {
+        $this->shop_id = $this->shops->first()->id;
+        
+        // Si vous avez besoin de déclencher une méthode de chargement initiale associée :
+        // $this->updatedShopId($this->shop_id);
+    }
+}
     public function updateKey($value)
     {
         $this->key = $value;
@@ -101,18 +121,7 @@ class AjouterCommande extends Component
             session()->flash("message", "Patient/Client importé avec succès.");
         }
     }
-    public function import1($client)
-    {
-        $this->nom = $client["nom"];
-        $this->prenom = $client["prenom"];
-        $this->adresse = $client["adresse"];
-        $this->telephone = $client["telephone"];
-
-        $this->recherche = "";
-        $this->clients = [];
-
-        session()->flash("message", "Client Importé avec succés");
-    }
+    
 
     public function ajouterProduit($produitId, $type, $reference)
     {
@@ -207,7 +216,7 @@ class AjouterCommande extends Component
                         $query->where('shop_id', $activeShopId)
                             ->where('stock_particulier', '>', 0);
                     })
-                    ->take(2)
+                    ->take(5)
                     ->get();
 
                 $result = [];

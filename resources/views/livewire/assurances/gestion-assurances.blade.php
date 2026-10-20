@@ -106,6 +106,9 @@
                                 </div>
                             </td>
                             <td class="text-end px-4">
+                                <button wire:click="showDetails({{ $assurance->id }})" class="btn btn-sm btn-outline-info me-1" title="Voir les détails">
+        <i class="bx bx-show"></i>
+    </button>
                                  @can('assurance_edit')
                                 <button wire:click="editAssurance({{ $assurance->id }})" class="btn btn-sm btn-outline-primary me-1">
                                     <i class="bx bx-edit"></i>
@@ -184,11 +187,22 @@
                                 <input type="email" wire:model="email" class="form-control" placeholder="contact@assurance.cm">
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-6">
                                 <label class="form-label">Adresse / Siège Social</label>
                                 <input type="text" wire:model="adresse" class="form-control" placeholder="Ex: Akwa, Douala">
                             </div>
-
+                            <div class="col-6">
+                                <label class="form-label">Boîte Postale (BP)</label>
+                                <input type="text" wire:model="bp" class="form-control" placeholder="Ex: BP 1234 Douala">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Numéro d'Identification Unique (NIU)</label>
+                                <input type="text" wire:model="niu" class="form-control" placeholder="Ex: 123456789">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Numéro de Registre de Commerce (RC)</label>
+                                <input type="text" wire:model="numero_rc" class="form-control" placeholder="Ex: RC123456">
+                            </div>
                             <div class="col-12">
                                 <div class="form-check form-switch mt-2">
                                     <input class="form-check-input" type="checkbox" wire:model="est_actif" id="modalSwitchActif">
@@ -206,6 +220,84 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Modale de Détails -->
+    @if($isDetailModalOpen && $selectedAssurance)
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content radius-15 border-0 shadow-lg">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title font-weight-bold text-primary">
+                        <i class="bx bx-shield-quarter me-2"></i>Détails de la Compagnie : {{ $selectedAssurance->nom }}
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="closeDetailModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- En-tête Statut & Code -->
+                        <div class="col-12 d-flex justify-content-between align-items-center bg-soft-primary p-3 radius-10">
+                            <div>
+                                <span class="text-muted small">Code / Sigle :</span>
+                                <h5 class="mb-0 font-weight-bold text-primary">{{ $selectedAssurance->code }}</h5>
+                            </div>
+                            <div>
+                                <span class="badge {{ $selectedAssurance->est_actif ? 'bg-success' : 'bg-danger' }} fs-6 px-3 py-2 radius-30">
+                                    {{ $selectedAssurance->est_actif ? 'Active (Tiers-Payant Autorisé)' : 'Inactive' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Informations Générales -->
+                        <div class="col-md-6">
+                            <div class="border p-3 radius-10 h-100">
+                                <h6 class="font-weight-bold text-secondary mb-3"><i class="bx bx-buildings me-1"></i> Identité & Couverture</h6>
+                                <p class="mb-2"><strong>Raison Sociale :</strong> {{ $selectedAssurance->nom }}</p>
+                                <p class="mb-2"><strong>Taux Couverture Défaut :</strong> <span class="badge bg-info text-dark font-weight-bold fs-6">{{ $selectedAssurance->taux_couverture_defaut }}%</span></p>
+                                <p class="mb-2"><strong>Patients Associés :</strong> <span class="badge bg-secondary radius-30 px-3">{{ $selectedAssurance->patients_count ?? $selectedAssurance->patients()->count() }} patient(s)</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Contacts -->
+                        <div class="col-md-6">
+                            <div class="border p-3 radius-10 h-100">
+                                <h6 class="font-weight-bold text-secondary mb-3"><i class="bx bx-phone me-1"></i> Coordonnées & Contacts</h6>
+                                <p class="mb-2"><strong>Téléphone :</strong> {{ $selectedAssurance->telephone ?? 'Non renseigné' }}</p>
+                                <p class="mb-2"><strong>E-mail :</strong> {{ $selectedAssurance->email ?? 'Non renseigné' }}</p>
+                                <p class="mb-2"><strong>Adresse :</strong> {{ $selectedAssurance->adresse ?? 'Non renseignée' }}</p>
+                                <p class="mb-0"><strong>Boîte Postale :</strong> {{ $selectedAssurance->bp ?? 'Non renseignée' }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Informations Fiscales & Légales -->
+                        <div class="col-12">
+                            <div class="border p-3 radius-10 bg-light">
+                                <h6 class="font-weight-bold text-secondary mb-3"><i class="bx bx-file me-1"></i> Informations Fiscales & Immatriculation</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Numéro d'Identification Unique (NIU) :</strong> {{ $selectedAssurance->niu ?? 'N/A' }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Registre du Commerce (RC) :</strong> {{ $selectedAssurance->numero_rc ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary px-4" wire:click="closeDetailModal">
+                        Fermer
+                    </button>
+                    @can('assurance_edit')
+                    <button type="button" class="btn btn-primary px-4" wire:click="editAssurance({{ $selectedAssurance->id }})">
+                        <i class="bx bx-edit me-1"></i> Modifier
+                    </button>
+                    @endcan
+                </div>
             </div>
         </div>
     </div>

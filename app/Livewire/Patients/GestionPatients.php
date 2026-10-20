@@ -32,6 +32,9 @@ class GestionPatients extends Component
     public $est_assure = false;
     public $assurance_id;
     public $nom_assure;
+    public $societe;
+    public $matricule_assure;
+    public $matricule_assure_principal;
     public $matricule_assurance;
     public $taux_couverture = 0;
 
@@ -72,6 +75,9 @@ class GestionPatients extends Component
             'est_assure' => 'boolean',
             'assurance_id' => 'nullable|required_if:est_assure,true|exists:assurances,id',
             'nom_assure' => 'nullable|string|max:150',
+            'societe' => 'nullable|string|max:150',
+            'matricule_assure' => 'nullable|string|max:100',
+            'matricule_assure_principal' => 'nullable|string|max:100',
             'matricule_assurance' => 'nullable|string|max:100',
             'taux_couverture' => 'nullable|integer|min:0|max:100',
 
@@ -341,6 +347,9 @@ class GestionPatients extends Component
         $this->est_assure = false;
         $this->assurance_id = null;
         $this->nom_assure = '';
+        $this->societe = '';
+        $this->matricule_assure = '';
+        $this->matricule_assure_principal = '';
         $this->matricule_assurance = '';
         $this->taux_couverture = 0;
 
@@ -388,6 +397,9 @@ class GestionPatients extends Component
         if (!$this->est_assure) {
             $validatedData['assurance_id']        = null;
             $validatedData['nom_assure']          = null;
+            $validatedData['societe']             = null;
+            $validatedData['matricule_assure']    = null;
+            $validatedData['matricule_assure_principal'] = null;
             $validatedData['matricule_assurance'] = null;
             $validatedData['taux_couverture']     = 0;
         } else {
@@ -484,6 +496,9 @@ class GestionPatients extends Component
         $this->est_assure = (bool) $patient->est_assure;
         $this->assurance_id = $patient->assurance_id;
         $this->nom_assure = $patient->nom_assure;
+        $this->societe = $patient->societe;
+        $this->matricule_assure = $patient->matricule_assure;
+        $this->matricule_assure_principal = $patient->matricule_assure_principal;
         $this->matricule_assurance = $patient->matricule_assurance;
         $this->taux_couverture = $patient->taux_couverture ?? 0;
 

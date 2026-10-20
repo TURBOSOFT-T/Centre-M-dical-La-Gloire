@@ -21,10 +21,26 @@ class GestionAssurances extends Component
     public $code, $nom, $telephone, $email, $adresse;
     public $taux_couverture_defaut = 80;
     public $est_actif = true;
+    public $bp, $niu, $numero_rc;
 
     // Gestion Modale
     public $isModalOpen = false;
     public $isEditMode = false;
+
+    public $isDetailModalOpen = false;
+public $selectedAssurance = null;
+
+public function showDetails($id)
+{
+    $this->selectedAssurance = Assurance::withCount('patients')->findOrFail($id);
+    $this->isDetailModalOpen = true;
+}
+
+public function closeDetailModal()
+{
+    $this->isDetailModalOpen = false;
+    $this->selectedAssurance = null;
+}
 
     protected function rules()
     {
@@ -34,6 +50,9 @@ class GestionAssurances extends Component
             'telephone' => 'nullable|string|max:30',
             'email' => 'nullable|email|max:100',
             'adresse' => 'nullable|string|max:150',
+            'bp' => 'nullable|string|max:100',
+            'niu' => 'nullable|string|max:100',
+            'numero_rc' => 'nullable|string|max:100',
             'taux_couverture_defaut' => 'required|integer|min:0|max:100',
             'est_actif' => 'boolean',
         ];
@@ -67,6 +86,9 @@ class GestionAssurances extends Component
         $this->adresse = '';
         $this->taux_couverture_defaut = 80;
         $this->est_actif = true;
+        $this->bp = '';
+        $this->niu = '';
+        $this->numero_rc = '';
         $this->resetValidation();
     }
 
@@ -92,6 +114,9 @@ class GestionAssurances extends Component
         $this->telephone = $assurance->telephone;
         $this->email = $assurance->email;
         $this->adresse = $assurance->adresse;
+        $this->bp = $assurance->bp;
+        $this->niu = $assurance->niu;
+        $this->numero_rc = $assurance->numero_rc;
         $this->taux_couverture_defaut = $assurance->taux_couverture_defaut;
         $this->est_actif = (bool) $assurance->est_actif;
 
@@ -128,7 +153,10 @@ class GestionAssurances extends Component
             ->when($this->search, function ($query) {
                 $query->where('nom', 'like', '%' . $this->search . '%')
                       ->orWhere('code', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                      ->orWhere('email', 'like', '%' . $this->search . '%')
+                      ->orWhere('bp', 'like', '%' . $this->search . '%')
+                      ->orWhere('niu', 'like', '%' . $this->search . '%')
+                      ->orWhere('numero_rc', 'like', '%' . $this->search . '%');
             })
             ->when($this->filtreStatut !== '', function ($query) {
                 $query->where('est_actif', $this->filtreStatut);
