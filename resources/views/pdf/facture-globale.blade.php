@@ -424,7 +424,7 @@
                 <div class="patient-label">Code patient : <strong>{{ $patient?->code_patient ?? '------' }}</strong></div>
                 <div class="patient-label">Téléphone : <strong>{{ $patient?->telephone ?? '------' }}</strong></div>
                            <div class="patient-label">Sexe : <strong>{{ $patient?->genre ?? '------' }}</strong></div>
-                                           <div class="patient-label">Date de naissance : <strong>{{ $patient?->date_naissance ?? 'N/A' }}</strong></div>
+                                           <div class="patient-label">Date de naissance : <strong>{{ $patient?->date_naissance ?? '------' }}</strong></div>
            
                            <div class="patient-label">Residence : <strong>{{ $patient?->ville ?? '------' }}</strong></div>
            
