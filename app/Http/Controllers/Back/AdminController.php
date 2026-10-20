@@ -584,6 +584,15 @@ class AdminController extends Controller
         return view('admin.patients.list', compact('patients'));
     }
 
+
+    
+       public function patientsAssures()
+    {
+        $patients = Patient::with('assurance')->get();
+      
+        return view('admin.patients.listAssures', compact('patients'));
+    }
+
     public function visites()
     {
         $visites = DB::table('visites')

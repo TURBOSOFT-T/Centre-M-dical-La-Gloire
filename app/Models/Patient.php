@@ -133,4 +133,24 @@ public function getNomCompletAttribute(): string
     {
         return $this->hasMany(commandes::class, "phone");
     }
+
+    public function hospitalisations()
+{
+    return $this->hasMany(Hospitalisation::class, 'patient_id');
+}
+
+// Dans app/Models/Consultation.php
+
+public function hospitalisation()
+{
+    // Retourne la dernière hospitalisation associée au patient de cette consultation
+    return $this->hasOneThrough(
+        \App\Models\Hospitalisation::class,
+        \App\Models\Patient::class,
+        'id',          // Clé étrangère sur la table patients (id)
+        'patient_id',  // Clé étrangère sur la table hospitalisations (patient_id)
+        'patient_id',  // Clé locale sur la table consultations (patient_id)
+        'id'           // Clé locale sur la table patients (id)
+    )->latest('created_at');
+}
 }

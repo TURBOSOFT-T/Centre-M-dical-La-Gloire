@@ -85,6 +85,7 @@ return new class extends Migration
             
               $table->json('modifications_historique')->nullable();
               $table->text('evolution_maladie')->nullable();
+              
 
             $table->boolean('est_modifie')->default(false); // Indique si la fiche a été modifiée
             $table->boolean('vu_par_responsable')->default(false); // Validé par le responsable

@@ -27,7 +27,7 @@ class HospitalisationManager extends Component
     public $dossier_medical_id;
     public $patient_id;
     public $medecin_id;
-    
+
     public $type_prise_en_charge = 'hospitalisation'; // 'observation' ou 'hospitalisation'
     public $standing_type = 'classique'; // 'haut_standing', 'classique', 'economique', 'post_op'
 
@@ -36,12 +36,18 @@ class HospitalisationManager extends Component
     public $service_department = '';
     public $date_entree;
     public $date_sortie_prevue;
-    public $nombre_jours = 1; // Ajout du nombre de jours
+    public $nombre_jours = 1;
     public $motif_admission = '';
     public $diagnostic_entree = '';
     public $tarif_journalier = 0;
     public $frais_soins_chambre = 0;
     public $part_assurance = 0;
+
+    // Nouveaux champs dynamiques : Visite Urgentiste & Soin AMI
+    public $visite_urgentiste_qte = 0;
+    public $visite_urgentiste_pu = 0;
+    public $soin_ami_qte = 0;
+    public $soin_ami_pu = 0;
 
     // Recherche de patient / dossier
     public $searchPatient = '';
@@ -61,6 +67,45 @@ class HospitalisationManager extends Component
     {
         $this->date_entree = now()->format('Y-m-d\TH:i');
     }
+
+    // ==========================================
+    // GETTERS POUR CALCULS DYNAMIQUES EN DIRECT
+    // ==========================================
+
+    public function getVisiteUrgentisteTotalProperty()
+    {
+        return intval($this->visite_urgentiste_qte ?? 0) * floatval($this->visite_urgentiste_pu ?? 0);
+    }
+
+    public function getSoinAmiTotalProperty()
+    {
+        return intval($this->soin_ami_qte ?? 0) * floatval($this->soin_ami_pu ?? 0);
+    }
+
+    public function getFraisSejourProperty()
+    {
+        if ($this->type_prise_en_charge === 'observation') {
+            return floatval($this->tarif_journalier ?? 0);
+        }
+        return intval($this->nombre_jours ?? 1) * floatval($this->tarif_journalier ?? 0);
+    }
+
+    public function getTotalEstimeProperty()
+    {
+        return $this->fraisSejour
+            + floatval($this->frais_soins_chambre ?? 0)
+            + $this->visiteUrgentisteTotal
+            + $this->soinAmiTotal;
+    }
+
+    public function getPartPatientEstimeeProperty()
+    {
+        return max(0, $this->totalEstime - floatval($this->part_assurance ?? 0));
+    }
+
+    // ==========================================
+    // GESTION DU CYCLE DE VIE & RECHERCHE
+    // ==========================================
 
     public function updatingSearch()
     {
@@ -84,7 +129,6 @@ class HospitalisationManager extends Component
         }
     }
 
-    // Gestion du calcul automatique des jours en fonction des dates
     public function updatedDateEntree()
     {
         $this->calculerJours();
@@ -100,7 +144,7 @@ class HospitalisationManager extends Component
         if ($this->type_prise_en_charge === 'hospitalisation' && $this->date_entree && $this->date_sortie_prevue) {
             $entree = \Carbon\Carbon::parse($this->date_entree);
             $sortie = \Carbon\Carbon::parse($this->date_sortie_prevue);
-            
+
             if ($sortie->greaterThan($entree)) {
                 $this->nombre_jours = max(1, $entree->diffInDays($sortie));
             }
@@ -112,12 +156,12 @@ class HospitalisationManager extends Component
         $hospitalisations = Hospitalisation::with(['patient', 'dossierMedical', 'medecin'])
             ->when($this->search, function ($q) {
                 $q->where('code_hospitalisation', 'like', '%' . $this->search . '%')
-                  ->orWhere('chambre_number', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('patient', function ($qp) {
-                      $qp->where('nom', 'like', '%' . $this->search . '%')
-                         ->orWhere('prenom', 'like', '%' . $this->search . '%')
-                         ->orWhere('telephone', 'like', '%' . $this->search . '%');
-                  });
+                    ->orWhere('chambre_number', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('patient', function ($qp) {
+                        $qp->where('nom', 'like', '%' . $this->search . '%')
+                            ->orWhere('prenom', 'like', '%' . $this->search . '%')
+                            ->orWhere('telephone', 'like', '%' . $this->search . '%');
+                    });
             })
             ->when($this->filterStatut, function ($q) {
                 $q->where('statut', $this->filterStatut);
@@ -166,13 +210,13 @@ class HospitalisationManager extends Component
                 $this->dossier_medical_id = $patient->dossierMedical->id;
             } else {
                 $codeDossier = 'DM-' . date('Y') . '-' . str_pad(DossierMedical::count() + 1, 4, '0', STR_PAD_LEFT);
-                
+
                 $dossier = DossierMedical::create([
                     'patient_id' => $patient->id,
                     'code_dossier' => $codeDossier,
                     'statut' => 'actif',
                 ]);
-                
+
                 $this->dossier_medical_id = $dossier->id;
             }
         }
@@ -194,6 +238,10 @@ class HospitalisationManager extends Component
             'type_prise_en_charge' => 'required|in:observation,hospitalisation',
             'motif_admission' => 'required|string',
             'tarif_journalier' => 'required|numeric|min:0',
+            'visite_urgentiste_qte' => 'nullable|integer|min:0',
+            'visite_urgentiste_pu' => 'nullable|numeric|min:0',
+            'soin_ami_qte' => 'nullable|integer|min:0',
+            'soin_ami_pu' => 'nullable|numeric|min:0',
         ];
 
         if ($this->type_prise_en_charge === 'hospitalisation') {
@@ -213,14 +261,21 @@ class HospitalisationManager extends Component
             'nombre_jours.min' => 'Le nombre de jours doit être d\'au moins 1.',
         ]);
 
-        $code = 'HOSP-' . date('Y') . '-' . str_pad(Hospitalisation::count() + 1, 4, '0', STR_PAD_LEFT);
+        $annee = date('y'); // Année sur 2 chiffres (ex: 26 pour 2026)
+        $mois = date('m');  // Mois sur 2 chiffres (ex: 10)
 
+        // Récupération du dernier ID ou compteur pour la séquence à 5 chiffres
+        $dernierId = \App\Models\Hospitalisation::max('id') ?? 0;
+        $sequence = str_pad($dernierId + 1, 5, '0', STR_PAD_LEFT);
+
+        // Assemblage du code final -> HO/ASS/26/10/00001
+        $code = "HO/ASS/{$annee}/{$mois}/{$sequence}";
         $dateSortiePrevue = $this->date_sortie_prevue;
         if (!$dateSortiePrevue && $this->type_prise_en_charge === 'hospitalisation' && $this->date_entree) {
             $dateSortiePrevue = \Carbon\Carbon::parse($this->date_entree)->addDays(intval($this->nombre_jours));
         }
 
-        $hosp = Hospitalisation::create([
+        $hosp = new Hospitalisation([
             'code_hospitalisation' => $code,
             'dossier_medical_id' => $this->dossier_medical_id,
             'patient_id' => $this->patient_id,
@@ -235,22 +290,27 @@ class HospitalisationManager extends Component
             'date_sortie_prevue' => $dateSortiePrevue ?: null,
             'motif_admission' => $this->motif_admission,
             'diagnostic_entree' => $this->diagnostic_entree,
-            'nombre_jours'      =>$this->nombre_jours,
+            'nombre_jours' => $this->nombre_jours,
             'tarif_journalier' => floatval($this->tarif_journalier),
             'frais_soins_chambre' => floatval($this->frais_soins_chambre),
+
+            // Visite Urgentiste (Quantité, PU et Total)
+            'visite_urgentiste_qte' => intval($this->visite_urgentiste_qte ?? 0),
+            'visite_urgentiste_pu' => floatval($this->visite_urgentiste_pu ?? 0),
+            'visite_urgentiste_total' => intval($this->visite_urgentiste_qte ?? 0) * floatval($this->visite_urgentiste_pu ?? 0),
+
+            // Soin AMI (Quantité, PU et Total)
+            'soin_ami_qte' => intval($this->soin_ami_qte ?? 0),
+            'soin_ami_pu' => floatval($this->soin_ami_pu ?? 0),
+            'soin_ami_total' => intval($this->soin_ami_qte ?? 0) * floatval($this->soin_ami_pu ?? 0),
+
             'part_assurance' => floatval($this->part_assurance),
             'statut' => 'en_cours',
         ]);
 
-        // Conversion sécurisée en types numériques pour éviter l'erreur de types
-        $tarif = floatval($this->tarif_journalier);
-        $jours = intval($this->nombre_jours);
-        $frais = floatval($this->frais_soins_chambre);
+        // Utilisation de la méthode du modèle pour calculer le total global
+        $total = $hosp->calculerMontantTotal();
         $assurance = floatval($this->part_assurance);
-
-        $total = ($this->type_prise_en_charge === 'hospitalisation') 
-            ? ($tarif * $jours) + $frais 
-            : $tarif + $frais;
 
         $hosp->montant_total = $total;
         $hosp->part_patient = max(0, $total - $assurance);
@@ -271,11 +331,12 @@ class HospitalisationManager extends Component
         $this->selectedHospitalisation = Hospitalisation::findOrFail($id);
         $this->date_sortie_effective = now()->format('Y-m-d\TH:i');
         $this->mode = 'liberer';
-    }public function enregistrerAvance($id)
+    }
+
+    public function enregistrerAvance($id)
     {
         $hosp = Hospitalisation::findOrFail($id);
-        
-        // Utiliser directement le montant total stocké en base de données
+
         $total = floatval($hosp->montant_total);
         $partPatient = max(0, $total - floatval($hosp->part_assurance));
         $resteAPayer = max(0, $partPatient - floatval($hosp->montant_paye));
@@ -303,7 +364,7 @@ class HospitalisationManager extends Component
 
         $this->montant_verse = 0;
         session()->flash('message', 'Avance de paiement enregistrée avec succès.');
-        
+
         $this->selectedHospitalisation = $hosp->fresh(['patient', 'dossierMedical', 'medecin', 'agent']);
     }
 
@@ -311,8 +372,8 @@ class HospitalisationManager extends Component
     {
         $hosp = $this->selectedHospitalisation;
 
-        // Utiliser directement le montant total stocké en base de données
-        $total = floatval($hosp->montant_total);
+        // Recalcul au cas où des modifications ont eu lieu
+        $total = $hosp->calculerMontantTotal();
         $partPatient = max(0, $total - floatval($hosp->part_assurance));
         $resteAPayer = max(0, $partPatient - floatval($hosp->montant_paye));
 
@@ -329,12 +390,12 @@ class HospitalisationManager extends Component
         }
 
         $hosp->diagnostic_sortie = $this->diagnostic_sortie;
-     $hosp->observations = $this->observations;
+        $hosp->observations = $this->observations;
         $hosp->statut = 'libere';
 
         $hosp->montant_total = $total;
         $hosp->part_patient = $partPatient;
-        
+
         $montantSortie = floatval($this->montant_paye ?? 0);
         if ($montantSortie > 0) {
             $hosp->montant_paye = floatval($hosp->montant_paye) + $montantSortie;
@@ -353,6 +414,7 @@ class HospitalisationManager extends Component
         session()->flash('message', 'La sortie / libération du patient a été enregistrée avec succès.');
         $this->backToIndex();
     }
+
     public function backToIndex()
     {
         $this->resetForm();
@@ -362,23 +424,49 @@ class HospitalisationManager extends Component
     private function resetForm()
     {
         $this->reset([
-            'hospitalisation_id', 'dossier_medical_id', 'patient_id', 'medecin_id',
-            'type_prise_en_charge', 'standing_type', 'chambre_number', 'lit_number', 
-            'service_department', 'date_entree', 'date_sortie_prevue', 'nombre_jours', 'motif_admission', 
-            'diagnostic_entree', 'tarif_journalier', 'frais_soins_chambre', 'part_assurance', 
-            'searchPatient', 'selectedPatientName', 'date_sortie_effective', 'diagnostic_sortie', 
-            'observations', 'montant_paye', 'montant_verse', 'selectedHospitalisation'
+            'hospitalisation_id',
+            'dossier_medical_id',
+            'patient_id',
+            'medecin_id',
+            'type_prise_en_charge',
+            'standing_type',
+            'chambre_number',
+            'lit_number',
+            'service_department',
+            'date_entree',
+            'date_sortie_prevue',
+            'nombre_jours',
+            'motif_admission',
+            'diagnostic_entree',
+            'tarif_journalier',
+            'frais_soins_chambre',
+            'part_assurance',
+            'visite_urgentiste_qte',
+            'visite_urgentiste_pu',
+            'soin_ami_qte',
+            'soin_ami_pu',
+            'searchPatient',
+            'selectedPatientName',
+            'date_sortie_effective',
+            'diagnostic_sortie',
+            'observations',
+            'montant_paye',
+            'montant_verse',
+            'selectedHospitalisation'
         ]);
         $this->type_prise_en_charge = 'hospitalisation';
         $this->standing_type = 'classique';
         $this->nombre_jours = 1;
+        $this->visite_urgentiste_qte = 0;
+        $this->visite_urgentiste_pu = 0;
+        $this->soin_ami_qte = 0;
+        $this->soin_ami_pu = 0;
     }
 
     public function delete($id)
     {
         $hosp = Hospitalisation::findOrFail($id);
 
-        // Optionnel : Empêcher la suppression si un paiement ou une avance a déjà été effectué
         if (floatval($hosp->montant_paye) > 0) {
             session()->flash('error', 'Impossible de supprimer cette prise en charge car des paiements ont déjà été enregistrés.');
             return;

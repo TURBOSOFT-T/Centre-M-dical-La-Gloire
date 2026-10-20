@@ -36,6 +36,15 @@ return new class extends Migration
                $table->enum('type_prise_en_charge', ['observation', 'hospitalisation'])
                   ->default('hospitalisation');
 
+                  $table->integer('visite_urgentiste_qte')->default(0);
+            $table->decimal('visite_urgentiste_pu', 10, 2)->default(0);
+            $table->decimal('visite_urgentiste_total', 10, 2)->default(0);
+
+            // Soin Ami
+            $table->integer('soin_ami_qte')->default(0);
+            $table->decimal('soin_ami_pu', 10, 2)->default(0);
+            $table->decimal('soin_ami_total', 10, 2)->default(0);
+
             // 2. Ajout du type de standing / catégorie de chambre
             $table->enum('standing_type', [
                 'haut_standing', 

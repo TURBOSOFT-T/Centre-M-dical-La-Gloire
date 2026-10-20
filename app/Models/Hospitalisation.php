@@ -28,7 +28,7 @@ class Hospitalisation extends Model
         'date_entree',
         'date_sortie_prevue',
         'date_sortie_effective',
-        'nombre_jours',         // <-- Ajouté ici pour l'enregistrement en BDD
+        'nombre_jours',         
         'motif_admission',
         'diagnostic_entree',
         'diagnostic_sortie',
@@ -41,6 +41,12 @@ class Hospitalisation extends Model
         'part_patient',
         'montant_paye',
         'statut_paiement',
+        'visite_urgentiste_qte',
+        'visite_urgentiste_pu',
+        'visite_urgentiste_total',
+        'soin_ami_qte',
+        'soin_ami_pu',
+        'soin_ami_total',
     ];
 
     protected static function boot()
@@ -72,13 +78,19 @@ class Hospitalisation extends Model
         'date_entree' => 'datetime',
         'date_sortie_prevue' => 'datetime',
         'date_sortie_effective' => 'datetime',
-        'nombre_jours' => 'integer', // <-- Cast en entier
+        'nombre_jours' => 'integer',
         'tarif_journalier' => 'decimal:2',
         'frais_soins_chambre' => 'decimal:2',
         'montant_total' => 'decimal:2',
         'part_assurance' => 'decimal:2',
         'part_patient' => 'decimal:2',
         'montant_paye' => 'decimal:2',
+        'visite_urgentiste_qte' => 'integer',
+        'visite_urgentiste_pu' => 'decimal:2',
+        'visite_urgentiste_total' => 'decimal:2',
+        'soin_ami_qte' => 'integer',
+        'soin_ami_pu' => 'decimal:2',
+        'soin_ami_total' => 'decimal:2',
     ];
 
     // ==========================================
@@ -110,19 +122,33 @@ class Hospitalisation extends Model
     // ==========================================
 
     /**
-     * Calcule automatiquement le montant total selon le type de prise en charge.
+     * Calcule automatiquement le montant total selon le type de prise en charge et les prestations.
      */
     public function calculerMontantTotal(): float
     {
+        // 1. Calcul des frais de séjour
         if ($this->type_prise_en_charge === 'observation') {
-            return (float) ($this->tarif_journalier + $this->frais_soins_chambre);
+            $fraisSejour = floatval($this->tarif_journalier ?? 0);
+        } else {
+            $jours = $this->nombre_jours ?? 1;
+            $fraisSejour = $jours * floatval($this->tarif_journalier ?? 0);
         }
 
-        // Utilise le nombre de jours enregistré en base, ou 1 par défaut
-        $jours = $this->nombre_jours ?? 1;
-        $fraisSejour = $jours * $this->tarif_journalier;
-        
-        return (float) ($fraisSejour + $this->frais_soins_chambre);
+        // 2. Calculs dynamiques sous-totaux
+        $totalVisiteUrgentiste = intval($this->visite_urgentiste_qte ?? 0) * floatval($this->visite_urgentiste_pu ?? 0);
+        $totalSoinAmi = intval($this->soin_ami_qte ?? 0) * floatval($this->soin_ami_pu ?? 0);
+
+        // Mise à jour directe des propriétés de sous-totaux
+        $this->visite_urgentiste_total = $totalVisiteUrgentiste;
+        $this->soin_ami_total = $totalSoinAmi;
+
+        // 3. Somme globale de l'hospitalisation
+        return (float) (
+            $fraisSejour 
+            + floatval($this->frais_soins_chambre ?? 0) 
+            + $totalVisiteUrgentiste 
+            + $totalSoinAmi
+        );
     }
 
     /**

@@ -90,12 +90,13 @@ $devise = 'FCFA';
         <thead>
             <tr>
                 <th>Désignation</th>
-                <th class="text-center">Qté/Jours</th>
+                <th class="text-center">Qté/J</th>
                 <th class="text-right">P.U</th>
                 <th class="text-right">Total</th>
             </tr>
         </thead>
         <tbody>
+            {{-- 1. Frais de séjour ou observation --}}
             @if($hospitalisation->type_prise_en_charge === 'observation')
                 <tr>
                     <td>Forfait Observation</td>
@@ -112,17 +113,39 @@ $devise = 'FCFA';
                 </tr>
             @endif
 
+            {{-- 2. Frais soins chambre --}}
             @if($hospitalisation->frais_soins_chambre > 0)
                 <tr>
-                    <td>Soins / Prestations</td>
+                    <td>Soins / Prestations chambre</td>
                     <td class="text-center">1</td>
                     <td class="text-right">{{ number_format($hospitalisation->frais_soins_chambre, 0, ',', ' ') }}</td>
                     <td class="text-right">{{ number_format($hospitalisation->frais_soins_chambre, 0, ',', ' ') }}</td>
                 </tr>
             @endif
 
+            {{-- 3. Visite Urgentiste (si quantité > 0) --}}
+            @if(intval($hospitalisation->visite_urgentiste_qte ?? 0) > 0)
+                <tr>
+                    <td>Visite Urgentiste</td>
+                    <td class="text-center">{{ $hospitalisation->visite_urgentiste_qte }}</td>
+                    <td class="text-right">{{ number_format($hospitalisation->visite_urgentiste_pu, 0, ',', ' ') }}</td>
+                    <td class="text-right">{{ number_format($hospitalisation->visite_urgentiste_total, 0, ',', ' ') }}</td>
+                </tr>
+            @endif
+
+            {{-- 4. Soin AMI (si quantité > 0) --}}
+            @if(intval($hospitalisation->soin_ami_qte ?? 0) > 0)
+                <tr>
+                    <td>Soin AMI</td>
+                    <td class="text-center">{{ $hospitalisation->soin_ami_qte }}</td>
+                    <td class="text-right">{{ number_format($hospitalisation->soin_ami_pu, 0, ',', ' ') }}</td>
+                    <td class="text-right">{{ number_format($hospitalisation->soin_ami_total, 0, ',', ' ') }}</td>
+                </tr>
+            @endif
+
+            {{-- Total Global Brut --}}
             <tr class="total-row">
-                <td colspan="3" class="text-right">TOTAL :</td>
+                <td colspan="3" class="text-right">TOTAL BRUT :</td>
                 <td class="text-right">{{ number_format($hospitalisation->montant_total, 0, ',', ' ') }}</td>
             </tr>
         </tbody>

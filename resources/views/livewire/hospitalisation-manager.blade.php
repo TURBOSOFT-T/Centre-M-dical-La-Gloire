@@ -20,7 +20,7 @@
                             wire:model.live.debounce.300ms="search"
                             placeholder="Code, chambre, patient...">
                     </div>
-                    
+
                 </div>
 
                 {{-- Filtre par Statut --}}
@@ -42,20 +42,20 @@
             </div>
         </div>
     </div>
-{{-- Notifications --}}
-@if (session()->has('message'))
-<div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-    <i class="bi bi-check-circle-fill me-2"></i>{{ session('message') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+    {{-- Notifications --}}
+    @if (session()->has('message'))
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ session('message') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
 
-@if (session()->has('error'))
-<div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+    @if (session()->has('error'))
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
     {{-- Tableau des Hospitalisations --}}
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
@@ -143,7 +143,7 @@
                                     @endif
 
                                     {{-- Bouton de suppression sécurisé avec wire:confirm --}}
-                                   
+
 
 
                                     <button class="btn btn-sm btn-danger" onclick="toggle_confirmation({{ $hosp->id }})">
@@ -177,6 +177,7 @@
     @endif
 
     {{-- ==================== MODE CREATE (ADMISSION) ==================== --}}
+   {{-- ==================== MODE CREATE (ADMISSION) ==================== --}}
     @if($mode === 'create')
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
@@ -191,7 +192,7 @@
         <div class="card-body">
             <form wire:submit.prevent="store">
 
-                {{-- Type de Prise en Charge & Standing --}}
+                {{-- Mode de Prise en Charge --}}
                 <div class="card bg-light border-0 mb-4">
                     <div class="card-body">
                         <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-sliders me-1"></i> Mode de Prise en Charge</h6>
@@ -212,7 +213,7 @@
                                     <option value="haut_standing">Haut Standing</option>
                                     <option value="classique">Classique</option>
                                     <option value="economique">Économique</option>
-                                    <option value="post_op">Post-UP</option>
+                                    <option value="post_op">Post-OP</option>
                                 </select>
                                 @error('standing_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
@@ -324,10 +325,10 @@
                     </div>
                 </div>
 
-                {{-- Tarification & Nombre de jours --}}
+                {{-- Tarification de base --}}
                 <div class="card bg-light border-0 mb-4">
                     <div class="card-body">
-                        <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-cash-stack me-1"></i> Tarification Prévisionnelle</h6>
+                        <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-cash-stack me-1"></i> Tarification de Base</h6>
                         <div class="row g-3">
                             @if($type_prise_en_charge === 'hospitalisation')
                             <div class="col-md-3">
@@ -364,25 +365,91 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        {{-- Aperçu du montant estimé --}}
-                        <div class="mt-3 p-2 bg-white rounded border text-muted small">
-                            <i class="bi bi-info-circle text-primary me-1"></i>
-                            @if($type_prise_en_charge === 'hospitalisation')
-                            Montant estimé ({{ intval($nombre_jours) }} jour(s) × Tarif journalier + Soins) :
-                            <strong class="text-dark">
-                                {{ number_format((floatval($tarif_journalier) * intval($nombre_jours)) + floatval($frais_soins_chambre), 0, ',', ' ') }} FCFA
-                            </strong>
-                            @else
-                            Montant estimé (Forfait Observation + Soins) :
-                            <strong class="text-dark">
-                                {{ number_format(floatval($tarif_journalier) + floatval($frais_soins_chambre), 0, ',', ' ') }} FCFA
-                            </strong>
-                            @endif
+                {{-- Prestations & Soins Spécifiques --}}
+                <div class="card bg-light border-0 mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-heart-pulse me-1"></i> Prestations & Soins Spécifiques</h6>
+
+                        <!-- Visite Urgentiste -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Visite Urgentiste (Qté)</label>
+                                <input type="number" wire:model.live="visite_urgentiste_qte" class="form-control" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Prix Unitaire (FCFA)</label>
+                                <input type="number" wire:model.live="visite_urgentiste_pu" class="form-control" step="0.01" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary">Sous-total Visite Urgentiste</label>
+                                <input type="text" class="form-control bg-white fw-bold text-primary border"
+                                    value="{{ number_format($this->visiteUrgentisteTotal, 0, ',', ' ') }} FCFA" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Soin AMI -->
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Soin AMI (Qté)</label>
+                                <input type="number" wire:model.live="soin_ami_qte" class="form-control" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Prix Unitaire (FCFA)</label>
+                                <input type="number" wire:model.live="soin_ami_pu" class="form-control" step="0.01" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary">Sous-total Soin AMI</label>
+                                <input type="text" class="form-control bg-white fw-bold text-primary border"
+                                    value="{{ number_format($this->soinAmiTotal, 0, ',', ' ') }} FCFA" readonly>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                {{-- Récapitulatif Financier Global en Temps Réel --}}
+                <div class="card bg-light border-primary mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary fw-bold mb-3">
+                            <i class="bi bi-calculator me-2"></i>Récapitulatif Financier Global
+                        </h5>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Frais de séjour / Observation :</span>
+                            <strong>{{ number_format($this->fraisSejour, 0, ',', ' ') }} FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Frais Soins & Chambre :</span>
+                            <strong>{{ number_format(floatval($frais_soins_chambre ?? 0), 0, ',', ' ') }} FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Visites Urgentistes :</span>
+                            <strong>{{ number_format($this->visiteUrgentisteTotal, 0, ',', ' ') }} FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Soins AMI :</span>
+                            <strong>{{ number_format($this->soinAmiTotal, 0, ',', ' ') }} FCFA</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between text-dark fw-bold mb-2 h6">
+                            <span>MONTANT TOTAL BRUT :</span>
+                            <span>{{ number_format($this->totalEstime, 0, ',', ' ') }} FCFA</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-danger mb-2">
+                            <span>Part Assurance / Couverture :</span>
+                            <span>- {{ number_format(floatval($part_assurance ?? 0), 0, ',', ' ') }} FCFA</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between text-success h4 mb-0 fw-bold">
+                            <span>NET À PAYER PAR LE PATIENT :</span>
+                            <strong>{{ number_format($this->partPatientEstimee, 0, ',', ' ') }} FCFA</strong>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Boutons de soumission --}}
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" wire:click="backToIndex" class="btn btn-light border">Annuler</button>
                     <button type="submit" class="btn btn-primary px-4">

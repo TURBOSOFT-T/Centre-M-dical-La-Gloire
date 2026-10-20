@@ -7,13 +7,13 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            let audio =  new Audio('/icons/system-notification-199277.wav');
+            let audio = new Audio('/icons/system-notification-199277.wav');
             audio.play().catch(e => console.log("Autoplay bloqué :", e));
         });
     </script>
     @endif
 
-   
+
 
     <!-- EN-TÊTE AVEC FILTRE RAPIDE CAISSE -->
     <div class="card mb-4 border-0 shadow-sm radius-12">
@@ -41,7 +41,7 @@
                 </button>
                 @endcan
                 <!-- Filtre Rapide Caisse : Consultations Impayées -->
-                   @php
+                @php
                 $countEnAttentePaiement = \App\Models\Consultation::where('est_paye', false)->count();
                 @endphp
                 @can('consultation_pay')
@@ -149,7 +149,11 @@
                         <tr>
                             <td>
                                 <div class="font-weight-bold">{{ $c->patient->nom_complet ?? ' ' }}</div>
-                                <small class="text-muted"><i class="bx bx-phone me-1"></i> Code: {{ $c->patient->code_patient  ?? ' '}}</small>
+                                <small class="text-muted"> Code: {{ $c->patient->code_patient  ?? ' '}}</small>
+                                <div class="small text-muted">
+                                    <small class="text-muted"> Date: {{ $c->patient->created_at  ?? ' '}}</small>
+
+                                </div>
                             </td>
                             <td>
                                 <div class="font-weight-bold">{{ number_format($totalPrestations, 0, ',', ' ') }} FCFA</div>
@@ -612,9 +616,11 @@
                                 <div class="mb-3">
                                     <label class="form-label font-weight-bold">Type de consultation <span class="text-danger">*</span></label>
                                     <select wire:model.live="type" class="form-select @error('type') is-invalid @elseif(!empty($type) && !$errors->has('type')) is-valid @enderror">
-
-                                        @foreach ($typeConsultations ?? [] as $typeOption)
-                                        <option value="{{ $typeOption }}">{{ ucfirst(str_replace('_', ' ', $typeOption)) }}</option>
+                                        <option value="">-- Sélectionner un type --</option>
+                                        @foreach ($this->getTypeConsultations() as $key => $details)
+                                        <option value="{{ $key }}">
+                                            {{ $details['nom'] }}
+                                        </option>
                                         @endforeach
                                     </select>
                                     @error('type') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
@@ -635,14 +641,7 @@
                                 </div>
                                 @endcan
 
-                                <div>
-                                    <label class="form-label font-weight-bold">Tarif de base (FCFA) <span class="text-danger">*</span></label>
-                                    <input type="number"
-                                        wire:model.live="tarif_brut"
-                                        class="form-control @error('tarif_brut') is-invalid @elseif($tarif_brut !== null && !$errors->has('tarif_brut')) is-valid @enderror"
-                                        placeholder="5000">
-                                    @error('tarif_brut') <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i> {{ $message }}</div> @enderror
-                                </div>
+
                             </div>
 
                             <div class="col-md-12 mb-3">
@@ -933,8 +932,8 @@
 
                                 <textarea wire:model.live.debounce.500ms="traitement_sortie" class="form-control" rows="2" placeholder="Recommandations et soins à domicile..."></textarea>
                             </div> -->
-                                     <div class="mb-3" wire:ignore>
-                                
+                            <div class="mb-3" wire:ignore>
+
                                 <textarea
                                     rows="5"
                                     id="ordonnance"
