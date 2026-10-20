@@ -642,7 +642,7 @@
                     {{ $qteProduits }} médicament(s) / produit(s)<br>
                     <small style="color: #6c757d; font-style: italic;">(voir détails ci-joint)</small>
                 </td>
-                <td style="text-align: right;">{{ number_format($puMoyenProd, 0, ',', ' ') }}</td>
+                <td style="text-align: right;">{{ number_format($tarifProduits, 0, ',', ' ') }}</td>
                 <td style="text-align: center;">{{ $qteProduits }}</td>
                 <td style="text-align: right; color: #1769aa;">{{ number_format($partTicketProd, 0, ',', ' ') }}</td>
                 <td style="text-align: right; color: #198754;">{{ number_format($partPayeurProd, 0, ',', ' ') }}</td>
