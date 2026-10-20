@@ -25,6 +25,8 @@ class PrescriptionController extends Controller
 
         return $pdf->stream('Ordonnance_' . ($consultation->code_consultation ?? $id) . '.pdf');
     }
+
+    
     public function imprimerFactureConsultation($id)
 {
     $consultation = Consultation::with([

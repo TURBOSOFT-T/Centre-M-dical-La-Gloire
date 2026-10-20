@@ -50,25 +50,25 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     @yield('header')
 
-<script>
-    function playSound(type = 'success') {
-        // Vous pouvez adapter le fichier selon le type (succès, erreur, etc.)
-        let audioPath1 = "{{ asset('audio/notification.mp3') }}";
-         const audioPath = new Audio('/icons/system-notification-199277.wav');
-        
-        let audio = new Audio(audioPath);
-        audio.play().catch(error => {
-            console.log("Lecture audio bloquée par les politiques du navigateur : ", error);
-        });
-    }
+    <script>
+        function playSound(type = 'success') {
+            // Vous pouvez adapter le fichier selon le type (succès, erreur, etc.)
+            let audioPath1 = "{{ asset('audio/notification.mp3') }}";
+            const audioPath = new Audio('/icons/system-notification-199277.wav');
 
-    // Écouteur d'événement Livewire v3 pour déclencher le son à distance
-    document.addEventListener('livewire:initialized', () => {
-        Livewire.on('play-notification', (event) => {
-            playSound(event.type);
+            let audio = new Audio(audioPath);
+            audio.play().catch(error => {
+                console.log("Lecture audio bloquée par les politiques du navigateur : ", error);
+            });
+        }
+
+        // Écouteur d'événement Livewire v3 pour déclencher le son à distance
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('play-notification', (event) => {
+                playSound(event.type);
+            });
         });
-    });
-</script>
+    </script>
 
     <script>
         function url(url) {
@@ -229,19 +229,40 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 @endrole
  -->
 
-                @can('assurance_view')
-                <li>
-                    <a href="{{ route('assurances') }}">
-                        <div class="parent-icon icon-color-3">
-                            <i class="bx bx-shield-quarter"></i>
-                        </div>
-                        <div class="menu-title">
-                            Assurances Santé
-                        </div>
-                    </a>
-                </li>
-                @endcan
-
+@can('assurance_view')
+<li>
+    <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon icon-color-4">
+            <i class="bx bx-shield-alt-2"></i>
+        </div>
+        <div class="menu-title">
+            Assurance
+        </div>
+    </a>
+    <ul>
+        <li>
+            <a href="{{ route('assurances') }}">
+                <div class="parent-icon icon-color-3">
+                    <i class="bx bx-shield-quarter"></i>
+                </div>
+                <div class="menu-title">
+                    Assurances Santé
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('patients.assures') }}">
+                <div class="parent-icon icon-color-4">
+                    <i class="bx bx-group"></i>
+                </div>
+                <div class="menu-title">
+                    Patients Assurés
+                </div>
+            </a>
+        </li>
+    </ul>
+</li>
+@endcan
 
                 @can('examen_view')
                 <li>
@@ -417,42 +438,42 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
 
 
-          
-{{-- 🔹 Menu Déroulant Statistiques & Bilans --}}
-            @role('admin')
-            <li>
-                <a href="javascript:;" class="has-arrow">
-                    <div class="parent-icon icon-color-6">
-                        <i class="ri-bar-chart-box-line"></i>
-                    </div>
-                    <div class="menu-title">
-                        Statistiques & Bilans
-                    </div>
-                </a>
-                <ul>
-                    {{-- Sous-menu Hospitalisations --}}
-                    <li>
-                        <a href="{{ route('hospitalisations.stats') }}">
-                            <i class="ri-hospital-line me-2"></i> Hospitalisations
-                        </a>
-                    </li>
 
-                    {{-- 🔹 NOUVEAU : Sous-menu Consultations --}}
-                    <li>
-                        <a href="{{ route('consultations.stats') }}">
-                            <i class="ri-stethoscope-line me-2"></i> Consultations
-                        </a>
-                    </li>
+                {{-- 🔹 Menu Déroulant Statistiques & Bilans --}}
+                @role('admin')
+                <li>
+                    <a href="javascript:;" class="has-arrow">
+                        <div class="parent-icon icon-color-6">
+                            <i class="ri-bar-chart-box-line"></i>
+                        </div>
+                        <div class="menu-title">
+                            Statistiques & Bilans
+                        </div>
+                    </a>
+                    <ul>
+                        {{-- Sous-menu Hospitalisations --}}
+                        <li>
+                            <a href="{{ route('hospitalisations.stats') }}">
+                                <i class="ri-hospital-line me-2"></i> Hospitalisations
+                            </a>
+                        </li>
 
-                    {{-- Sous-menu Les produits --}}
-                    <li>
-                        <a href="{{ route('admin.statistiques') }}">
-                            <i class="ri-box-3-line me-2"></i> Les produits
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            @endrole
+                        {{-- 🔹 NOUVEAU : Sous-menu Consultations --}}
+                        <li>
+                            <a href="{{ route('consultations.stats') }}">
+                                <i class="ri-stethoscope-line me-2"></i> Consultations
+                            </a>
+                        </li>
+
+                        {{-- Sous-menu Les produits --}}
+                        <li>
+                            <a href="{{ route('admin.statistiques') }}">
+                                <i class="ri-box-3-line me-2"></i> Les produits
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endrole
 
 
 

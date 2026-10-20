@@ -36,7 +36,7 @@ class GestionConsultations extends Component
     public $medecin_id;
     public $dossier_medical_id;
     public $date_heure_rdv;
-    public $type = 'specialiste';
+  
     public $statut = 'programme';
 
     // Anamnèse & Motif
@@ -59,6 +59,7 @@ class GestionConsultations extends Component
     public $notes_privees;
 
     // Facturation & Règlement
+   public $type = 'medecin_general';
     public $tarif_brut = 5000;
     public $montantExamens = 0; // Total cumulé des examens prescrits
     public $est_paye = false;
@@ -112,7 +113,7 @@ class GestionConsultations extends Component
     public $nouveau_genre;
     public $nouveau_date_naissance;
     public $nouveau_groupe_sanguin;
-    public$historiquePaiements;
+    public $historiquePaiements;
 
     public $prise_en_charge = '';
 
@@ -128,24 +129,29 @@ class GestionConsultations extends Component
         $this->isModificationsModalOpen = true;
     }
 
+    public function updatedType($value)
+    {
+        $this->tarif_brut = $this->getPrixConsultation($value);
+    }
+
     public function closeModificationsModal()
     {
         $this->isModificationsModalOpen = false;
         $this->consultationModificationsDetails = null;
     }
-public function openHistoriqueModal($id)
-{
-    $consultation = Consultation::findOrFail($id);
-    
-    // Vous pouvez stocker la consultation sélectionnée et ouvrir la modale
-    $this->selectedConsultation = $consultation;
-    $this->historiquePaiements = is_string($consultation->historique_paiements) 
-        ? json_decode($consultation->historique_paiements, true) 
-        : ($consultation->historique_paiements ?? []);
+    public function openHistoriqueModal($id)
+    {
+        $consultation = Consultation::findOrFail($id);
 
-    // Déclenchez l'ouverture de la modale (ex: via un événement AlpineJS ou un drapeau Livewire)
-    $this->dispatch('open-historique-modal'); 
-}
+        // Vous pouvez stocker la consultation sélectionnée et ouvrir la modale
+        $this->selectedConsultation = $consultation;
+        $this->historiquePaiements = is_string($consultation->historique_paiements)
+            ? json_decode($consultation->historique_paiements, true)
+            : ($consultation->historique_paiements ?? []);
+
+        // Déclenchez l'ouverture de la modale (ex: via un événement AlpineJS ou un drapeau Livewire)
+        $this->dispatch('open-historique-modal');
+    }
     /**
      * Active ou désactive un produit dans la prescription avec vérification du stock
      */
@@ -293,7 +299,7 @@ public function openHistoriqueModal($id)
     }
 
     #[On('examenPrescrit')]
-    
+
     public function rafraichirConsultation()
     {
         if ($this->selectedConsultationId) {
@@ -372,7 +378,7 @@ public function openHistoriqueModal($id)
         // 1. Calcul du total brut (Consultation + Examens + Produits)
         $tarifConsultation = $this->consultationEnPaiement->tarif_brut ?? 5000;
         $tarifExamens = $this->consultationEnPaiement->demandesExamens ? $this->consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0;
-        
+
         $tarifProduits = 0;
         if ($this->consultationEnPaiement->relationLoaded('produits') ? $this->consultationEnPaiement->produits : $this->consultationEnPaiement->produits()->exists()) {
             foreach ($this->consultationEnPaiement->produits as $prod) {
@@ -424,7 +430,7 @@ public function openHistoriqueModal($id)
         $this->closePaiementModal();
     }
 
-   
+
 
 
     public function filtrerEnAttentePaiement()
@@ -493,7 +499,7 @@ public function openHistoriqueModal($id)
         $this->searchMedecin = '';
         $this->medecin_id = auth()->id();
         $this->date_heure_rdv = date('Y-m-d\TH:i');
-        $this->type = 'specialiste';
+        $this->type = 'medecin_general';
         $this->statut = 'programme';
 
         $this->motif = '';
@@ -661,6 +667,7 @@ public function openHistoriqueModal($id)
         $this->montantTotal = $montantProduits;
     }
 
+
     public function saveConsultation()
     {
         $validatedData = $this->validate();
@@ -689,8 +696,6 @@ public function openHistoriqueModal($id)
                 ]);
 
                 $this->patient_id = $nouveauPatient->id;
-
-                
             }
         }
 
@@ -699,45 +704,53 @@ public function openHistoriqueModal($id)
             $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
         }
 
+        $isEdit = !empty($this->consultation_id);
+
         $dataToSave = [
-            'patient_id'                    => $this->patient_id,
-            'medecin_id'                    => $this->medecin_id,
-            'dossier_medical_id'            => $this->dossier_medical_id,
-            'date_heure_rdv'                => $this->date_heure_rdv,
-            'type'                          => str_replace(' ', '_', strtolower(trim($this->type))),
-            'prise_en_charge'               => str_replace(' ', '_', strtolower(trim($this->prise_en_charge))) ?: null,
-            'statut'                        => $this->statut,
-            'tarif_brut'                    => $this->tarif_brut,
-            'motif'                         => $this->motif ?: null,
-            'historique_maladie'            => $this->historique_maladie ?: null,
-            'antecedents_maladie'           => $this->antecedents_maladie ?: null,
-            'mode_de_vie'                   => $this->mode_de_vie ?: null,
-            'terrain'                       => $this->terrain ?: null,
-            'examen_physique'               => $this->examen_physique ?: null,
-            'examen_general'                => $this->examen_general ?: null,
-            'hypothese_diagnostique'        => $this->hypothese_diagnostique ?: null,
-            'diagnostic'                    => $this->diagnostic ?: null,
-            'resultats_analyses'            => $this->resultats_analyses ?: null,
-            'resultats'                     => $this->resultats ?: null,
-            'ordonnance'                    => $this->ordonnance ?: null,
-            'traitement'                    => is_array($this->traitement) ? $this->traitement : (!empty($this->traitement) ? json_decode($this->traitement, true) : null),
-            'traitement_sortie'             => $this->traitement_sortie ?: null,
-            'evolution_maladie'             => $this->evolution_maladie ?: null,
-            'notes_privees'                 => $this->notes_privees ?: null,
-            'complication'                     => $this->complication ?: null,
-            'constantes'                    => [
+            'patient_id'                => $this->patient_id,
+            'medecin_id'                => $this->medecin_id,
+            'dossier_medical_id'        => $this->dossier_medical_id,
+            'date_heure_rdv'            => $this->date_heure_rdv,
+            'type'                      => str_replace(' ', '_', strtolower(trim($this->type))),
+            'prise_en_charge'           => str_replace(' ', '_', strtolower(trim($this->prise_en_charge))) ?: null,
+            'statut'                    => $this->statut,
+            'tarif_brut'                => $this->tarif_brut,
+            'motif'                     => $this->motif ?: null,
+            'historique_maladie'        => $this->historique_maladie ?: null,
+            'antecedents_maladie'       => $this->antecedents_maladie ?: null,
+            'mode_de_vie'               => $this->mode_de_vie ?: null,
+            'terrain'                   => $this->terrain ?: null,
+            'examen_physique'           => $this->examen_physique ?: null,
+            'examen_general'            => $this->examen_general ?: null,
+            'hypothese_diagnostique'    => $this->hypothese_diagnostique ?: null,
+            'diagnostic'                => $this->diagnostic ?: null,
+            'resultats_analyses'        => $this->resultats_analyses ?: null,
+            'resultats'                 => $this->resultats ?: null,
+            'ordonnance'                => $this->ordonnance ?: null,
+            'traitement'                => is_array($this->traitement) ? $this->traitement : (!empty($this->traitement) ? json_decode($this->traitement, true) : null),
+            'traitement_sortie'         => $this->traitement_sortie ?: null,
+            'evolution_maladie'         => $this->evolution_maladie ?: null,
+            'notes_privees'             => $this->notes_privees ?: null,
+            'complication'              => $this->complication ?: null,
+            'constantes'                => [
                 'poids'       => $this->poids,
                 'tension'     => $this->tension,
                 'temperature' => $this->temperature,
                 'pouls'       => $this->pouls,
                 'glycemie'    => $this->glycemie,
             ],
-            'evaluations'                   => !empty($this->evaluations) ? $this->evaluations : null,
+            'evaluations'                 => !empty($this->evaluations) ? $this->evaluations : null,
             'visite_medicale_journaliere' => !empty($this->visite_medicale_journaliere) ? $this->visite_medicale_journaliere : null,
-            'bilan'                         => !empty($this->bilan) ? $this->bilan : null,
+            'bilan'                       => !empty($this->bilan) ? $this->bilan : null,
+            'modifications_historique'    => [],
+            'est_modifie'                 => false,
+            'vu_par_responsable'          => true,
         ];
 
-        $isEdit = !empty($this->consultation_id);
+        // Enregistrement du créateur uniquement à la création
+        if (!$isEdit) {
+            $dataToSave['user_id'] = auth()->id();
+        }
 
         if ($isEdit) {
             $ancienneConsultation = Consultation::find($this->consultation_id);
@@ -762,10 +775,9 @@ public function openHistoriqueModal($id)
                 'mode_de_vie'                 => 'Mode de vie',
                 'resultats_analyses'          => 'Résultats d\'analyses',
                 'traitement'                  => 'Traitement',
-                'complication'                  => 'Complication',
+                'complication'                => 'Complication',
                 'traitement_sortie'           => 'Traitement de sortie',
                 'notes_privees'               => 'Notes privées',
-                
             ];
 
             foreach ($champsASuivre as $champ => $libelle) {
@@ -838,11 +850,10 @@ public function openHistoriqueModal($id)
 
         if ($montantProduits > 0) {
             if (!$commande) {
-                // Création de la commande avec le bon statut dès le départ
                 $commande = \App\Models\commandes::create([
                     'consultation_id' => $consultation->id,
                     'client_id'       => $consultation->patient_id,
-                    'reference'       => 'SWB-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
+                    'reference'       => 'CMLG-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
                     'user_id'         => auth()->id(),
                     'nom'             => $consultation->patient?->nom,
                     'phone'           => $consultation->patient?->telephone,
@@ -850,14 +861,12 @@ public function openHistoriqueModal($id)
                     'statut'          => $statutCommande,
                 ]);
             } else {
-                // Mise à jour de la commande existante
                 $commande->update([
                     'montant_total'   => $montantProduits,
                     'statut'          => $statutCommande,
                 ]);
             }
 
-            // Nettoyage et recréation des lignes de contenu de commande
             \App\Models\contenu_commande::where('id_commande', $commande->id)->delete();
 
             foreach ($syncData as $produitId => $info) {
@@ -872,15 +881,16 @@ public function openHistoriqueModal($id)
                 ]);
             }
         } else {
-            // S'il n'y a plus de produits sélectionnés, on supprime la commande et ses lignes
             if ($commande) {
                 \App\Models\contenu_commande::where('id_commande', $commande->id)->delete();
                 $commande->delete();
             }
         }
 
-        // 2. Synchronisation avec la consultation
-        $consultation->produits()->sync($syncData);
+        // Synchronisation des produits avec la consultation
+        if (method_exists($consultation, 'produits')) {
+            $consultation->produits()->sync($syncData);
+        }
 
         // Notification
         $nomPatient = $consultation->patient?->nom_complet
@@ -916,17 +926,275 @@ public function openHistoriqueModal($id)
             'produitsSelectionnes',
             'searchProduit',
         ]);
-if (method_exists($consultation, 'produits')) {
-            $consultation->produits()->sync($syncData);
-        }
+
         $this->dispatch('play-notification', type: 'success');
-       
+
         session()->flash('message', $isEdit ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
         $this->closeModal();
     }
 
-   
 
+    public function saveConsultation2()
+    {
+        $validatedData = $this->validate();
+
+        if (empty($this->consultation_id) && $this->isCreatingNewPatient) {
+            $this->validate([
+                'nouveau_nom' => 'required|string|max:255',
+                'nouveau_telephone' => 'required|string|max:50',
+            ]);
+
+            $patientExistant = null;
+            if (!empty($this->nouveau_telephone)) {
+                $patientExistant = Patient::where('telephone', $this->nouveau_telephone)->first();
+            }
+
+            if ($patientExistant) {
+                $this->patient_id = $patientExistant->id;
+                session()->flash('info', "Ce patient existait déjà dans la base de données. Il a été associé automatiquement.");
+            } else {
+                $nouveauPatient = Patient::create([
+                    'code_patient' => 'PAT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+                    'uuid'         => (string) Str::uuid(),
+                    'nom'          => $this->nouveau_nom,
+                    'telephone'    => $this->nouveau_telephone,
+                    'is_synced'    => false,
+                ]);
+
+                $this->patient_id = $nouveauPatient->id;
+            }
+        }
+
+        if (!$this->dossier_medical_id && $this->patient_id) {
+            $patient = Patient::find($this->patient_id);
+            $this->dossier_medical_id = $patient?->dossier_medical_id ?? $patient?->dossierMedical?->id;
+        }
+
+        $dataToSave = [
+            'patient_id'                => $this->patient_id,
+            'medecin_id'                => $this->medecin_id,
+            'dossier_medical_id'        => $this->dossier_medical_id,
+            'date_heure_rdv'            => $this->date_heure_rdv,
+            'type'                      => str_replace(' ', '_', strtolower(trim($this->type))),
+            'prise_en_charge'           => str_replace(' ', '_', strtolower(trim($this->prise_en_charge))) ?: null,
+            'statut'                    => $this->statut,
+            'tarif_brut'                => $this->tarif_brut,
+            'motif'                     => $this->motif ?: null,
+            'historique_maladie'        => $this->historique_maladie ?: null,
+            'antecedents_maladie'       => $this->antecedents_maladie ?: null,
+            'mode_de_vie'               => $this->mode_de_vie ?: null,
+            'terrain'                   => $this->terrain ?: null,
+            'examen_physique'           => $this->examen_physique ?: null,
+            'examen_general'            => $this->examen_general ?: null,
+            'hypothese_diagnostique'    => $this->hypothese_diagnostique ?: null,
+            'diagnostic'                => $this->diagnostic ?: null,
+            'resultats_analyses'        => $this->resultats_analyses ?: null,
+            'resultats'                 => $this->resultats ?: null,
+            'ordonnance'                => $this->ordonnance ?: null,
+            'traitement'                => is_array($this->traitement) ? $this->traitement : (!empty($this->traitement) ? json_decode($this->traitement, true) : null),
+            'traitement_sortie'         => $this->traitement_sortie ?: null,
+            'evolution_maladie'         => $this->evolution_maladie ?: null,
+            'notes_privees'             => $this->notes_privees ?: null,
+            'complication'              => $this->complication ?: null,
+            'constantes'                => [
+                'poids'       => $this->poids,
+                'tension'     => $this->tension,
+                'temperature' => $this->temperature,
+                'pouls'       => $this->pouls,
+                'glycemie'    => $this->glycemie,
+            ],
+            'evaluations'               => !empty($this->evaluations) ? $this->evaluations : null,
+            'visite_medicale_journaliere' => !empty($this->visite_medicale_journaliere) ? $this->visite_medicale_journaliere : null,
+            'bilan'                     => !empty($this->bilan) ? $this->bilan : null,
+
+            'modifications_historique'      => [],
+            'est_modifie'                   => false,
+            'vu_par_responsable'            => true,
+        ];
+
+        $isEdit = !empty($this->consultation_id);
+
+        if ($isEdit) {
+            $ancienneConsultation = Consultation::find($this->consultation_id);
+            $changements = [];
+
+            $champsASuivre = [
+                'motif'                     => 'Motif',
+                'diagnostic'                => 'Diagnostic',
+                'ordonnance'                => 'Ordonnance',
+                'terrain'                   => 'Terrain',
+                'tarif_brut'                => 'Tarif Brut',
+                'statut'                    => 'Statut',
+                'type'                      => 'Type de consultation',
+                'resultats'                 => 'Résultats',
+                'historique_maladie'        => 'Historique de la maladie',
+                'antecedents_maladie'       => 'Antécédents',
+                'examen_physique'           => 'Examen physique',
+                'evaluations'               => 'Evaluations',
+                'evolution_maladie'         => 'Evolution de la maladie',
+                'visite_medicale_journaliere' => 'Visite médicale journalière',
+                'constantes'                => 'Constes vitalesant',
+                'mode_de_vie'               => 'Mode de vie',
+                'resultats_analyses'        => 'Résultats d\'analyses',
+                'traitement'                => 'Traitement',
+                'complication'              => 'Complication',
+                'traitement_sortie'         => 'Traitement de sortie',
+                'notes_privees'             => 'Notes privées',
+            ];
+
+            foreach ($champsASuivre as $champ => $libelle) {
+                $valeurAncienne = $ancienneConsultation->$champ ?? '';
+                $valeurNouvelle = $dataToSave[$champ] ?? '';
+
+                if (is_array($valeurAncienne)) $valeurAncienne = json_encode($valeurAncienne, JSON_UNESCAPED_UNICODE);
+                if (is_array($valeurNouvelle)) $valeurNouvelle = json_encode($valeurNouvelle, JSON_UNESCAPED_UNICODE);
+
+                $strAncienne = (string) $valeurAncienne;
+                $strNouvelle = (string) $valeurNouvelle;
+
+                if ($strAncienne !== $strNouvelle) {
+                    $changements[$champ] = [
+                        'libelle' => $libelle,
+                        'ancien'  => $strAncienne ?: '(Vide)',
+                        'nouveau' => $strNouvelle ?: '(Vide)',
+                    ];
+                }
+            }
+
+            if (!empty($changements)) {
+                $dataToSave['est_modifie'] = true;
+                $dataToSave['vu_par_responsable'] = false;
+                $dataToSave['modifications_historique'] = $changements;
+            }
+        }
+
+        $consultation = Consultation::updateOrCreate(
+            ['id' => $this->consultation_id],
+            $dataToSave
+        );
+
+        // Synchronisation des produits et gestion des stocks
+        $syncData = [];
+        $montantProduits = 0;
+
+        foreach ($this->produitsSelectionnes as $produitId => $details) {
+            if (!empty($details['selected'])) {
+                $qte = (int) ($details['quantite'] ?? 1);
+                $produit = \App\Models\produits::find($produitId);
+
+                if ($produit) {
+                    if (!$isEdit) {
+                        $produit->decrement('stock', $qte);
+                    }
+
+                    $pu = $produit->prix ?? $produit->prix_vente ?? 0;
+                    $totalLigne = $pu * $qte; // Correction de l'opérateur de multiplication (*)
+
+                    $syncData[$produitId] = [
+                        'quantite'            => $qte,
+                        'voie_administration' => $details['voie_administration'] ?? null,
+                        'posologie'           => $details['posologie'] ?? null,
+                        'prix_unitaire'       => $pu,
+                    ];
+
+                    $montantProduits += $totalLigne;
+                }
+            }
+        }
+
+        // Détermination du statut de la commande (Terminé + Payé)
+        $estTermine = (strtolower($consultation->statut ?? '') === 'termine' || strtolower($consultation->statut ?? '') === 'terminé');
+        $estPaye = ($consultation->est_paye ?? false) === true || in_array(strtolower($consultation->statut_paiement ?? ''), ['paye', 'payé', 'paid']);
+        $statutCommande = ($estTermine && $estPaye) ? 'paye' : 'en_attente';
+
+        // Gestion de la commande en arrière-plan
+        $commande = \App\Models\commandes::where('consultation_id', $consultation->id)->first();
+
+        if ($montantProduits > 0) {
+            if (!$commande) {
+                $commande = \App\Models\commandes::create([
+                    'consultation_id' => $consultation->id,
+                    'client_id'       => $consultation->patient_id,
+                    'reference'       => 'CMLG-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
+                    'user_id'         => auth()->id(),
+                    'nom'             => $consultation->patient?->nom,
+                    'phone'           => $consultation->patient?->telephone,
+                    'montant_total'   => $montantProduits,
+                    'statut'          => $statutCommande,
+                ]);
+            } else {
+                $commande->update([
+                    'montant_total'   => $montantProduits,
+                    'statut'          => $statutCommande,
+                ]);
+            }
+
+            \App\Models\contenu_commande::where('id_commande', $commande->id)->delete();
+
+            foreach ($syncData as $produitId => $info) {
+                $totalLigne = $info['prix_unitaire'] * $info['quantite'];
+                \App\Models\contenu_commande::create([
+                    'id_commande'   => $commande->id,
+                    'id_produit'    => $produitId,
+                    'quantite'      => $info['quantite'],
+                    'quantity'      => $info['quantite'],
+                    'prix_unitaire' => $info['prix_unitaire'],
+                    'prix'          => $totalLigne,
+                ]);
+            }
+        } else {
+            if ($commande) {
+                \App\Models\contenu_commande::where('id_commande', $commande->id)->delete();
+                $commande->delete();
+            }
+        }
+
+        // Synchronisation des produits avec la consultation
+        if (method_exists($consultation, 'produits')) {
+            $consultation->produits()->sync($syncData);
+        }
+
+        // Notification
+        $nomPatient = $consultation->patient?->nom_complet
+            ?? trim(($consultation->patient?->nom ?? '') . ' ' . ($consultation->patient?->prenom ?? ''))
+            ?? 'Patient';
+
+        $notification = new notifications();
+        $notification->url = '#';
+        if ($isEdit) {
+            $notification->titre = "Consultation modifiée";
+            $notification->message = "Consultation de {$nomPatient} mise à jour.";
+            $notification->type = "consultation_modification";
+        } else {
+            $notification->titre = "Nouvelle consultation";
+            $notification->message = "Enregistrée pour {$nomPatient}.";
+            $notification->type = "consultation_creation";
+        }
+        $notification->statut = "unread";
+        $notification->save();
+
+        $this->selectedConsultationId = $consultation->id;
+
+        $this->reset([
+            'patient_id',
+            'searchPatient',
+            'isCreatingNewPatient',
+            'nouveau_nom',
+            'nouveau_prenom',
+            'nouveau_telephone',
+            'nouveau_genre',
+            'nouveau_date_naissance',
+            'nouveau_groupe_sanguin',
+            'produitsSelectionnes',
+            'searchProduit',
+        ]);
+
+        $this->dispatch('play-notification', type: 'success');
+
+        session()->flash('message', $isEdit ? 'Consultation mise à jour avec succès.' : 'Consultation enregistrée avec succès.');
+        $this->closeModal();
+    }
+   
     public function showConsultation($id)
     {
         $this->selectedConsultation = Consultation::with([
@@ -963,8 +1231,18 @@ if (method_exists($consultation, 'produits')) {
 
    public function render()
     {
+        $user = auth()->user();
+        $userId = auth()->id();
+
         $consultations = Consultation::query()
             ->with(['patient.assurance', 'medecin', 'demandesExamens', 'produits'])
+            // Filtrage par rôle : l'admin voit tout, les autres voient uniquement leurs affectations ou créations
+            ->when($user && !$user->hasRole('admin') && !$user->is_admin, function ($query) use ($userId) {
+                $query->where(function ($q) use ($userId) {
+                    $q->where('medecin_id', $userId)
+                      ->orWhere('user_id', $userId);
+                });
+            })
             ->when($this->search, function ($query) {
                 $query->whereHas('patient', function ($q) {
                     $q->where('nom', 'like', '%' . $this->search . '%')
@@ -996,19 +1274,18 @@ if (method_exists($consultation, 'produits')) {
         // Récupération dynamique des patients selon la recherche dans la modale
         $patients = !empty($this->searchPatient)
             ? Patient::where('nom', 'like', '%' . $this->searchPatient . '%')
-                ->orWhere('prenom', 'like', '%' . $this->searchPatient . '%')
-                ->orWhere('telephone', 'like', '%' . $this->searchPatient . '%')
-                ->limit(10)
-                ->get()
+            ->orWhere('prenom', 'like', '%' . $this->searchPatient . '%')
+            ->orWhere('telephone', 'like', '%' . $this->searchPatient . '%')
+            ->limit(10)
+            ->get()
             : Patient::take(10)->get();
 
         // Récupération dynamique des médecins
         $medecins = User::when(!empty($this->searchMedecin), function ($q) {
             $q->where('nom', 'like', '%' . $this->searchMedecin . '%')
-              ->orWhere('prenom', 'like', '%' . $this->searchMedecin . '%')
-              ->orWhere('email', 'like', '%' . $this->searchMedecin . '%')
+                ->orWhere('prenom', 'like', '%' . $this->searchMedecin . '%')
+                ->orWhere('email', 'like', '%' . $this->searchMedecin . '%')
                 ->orWhere('telephone', 'like', '%' . $this->searchMedecin . '%');
-
         })->get();
 
         // Récupération des produits pour la prescription dans la modale
@@ -1016,11 +1293,9 @@ if (method_exists($consultation, 'produits')) {
         if (class_exists(\App\Models\produits::class)) {
             $produits = \App\Models\produits::when(!empty($this->searchProduit), function ($q) {
                 $q->where('nom', 'like', '%' . $this->searchProduit . '%')
-                  ->orWhere('description', 'like', '%' . $this->searchProduit . '%');
+                    ->orWhere('description', 'like', '%' . $this->searchProduit . '%');
             })->limit(10)->get();
         }
-
-        
 
         return view('livewire.consultations.gestion-consultations', [
             'consultations' => $consultations,

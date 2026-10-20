@@ -3,6 +3,7 @@
 use App\Http\Controllers\Back\{
     AdminController,
     StatistiqueController,
+    FactureController
 };
 
 
@@ -267,10 +268,25 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/shop/delete/{id}', [App\Http\Controllers\ShopController::class, 'destroy'])->name('shop.delete');
     });
 
+Route::middleware(['auth'])->group(function () {
 
+    // Routes de génération PDF des factures
+    Route::get('/factures/medicaments/{id}', [FactureController::class, 'genererFactureMedicaments'])
+        ->name('factures.medicaments');
+
+    Route::get('/factures/examens/{id}', [FactureController::class, 'genererFactureExamens'])
+        ->name('factures.examens');
+
+    Route::get('/factures/globale/{id}', [FactureController::class, 'genererFactureGlobale'])
+        ->name('factures.globale');
+
+});
 
   Route::get('patients', [AdminController::class, 'patients'])
         ->name('patients');
+
+          Route::get('patientsassures', [AdminController::class, 'patientsAssures'])
+        ->name('patients.assures');
         Route::get('/corbeillepatient', [AdminController::class, 'corbeillepatient'])->name('corbeillepatient');
         
   Route::get('consultations', [AdminController::class, 'consultations'])

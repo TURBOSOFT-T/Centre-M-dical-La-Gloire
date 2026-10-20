@@ -65,17 +65,17 @@ class Consultation extends Model
     ];
 
     protected $casts = [
-        'date_heure_rdv'            => 'datetime',
-        'tarif_brut'                => 'decimal:2',
-        'montant_paye'              => 'decimal:2',
-        'est_paye'                  => 'boolean',
-        'constantes'                => 'array',
-        'evaluations'               => 'array',
+        'date_heure_rdv'              => 'datetime',
+        'tarif_brut'                  => 'decimal:2',
+        'montant_paye'                => 'decimal:2',
+        'est_paye'                    => 'boolean',
+        'constantes'                  => 'array',
+        'evaluations'                 => 'array',
         'visite_medicale_journaliere' => 'array',
-        'historique_paiements'      => 'array',
-        'bilan'                     => 'array',
-        'modifications_historique'  => 'array',
-        'traitement'                => 'array',
+        'historique_paiements'        => 'array',
+        'bilan'                       => 'array',
+        'modifications_historique'    => 'array',
+        'traitement'                  => 'array',
     ];
 
     /**
@@ -111,8 +111,9 @@ class Consultation extends Model
         $tarifExamens = $this->demandesExamens ? (float) $this->demandesExamens->sum('tarif_brut') : 0;
         
         $tarifProduits = 0;
-        if ($this->relationLoaded('produits') ? $this->produits : $this->produits()->exists()) {
-            foreach ($this->produits as $prod) {
+        $produits = $this->relationLoaded('produits') ? $this->produits : $this->produits()->get();
+        if ($produits) {
+            foreach ($produits as $prod) {
                 $qte = $prod->pivot->quantite ?? 1;
                 $pu = $prod->pivot->prix_unitaire ?? $prod->pivot->prix ?? $prod->prix ?? 0;
                 $tarifProduits += ($qte * $pu);
@@ -128,7 +129,6 @@ class Consultation extends Model
     public function getTarifProduitsAttribute(): float
     {
         $tarifProduits = 0;
-        
         $produits = $this->relationLoaded('produits') ? $this->produits : $this->produits;
 
         if ($produits) {
@@ -152,7 +152,7 @@ class Consultation extends Model
         if ($this->patient && $this->patient->est_assure && $this->patient->assurance) {
             $taux = (float) $this->patient->taux_couverture;
             $partAssurance = round(($total * $taux) / 100);
-            $total = $total - $partAssurance;
+            $total = max(0, $total - $partAssurance);
         }
 
         $reste = $total - (float) ($this->montant_paye ?? 0);
@@ -256,4 +256,10 @@ class Consultation extends Model
     {
         return $this->belongsTo(commandes::class, 'commande_id');
     }
+// Dans app/Models/Consultation.php
+
+public function hospitalisation()
+{
+    return $this->belongsTo(\App\Models\Hospitalisation::class, 'hospitalisation_id');
+}
 }
