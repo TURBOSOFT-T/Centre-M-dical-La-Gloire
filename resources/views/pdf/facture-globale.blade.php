@@ -605,7 +605,7 @@
                     {{ $qteExamens }} examen(s) effectué(s)<br>
                     <small style="color: #6c757d; font-style: italic;">(voir détails ci-joint)</small>
                 </td>
-                <td style="text-align: right;">{{ number_format($puMoyenExam, 0, ',', ' ') }}</td>
+                <td style="text-align: right;">{{ number_format($tarifExamens, 0, ',', ' ') }}</td>
                 <td style="text-align: center;">{{ $qteExamens }}</td>
                 <td style="text-align: right; color: #1769aa;">{{ number_format($partTicketExam, 0, ',', ' ') }}</td>
                 <td style="text-align: right; color: #198754;">{{ number_format($partPayeurExam, 0, ',', ' ') }}</td>
