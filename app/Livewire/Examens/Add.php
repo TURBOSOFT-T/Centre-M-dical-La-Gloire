@@ -76,7 +76,7 @@ class Add extends Component
         $examen = $this->examen ?? new Examen();
         $examen->nom = $this->nom;
         $examen->type = $this->type;
-        $examen->user_id = auth()->id(); // Enregistrement de l'utilisateur connecté
+     //   $examen->user_id = auth()->id(); // Enregistrement de l'utilisateur connecté
         
         // Attribution du tableau de caractéristiques (géré automatiquement par le $casts en JSON)
         $examen->caracteristiques = $filteredCaracteristiques;

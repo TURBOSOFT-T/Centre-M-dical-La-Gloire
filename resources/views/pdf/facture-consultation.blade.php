@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-    @php
+@php
     $config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
 
     // Détermination de l'image à utiliser pour le logo
@@ -16,12 +16,14 @@
         $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
     }
 
+
     // Calculs de sécurité directs au cas où ils manquent du contrôleur
     $tarifConsultation = $tarifConsultation ?? ($consultation->tarif_brut ?? 5000);
     $tarifExamens = $tarifExamens ?? ($consultation->demandesExamens ? $consultation->demandesExamens->sum('tarif_brut') : 0);
     $tarifProduits = $consultation->tarif_produits ?? 0;
-    $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits;
-    @endphp
+    $totalBrut = $tarifConsultation + $tarifExamens + $tarifProduits + $tarifHospitalisation;
+@endphp
+
 <head>
     <meta charset="UTF-8">
     <title>Facture N° {{ $consultation->code_consultation }}</title>
@@ -40,20 +42,24 @@
             border-collapse: collapse;
             margin-bottom: 20px;
         }
+
         .header-table td {
             vertical-align: top;
         }
+
         .clinic-title {
             font-size: 18px;
             font-weight: bold;
             color: #0d6efd;
             text-transform: uppercase;
         }
+
         .clinic-sub {
             font-size: 10px;
             color: #6c757d;
             margin-top: 2px;
         }
+
         .invoice-title {
             text-align: right;
             font-size: 20px;
@@ -61,6 +67,7 @@
             color: #212529;
             text-transform: uppercase;
         }
+
         .invoice-code {
             text-align: right;
             font-size: 12px;
@@ -77,11 +84,13 @@
             border: 1px solid #e9ecef;
             border-radius: 5px;
         }
+
         .info-box td {
             padding: 10px;
             width: 50%;
             vertical-align: top;
         }
+
         .box-header {
             font-weight: bold;
             color: #0d6efd;
@@ -98,6 +107,7 @@
             border-collapse: collapse;
             margin-bottom: 20px;
         }
+
         .details-table th {
             background-color: #0d6efd;
             color: #ffffff;
@@ -107,11 +117,13 @@
             font-size: 11px;
             text-transform: uppercase;
         }
+
         .details-table td {
             padding: 8px 10px;
             border-bottom: 1px solid #e9ecef;
             vertical-align: top;
         }
+
         .details-table tr:nth-child(even) td {
             background-color: #f8f9fa;
         }
@@ -123,10 +135,12 @@
             border-collapse: collapse;
             margin-bottom: 20px;
         }
+
         .totals-table td {
             padding: 6px 10px;
             border-bottom: 1px solid #e9ecef;
         }
+
         .totals-table .total-row td {
             border-top: 2px solid #212529;
             border-bottom: 2px solid #212529;
@@ -143,14 +157,17 @@
             border-radius: 4px;
             text-transform: uppercase;
         }
+
         .badge-success {
             background-color: #d1e7dd;
             color: #0f5132;
         }
+
         .badge-warning {
             background-color: #fff3cd;
             color: #664d03;
         }
+
         .badge-info {
             background-color: #cff4fc;
             color: #055160;
@@ -165,11 +182,13 @@
             font-size: 9px;
             color: #6c757d;
         }
+
         .signatures {
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
         }
+
         .signatures td {
             width: 50%;
             text-align: center;
@@ -178,6 +197,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- EN-TÊTE DE LA FACTURE -->
@@ -185,19 +205,21 @@
         <tr>
             <td>
                 <div class="clinic-title">Centre Médical La Gloire</div>
-               <p class="mb-0 text-muted small"> Tél : {{ $config->telephone }}</p>
-                    <p class="mb-0 text-muted small"> E-mail : {{ $config->email }}</p>
-                    <p class="mb-0 text-muted small"> Adresse : {{ $config->addresse }}</p>
+                <p class="mb-0 text-muted small"> Tél : {{ $config->telephone }}</p>
+                <p class="mb-0 text-muted small"> E-mail : {{ $config->email }}</p>
+                <p class="mb-0 text-muted small"> Adresse : {{ $config->addresse }}</p>
             </td>
             <td class="logo-cell" style="text-align: center;">
                 @if(!empty($logoBase64))
-                <img src="{{ $logoBase64 }}" alt="logo" width="80" height="80" class="logo">
+                    <img src="{{ $logoBase64 }}" alt="logo" width="80" height="80" class="logo">
                 @endif
             </td>
             <td>
                 <div class="invoice-title">Facture / Reçu</div>
                 <div class="invoice-code">N° {{ $consultation->code_consultation }}</div>
-                <div class="clinic-sub" style="text-align: right;">Date : {{ $consultation->date_heure_rdv ? $consultation->date_heure_rdv->format('d/m/Y à H:i') : date('d/m/Y H:i') }}</div>
+                <div class="clinic-sub" style="text-align: right;">Date :
+                    {{ $consultation->date_heure_rdv ? $consultation->date_heure_rdv->format('d/m/Y à H:i') : date('d/m/Y H:i') }}
+                </div>
             </td>
         </tr>
     </table>
@@ -211,16 +233,18 @@
                 <strong>Code Patient :</strong> {{ $consultation->patient->code_patient }}<br>
                 <strong>Téléphone :</strong> {{ $consultation->patient->telephone ?? '-' }}<br>
                 @if($consultation->patient->est_assure && $consultation->patient->assurance)
-                    <strong>Assurance :</strong> {{ $consultation->patient->assurance->code }} (Couverture : {{ $tauxAssurance ?? 0 }}%)
+                    <strong>Assurance :</strong> {{ $consultation->patient->assurance->code }} (Couverture :
+                    {{ $tauxAssurance ?? 0 }}%)
                 @else
                     <strong>Couverture :</strong> Patient non assuré (100% à charge)
                 @endif
             </td>
             <td>
                 <div class="box-header">Prise en charge Médicale</div>
-                <strong>Médecin traitant :</strong> Dr. {{ $consultation->medecin?->name ?? $consultation->medecin?->nom ?? 'Non assigné' }}<br>
+                <strong>Médecin traitant :</strong> Dr.
+                {{ $consultation->medecin?->name ?? $consultation->medecin?->nom ?? 'Non assigné' }}<br>
                 <strong>Acte :</strong> Consultation {{ ucfirst(str_replace('_', ' ', $consultation->type)) }}<br>
-                <strong>Statut Caisse :</strong> 
+                <strong>Statut Caisse :</strong>
                 @if($consultation->est_paye)
                     <span class="badge badge-success">Réglé (Payé)</span>
                 @else
@@ -253,17 +277,37 @@
                 <td style="text-align: right;">{{ number_format($tarifConsultation, 0, ',', ' ') }} FCFA</td>
             </tr>
 
+            @if(isset($tarifHospitalisation) && $tarifHospitalisation > 0)
+<tr>
+      <td><span class="badge badge-success"> Hospitalisation / Séjour </span></td>
+    
+    <td>
+       
+        @if($derniereHospitalisation)
+            <small>({{ $derniereHospitalisation->code_hospitalisation }} - {{ $derniereHospitalisation->nombre_jours ?? 1 }} jour(s))</small>
+        @endif
+    </td>
+     <td style="text-align: center;"> @if($derniereHospitalisation)
+            <small>({{ $derniereHospitalisation->nombre_jours ?? 1 }} jour(s))</small>
+        @endif</td>
+        <td>
+
+        </td>
+    <td class="text-end">{{ number_format($tarifHospitalisation, 0, ',', ' ') }} FCFA</td>
+</tr>
+@endif
+            
+
             {{-- Examens et sous-analyses prescrits --}}
             @foreach($consultation->demandesExamens as $demande)
                 <tr>
                     <td><span class="badge badge-warning">Examen</span></td>
                     <td>
-                        <strong>{{ $demande->examen->nom ?? 'Examen biologique / imagerie' }}</strong> 
-                        <small style="color: #6c757d;">({{ $demande->code_demande }})</small>
+                        <
                         @if(is_array($demande->analyses_demandees) && count($demande->analyses_demandees) > 0)
                             <br>
                             <small style="color: #495057;">
-                                <em>Détails :</em> 
+                              
                                 {{ implode(', ', array_column($demande->analyses_demandees, 'nom')) }}
                             </small>
                         @endif
@@ -273,6 +317,8 @@
                     <td style="text-align: right;">{{ number_format($demande->tarif_brut, 0, ',', ' ') }} FCFA</td>
                 </tr>
             @endforeach
+
+
 
             {{-- Produits et Médicaments prescrits --}}
             @if($consultation->relationLoaded('produits') ? $consultation->produits : $consultation->produits()->exists())
@@ -292,7 +338,7 @@
                         </td>
                         <td style="text-align: center;">{{ number_format($pu, 0, ',', ' ') }} FCFA</td>
                         <td style="text-align: center;">{{ $qte }}</td>
-                        
+
                         <td style="text-align: right;">{{ number_format($montantLigne, 0, ',', ' ') }} FCFA</td>
                     </tr>
                 @endforeach
@@ -306,31 +352,38 @@
             <td>Actes & Consultations :</td>
             <td style="text-align: right;">{{ number_format($tarifConsultation, 0, ',', ' ') }} FCFA</td>
         </tr>
+
+        @if($tarifHospitalisation > 0)
+            <tr>
+                <td>Frais d'hospitalisation :</td>
+                <td style="text-align: right;">{{ number_format($tarifHospitalisation, 0, ',', ' ') }} FCFA</td>
+            </tr>
+        @endif
         @if($tarifExamens > 0)
-        <tr>
-            <td>Examens prescrits :</td>
-            <td style="text-align: right;">{{ number_format($tarifExamens, 0, ',', ' ') }} FCFA</td>
-        </tr>
+            <tr>
+                <td>Examens prescrits :</td>
+                <td style="text-align: right;">{{ number_format($tarifExamens, 0, ',', ' ') }} FCFA</td>
+            </tr>
         @endif
         @if($tarifProduits > 0)
-        <tr>
-            <td>Produits & Médicaments :</td>
-            <td style="text-align: right;">{{ number_format($tarifProduits, 0, ',', ' ') }} FCFA</td>
-        </tr>
+            <tr>
+                <td>Produits & Médicaments :</td>
+                <td style="text-align: right;">{{ number_format($tarifProduits, 0, ',', ' ') }} FCFA</td>
+            </tr>
         @endif
         <tr>
             <td><strong>Total Brut :</strong></td>
             <td style="text-align: right;"><strong>{{ number_format($totalBrut, 0, ',', ' ') }} FCFA</strong></td>
         </tr>
         @if(isset($tauxAssurance) && $tauxAssurance > 0)
-        <tr style="color: #198754;">
-            <td>Prise en charge Assurance ({{ $tauxAssurance }}%) :</td>
-            <td style="text-align: right;">- {{ number_format($partAssurance ?? 0, 0, ',', ' ') }} FCFA</td>
-        </tr>
+            <tr style="color: #198754;">
+                <td>Prise en charge Assurance ({{ $tauxAssurance }}%) :</td>
+                <td style="text-align: right;">- {{ number_format($partAssurance ?? 0, 0, ',', ' ') }} FCFA</td>
+            </tr>
         @endif
         <tr class="total-row">
             <td>Net à Payer (Patient) :</td>
-            <td style="text-align: right; color: #0d6efd;">{{ number_format( $totalBrut, 0, ',', ' ') }} FCFA</td>
+            <td style="text-align: right; color: #0d6efd;">{{ number_format($totalBrut, 0, ',', ' ') }} FCFA</td>
         </tr>
     </table>
 
@@ -354,4 +407,5 @@
     </div>
 
 </body>
+
 </html>

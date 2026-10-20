@@ -419,7 +419,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
           
 {{-- 🔹 Menu Déroulant Statistiques & Bilans --}}
-            @role('admin')
+        
             <li>
                 <a href="javascript:;" class="has-arrow">
                     <div class="parent-icon icon-color-6">
@@ -431,28 +431,36 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 </a>
                 <ul>
                     {{-- Sous-menu Hospitalisations --}}
+                    @can('hospitalisation_stat_view')
                     <li>
                         <a href="{{ route('hospitalisations.stats') }}">
                             <i class="ri-hospital-line me-2"></i> Hospitalisations
                         </a>
                     </li>
+                    @endcan
 
                     {{-- 🔹 NOUVEAU : Sous-menu Consultations --}}
+                    @can('concultation_stat_view')
                     <li>
                         <a href="{{ route('consultations.stats') }}">
                             <i class="ri-stethoscope-line me-2"></i> Consultations
                         </a>
                     </li>
+                    @endcan
 
                     {{-- Sous-menu Les produits --}}
+                    @can('produit_stat_view')
                     <li>
                         <a href="{{ route('admin.statistiques') }}">
                             <i class="ri-box-3-line me-2"></i> Les produits
                         </a>
                     </li>
+                    @endcan
+
+                    {{-- Sous-menu Les commandes --}}
                 </ul>
             </li>
-            @endrole
+      
 
 
 
