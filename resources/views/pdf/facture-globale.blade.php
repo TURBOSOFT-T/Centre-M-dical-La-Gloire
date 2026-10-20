@@ -423,7 +423,15 @@
                 <div class="patient-label">Nom du patient : <strong>{{ $nomPatient ?: 'Non renseigné' }}</strong></div>
                 <div class="patient-label">Code patient : <strong>{{ $patient?->code_patient ?? 'N/A' }}</strong></div>
                 <div class="patient-label">Téléphone : <strong>{{ $patient?->telephone ?? 'N/A' }}</strong></div>
-            </td>
+                           <div class="patient-label">Sexe : <strong>{{ $patient?->genre ?? 'N/A' }}</strong></div>
+                                           <div class="patient-label">Date de naissance : <strong>{{ $patient?->date_naissance ?? 'N/A' }}</strong></div>
+           
+                           <div class="patient-label">Residence : <strong>{{ $patient?->ville ?? 'N/A' }}</strong></div>
+           
+                           <div class="patient-label">Adresse domicile : <strong>{{ $patient?->adresse ?? 'N/A' }}</strong></div>
+                            <div class="patient-label">Profession : <strong>{{ $patient?->profession ?? 'N/A' }}</strong></div>
+            
+                        </td>
 
             <td>
                 <div class="patient-label">Organisme d'assurance : <strong>{{ $patient?->assurance?->nom ?? 'Aucune' }}</strong></div>
