@@ -421,32 +421,32 @@
         <tr>
             <td>
                 <div class="patient-label">Nom du patient : <strong>{{ $nomPatient ?: 'Non renseigné' }}</strong></div>
-                <div class="patient-label">Code patient : <strong>{{ $patient?->code_patient ?? 'N/A' }}</strong></div>
-                <div class="patient-label">Téléphone : <strong>{{ $patient?->telephone ?? 'N/A' }}</strong></div>
-                           <div class="patient-label">Sexe : <strong>{{ $patient?->genre ?? 'N/A' }}</strong></div>
+                <div class="patient-label">Code patient : <strong>{{ $patient?->code_patient ?? '------' }}</strong></div>
+                <div class="patient-label">Téléphone : <strong>{{ $patient?->telephone ?? '------' }}</strong></div>
+                           <div class="patient-label">Sexe : <strong>{{ $patient?->genre ?? '------' }}</strong></div>
                                            <div class="patient-label">Date de naissance : <strong>{{ $patient?->date_naissance ?? 'N/A' }}</strong></div>
            
-                           <div class="patient-label">Residence : <strong>{{ $patient?->ville ?? 'N/A' }}</strong></div>
+                           <div class="patient-label">Residence : <strong>{{ $patient?->ville ?? '------' }}</strong></div>
            
-                           <div class="patient-label">Adresse domicile : <strong>{{ $patient?->adresse ?? 'N/A' }}</strong></div>
-                            <div class="patient-label">Profession : <strong>{{ $patient?->profession ?? 'N/A' }}</strong></div>
+                           <div class="patient-label">Adresse domicile : <strong>{{ $patient?->adresse ?? '------' }}</strong></div>
+                            <div class="patient-label">Profession : <strong>{{ $patient?->profession ?? '------' }}</strong></div>
             
                         </td>
 
             <td>
                 <div class="patient-label">Organisme d'assurance : <strong>{{ $patient?->assurance?->nom ?? 'Aucune' }}</strong></div>
                 <div class="patient-label">Taux de couverture : <strong>{{ $tauxAssurance }} %</strong></div>
-                <div class="patient-label">Tel : <strong>{{ $patient?->assurance?->telephone ?? 'N/A' }}</strong></div>
-                <div class="patient-label">BP: <strong>{{ $patient?->assurance?->bp ?? 'N/A' }}</strong></div>
+                <div class="patient-label">Tel : <strong>{{ $patient?->assurance?->telephone ?? '------' }}</strong></div>
+                <div class="patient-label">BP: <strong>{{ $patient?->assurance?->bp ?? '------' }}</strong></div>
                 
-                <div class="patient-label">NIU : <strong>{{ $patient?->assurance?->niu ?? 'N/A' }} </strong></div>
-                <div class="patient-label">Registre de Commerce : <strong>{{ $patient?->assurance?->numero_rc ?? 'N/A' }} </strong></div>
+                <div class="patient-label">NIU : <strong>{{ $patient?->assurance?->niu ?? '------' }} </strong></div>
+                <div class="patient-label">Registre de Commerce : <strong>{{ $patient?->assurance?->numero_rc ?? '------' }} </strong></div>
                 
 
                 <div class="patient-label">Assuré principal : <strong>{{ $patient?->nom_assure ?? 'Patient lui-même' }}</strong></div>
 
-                <div class="patient-label">Société : <strong>{{ $patient?->societe ?? 'N/A' }}</strong></div>
-                 <div class="patient-label">Matricule assuré principal : <strong>{{ $patient?->matricule_assure_principal ?? 'N/A' }}</strong></div>
+                <div class="patient-label">Société : <strong>{{ $patient?->societe ?? '------' }}</strong></div>
+                 <div class="patient-label">Matricule assuré principal : <strong>{{ $patient?->matricule_assure_principal ?? '------' }}</strong></div>
             </td>
         </tr>
     </table>
