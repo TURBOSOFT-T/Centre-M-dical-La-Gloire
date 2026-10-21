@@ -2,52 +2,31 @@
 <html lang="fr">
 
 @php
-$config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
+    $config = DB::table('configs')->select('icon', 'logo', 'telephone', 'email', 'addresse')->first();
 
-// Détermination de l'image à utiliser pour le logo
-$logoPath = public_path('/icons/logo.jpg');
-if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
-$logoPath = storage_path('app/public/' . $config->logo);
-} elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
-$logoPath = storage_path('app/public/' . $config->icon);
-}
+    // Détermination de l'image à utiliser pour le logo
+    $logoPath = public_path('/icons/logo.jpg');
+    if ($config && !empty($config->logo) && file_exists(storage_path('app/public/' . $config->logo))) {
+        $logoPath = storage_path('app/public/' . $config->logo);
+    } elseif ($config && !empty($config->icon) && file_exists(storage_path('app/public/' . $config->icon))) {
+        $logoPath = storage_path('app/public/' . $config->icon);
+    }
 
-$logoBase64 = '';
-if (file_exists($logoPath)) {
-$logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
-}
+    $logoBase64 = '';
+    if (file_exists($logoPath)) {
+        $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($logoPath));
+    }
+
+    $consultationActuelle = $derniereConsultation ?? $consultation ?? null;
 @endphp
 
 <head>
     <meta charset="UTF-8">
-    <title>Bilan Médical - {{ $patient->nom_complet }}</title>
+    <title>Bilan Médical - {{ $patient->nom_complet ?? 'Patient' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 13px;
-            color: #212529;
-        }
-
-        .bg-header {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-
-            body {
-                padding: 0;
-            }
-        }
-    </style>
-
-    <style>
         @page {
-            margin: 15mm 15mm 15mm 15mm;
+            margin: 15mm;
         }
 
         body {
@@ -55,28 +34,16 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             color: #2b2b2b;
             font-size: 11pt;
             line-height: 1.4;
+            padding: 15px;
+            background: #fff;
         }
 
-        /* EN-TÊTE DU CENTRE MÉDICAL LA GLOIRE */
         .header-table {
             width: 100%;
             border-bottom: 2px solid #0d6efd;
             padding-bottom: 10px;
             margin-bottom: 15px;
-        }
-
-        .clinic-name {
-            font-size: 8pt;
-            font-weight: bold;
-            color: #0d6efd;
-            text-transform: uppercase;
-            margin: 0;
-        }
-
-        .clinic-sub {
-            font-size: 9pt;
-            color: #555;
-            margin-top: 3px;
+            border-collapse: collapse;
         }
 
         .clinic-contact {
@@ -85,78 +52,22 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             text-align: right;
         }
 
-        /* BLOC PATIENT & CONSULTATION */
-        .info-box {
-            width: 100%;
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 5px;
-            padding: 8px 12px;
-            margin-bottom: 20px;
+        .card {
+            border-radius: 6px;
         }
 
-        .info-table {
-            width: 100%;
-        }
-
-        .info-table td {
-            padding: 2px 0;
-            font-size: 10pt;
-        }
-
-        /* TITRE ORDONNANCE */
-        .doc-title {
-            text-align: center;
-            font-size: 14pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 20px 0 15px 0;
-            color: #111;
-            text-decoration: underline;
-        }
-
-        /* CORPS DE L'ORDONNANCE */
-        .ordonnance-content {
-            min-height: 250px;
-            font-size: 11pt;
-            white-space: pre-line;
-            /* Conserve les sauts de ligne */
-            padding: 10px;
-        }
-
-        /* PIED DE PAGE & SIGNATURE */
-        .footer-table {
-            width: 100%;
-            margin-top: 30px;
-        }
-
-        .signature-box {
-            text-align: right;
-            padding-right: 20px;
-        }
-
-        .signature-title {
-            font-weight: bold;
-            font-size: 10pt;
-            margin-bottom: 50px;
-        }
-
-        .footer-note {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 8pt;
-            color: #888;
-            border-top: 1px solid #ddd;
-            padding-top: 5px;
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
         }
     </style>
 </head>
 
-<body class="p-4 bg-white" onload="window.print()">
+<body>
 
     {{-- Actions / Impression --}}
     <div class="no-print mb-4 d-flex justify-content-between align-items-center">
@@ -165,229 +76,172 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     </div>
 
     {{-- En-tête Médical --}}
-    <div class="row border-bottom pb-3 mb-4 align-items-center">
-        <!--  <div class="col-6">
-            <h3 class="fw-bold text-primary mb-1">CENTRE MÉDICAL LA GLOIRE</h3>
-            <p class="mb-0 text-muted small">Médecine Générale - Spécialités - Soins & Chirurgie</p>
-            <p class="mb-0 text-muted small">Douala, Cameroun - Tél : {{ $config->telephone }}</p>
-            <p class="mb-0 text-muted small"> E-mail : {{ $config->email }}</p>
-
-        </div>
-        <div class="col-4">
-            @if(!empty($logoBase64))
-            <img src="{{ $logoBase64 }}" alt="logo" class="logo">
-            @endif
-        </div>
-
-        <div class="col-2 text-end">
-            <h5 class="fw-bold text-dark mb-0">RAPPORT & BILAN MÉDICAL</h5>
-            <small class="text-muted">Édité le {{ date('d/m/Y à H:i') }}</small>
-        </div> -->
-        <table class="header-table">
-            <tr>
-                <td style="width: 45%;">
-                    <h3 class="fw-bold text-primary mb-1">CENTRE MÉDICAL LA GLOIRE</h3>
-
-                    <p class="mb-0 text-muted small"> Tél : {{ $config->telephone }}</p>
-                    <p class="mb-0 text-muted small"> E-mail : {{ $config->email }}</p>
-                    <p class="mb-0 text-muted small"> Adresse : {{ $config->addresse }}</p>
-
-                </td>
-                <td class="logo-cell">
-                    @if(!empty($logoBase64))
-                    <img src="{{ $logoBase64 }}" alt="logo" width=" 100" height="100" class="logo">
-                    @endif
-                </td>
-                <td class="clinic-contact">
-                    <strong>Douala, Cameroun</strong><br>
-                    Code du dossier: {{ $dossier->code_dossier }}<br>
-                    Date : {{ date('d/m/Y à H:i') }}<br>
-
-                    <strong>RAPPORT & BILAN MÉDICAL</strong>
-
-                </td>
-            </tr>
-        </table>
-    </div>
+    <table class="header-table">
+        <tr>
+            <td style="width: 45%;">
+                <h3 class="fw-bold text-primary mb-1" style="font-size: 16px;">CENTRE MÉDICAL LA GLOIRE</h3>
+                <p class="mb-0 text-muted small">Tél : {{ $config->telephone ?? 'N/A' }}</p>
+                <p class="mb-0 text-muted small">E-mail : {{ $config->email ?? 'N/A' }}</p>
+                <p class="mb-0 text-muted small">Adresse : {{ $config->addresse ?? 'N/A' }}</p>
+            </td>
+            <td style="width: 15%; text-align: center;">
+                @if(!empty($logoBase64))
+                <img src="{{ $logoBase64 }}" alt="logo" width="80" height="80" style="object-fit: contain;">
+                @endif
+            </td>
+            <td class="clinic-contact" style="width: 40%;">
+                <strong>Douala, Cameroun</strong><br>
+                Code du dossier: {{ $dossier->code_dossier ?? 'N/A' }}<br>
+                Date : {{ date('d/m/Y à H:i') }}<br>
+                <strong class="text-primary">RAPPORT & BILAN MÉDICAL</strong>
+            </td>
+        </tr>
+    </table>
 
     {{-- Informations Patient & Dossier --}}
     <div class="row g-3 mb-4">
         <div class="col-6">
-            <div class="border rounded p-3 bg-light">
-                <h6 class="fw-bold text-primary mb-2 border-bottom pb-1">IDENTITÉ DU PATIENT</h6>
-                <p class="mb-1"><strong>Nom & Prénom :</strong> {{ $patient->nom_complet }}</p>
-                <p class="mb-1"><strong>Code Patient :</strong> {{ $patient->code_patient }}</p>
+            <div class="border rounded p-3 bg-light h-100">
+                <h6 class="fw-bold text-primary mb-2 border-bottom pb-1" style="font-size: 12px;">IDENTITÉ DU PATIENT</h6>
+                <p class="mb-1"><strong>Nom & Prénom :</strong> {{ $patient->nom_complet ?? 'N/A' }}</p>
+                <p class="mb-1"><strong>Code Patient :</strong> {{ $patient->code_patient ?? 'N/A' }}</p>
                 <p class="mb-1"><strong>Âge / Sexe :</strong> {{ $patient->age ? $patient->age . ' ans' : '-' }} / {{ $patient->genre === 'M' ? 'Masculin' : 'Féminin' }}</p>
-                <p class="mb-0"><strong>Téléphone :</strong> {{ $patient->telephone }}</p>
+                <p class="mb-0"><strong>Téléphone :</strong> {{ $patient->telephone ?? 'N/A' }}</p>
             </div>
         </div>
         <div class="col-6">
-            <div class="border rounded p-3 bg-light">
-                <h6 class="fw-bold text-primary mb-2 border-bottom pb-1">PROFIL MÉDICAL & COUVERTURE</h6>
-                <p class="mb-1"><strong>Code Dossier :</strong> {{ $dossier->code_dossier }}</p>
+            <div class="border rounded p-3 bg-light h-100">
+                <h6 class="fw-bold text-primary mb-2 border-bottom pb-1" style="font-size: 12px;">PROFIL MÉDICAL & COUVERTURE</h6>
+                <p class="mb-1"><strong>Code Dossier :</strong> {{ $dossier->code_dossier ?? 'N/A' }}</p>
                 <p class="mb-1"><strong>Groupe Sanguin :</strong> <span class="badge bg-danger">{{ $dossier->groupe_sanguin ?: 'Non spécifié' }}</span></p>
-                <p class="mb-1"><strong>Couverture :</strong> {{ optional($patient->assurance)->nom ?? 'Privé' }} ({{ $patient->taux_couverture }}%)</p>
+                <p class="mb-1"><strong>Couverture :</strong> {{ optional($patient->assurance)->nom ?? 'Privé' }} ({{ $patient->taux_couverture ?? 0 }}%)</p>
                 <p class="mb-0"><strong>Allergies Connues :</strong> {{ $dossier->allergies ?: 'Aucune' }}</p>
             </div>
         </div>
     </div>
 
-
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. MOTIF DE LA CONSULTATION </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        @if(!empty($derniereConsultation->motif))
-        <div class="card-body bg-light">
-
-            {{ $derniereConsultation->motif  ??  'Aucun motif spécifique.' }}
-        </div>
-        @endif
-    </div>
-
-
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">2. HISTOIRE DE LA MALADIE </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        @if(!empty($derniereConsultation->historique_maladie))
-        <div class="card-body bg-light">
-
-            {{ $derniereConsultation->historique_maladie ??  'RAS.' }}
-        </div>
-        @endif
-    </div>
-
-
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">3. ANTECEDENTS </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        @if(!empty($derniereConsultation->antecedents_maladie))
-        <div class="card-body bg-light">
-
-            {{ $derniereConsultation->antecedents_maladie ??  'Aucun antécédent médical spécifique consigné.' }}
-        </div>
-        @endif
-    </div>
-
-
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">4. EXAMEN GENERAL </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
-
-            {{ $derniereConsultation->examen_general ??  'Aucun examen général effectué.' }}
+    {{-- 1. Motif --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">1. MOTIF DE LA CONSULTATION</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            {{ $consultationActuelle->motif ?? 'Aucun motif spécifique.' }}
         </div>
     </div>
 
-
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">5. EXAMEN PHYSIQUE </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
-
-            {{ $derniereConsultation->examen_physique ??  'Aucun examen physique effectué.' }}
+    {{-- 2. Histoire de la maladie --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">2. HISTOIRE DE LA MALADIE</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            {{ $consultationActuelle->historique_maladie ?? 'RAS.' }}
         </div>
     </div>
 
-
-     <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">6. DIAGNOSTIQUE POSITIF </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
-
-            {{ $derniereConsultation->diagnostic ??  'Aucun diagnostique effectué.' }}
+    {{-- 3. Antécédents --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">3. ANTÉCÉDENTS</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            {{ $consultationActuelle->antecedents_maladie ?? 'Aucun antécédent médical spécifique consigné.' }}
         </div>
     </div>
 
- <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">7. COMPLICATION </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
-
-            {{ $derniereConsultation->diagnostic ??  'Aucune complication.' }}
+    {{-- 4. Examen général --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">4. EXAMEN GÉNÉRAL</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            {{ $consultationActuelle->examen_general ?? 'Aucun examen général effectué.' }}
         </div>
     </div>
 
+    {{-- 5. Examen physique --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">5. EXAMEN PHYSIQUE</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            {{ $consultationActuelle->examen_physique ?? 'Aucun examen physique effectué.' }}
+        </div>
+    </div>
 
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">8. TRAITEMENT RECU </h6>
-    <div class="card mb-4 border-primary shadow-sm">
-        <div class="card-body bg-light">
+    {{-- 6. Diagnostic positif --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">6. DIAGNOSTIC POSITIF</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            {{ $consultationActuelle->diagnostic ?? 'Aucun diagnostic effectué.' }}
+        </div>
+    </div>
 
-            @if($derniereConsultation?->produits && $derniereConsultation->produits->count() > 0)
-            <div class="col-12 mt-2">
-                <strong class="text-dark">Médicaments / Produits prescrits :</strong>
+    {{-- 7. Complication --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">7. COMPLICATION</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            {{ $consultationActuelle->complications ?? 'Aucune complication.' }}
+        </div>
+    </div>
+
+    {{-- 8. Traitement reçu --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">8. TRAITEMENT REÇU</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            @if($consultationActuelle?->produits && $consultationActuelle->produits->count() > 0)
                 <ul class="list-group list-group-flush mt-1">
-                    @foreach($derniereConsultation->produits as $produit)
-                    <li class="list-group-item bg-white d-flex justify-content-between align-items-center py-2">
+                    @foreach($consultationActuelle->produits as $produit)
+                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center py-1">
                         <div>
                             <span class="fw-bold">{{ $produit->nom ?? $produit->libelle }}</span>
                             <br><small class="text-muted">Posologie : {{ $produit->pivot->posologie ?? 'N/A' }} | Voie : {{ $produit->pivot->voie_administration ?? 'N/A' }}</small>
                         </div>
-                        <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite }}</span>
+                        <span class="badge bg-primary">Qté : {{ $produit->pivot->quantite ?? 1 }}</span>
                     </li>
                     @endforeach
                 </ul>
-            </div>
             @else
-            <p class="text-muted mb-0">Aucun traitement consigné pour cette consultation.</p>
+                <p class="text-muted mb-0">Aucun traitement consigné pour cette consultation.</p>
             @endif
         </div>
     </div>
-    {{-- Section 7 : Évolution de la maladie et visites journalières --}}
-    <div style="margin-top: 20px; margin-bottom: 20px;">
 
-        <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">9. ÉVOLUTION DE LA MALADIE</h6>
-
-        <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px;">
-
-            {{-- Évolution globale de la consultation --}}
-            @if($consultation && !empty($consultation->evolution_maladie))
-            <p style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 13px; line-height: 1.5;">
-                <strong>Bilan évolutif :</strong> {{ $consultation->evolution_maladie }}
-            </p>
+    {{-- 9. Évolution de la maladie --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">9. ÉVOLUTION DE LA MALADIE</h6>
+    <div class="card mb-3 border-primary shadow-sm">
+        <div class="card-body bg-light py-2">
+            @if($consultationActuelle && !empty($consultationActuelle->evolution_maladie))
+                <p class="mb-2"><strong>Bilan évolutif :</strong> {{ $consultationActuelle->evolution_maladie }}</p>
             @endif
 
-            {{-- Visites médicales journalières (Affichage des 5 dernières) --}}
             @php
-            $visites = $consultation->visite_medicale_journaliere ?? [];
-            // On inverse pour avoir les plus récentes en haut, puis on prend les 5 premières
-            $derniereVisites = collect($visites)->reverse()->take(5);
+                $visites = $consultationActuelle->visite_medicale_journaliere ?? [];
+                $derniereVisites = collect($visites)->reverse()->take(5);
             @endphp
 
             @if($derniereVisites->count() > 0)
-            <div style="margin-top: 15px; border-left: 2px solid #0d6efd; padding-left: 15px;">
-                @foreach($derniereVisites as $note)
-                <div style="margin-bottom: 12px; background-color: #ffffff; padding: 10px; border: 1px solid #e3e6f0; border-radius: 4px;">
-                    <div style="font-size: 11px; color: #6c757d; margin-bottom: 4px;">
-
-                        <span style="float: right;">{{ $note['date_heure'] ?? '' }}</span>
+                <div class="border-start border-primary border-3 ps-3 mt-2">
+                    @foreach($derniereVisites as $note)
+                    <div class="mb-2 bg-white p-2 border rounded">
+                        <div class="small text-muted mb-1">
+                            <span>{{ $note['date_heure'] ?? '' }}</span>
+                        </div>
+                        <p class="mb-0 small text-dark">{{ $note['observation'] ?? '' }}</p>
                     </div>
-                    <p style="margin: 0; font-size: 12px; color: #333; line-height: 1.4;">
-                        {{ $note['observation'] ?? '' }}
-                    </p>
+                    @endforeach
                 </div>
-                @endforeach
-            </div>
             @else
-            <p style="color: #6c757d; font-size: 12px; font-style: italic; text-align: center; margin-bottom: 0;">
-                Aucune note de visite journalière enregistrée pour cette consultation.
-            </p>
+                <p class="text-muted small fst-italic mb-0">Aucune note de visite journalière enregistrée.</p>
             @endif
-
         </div>
     </div>
 
-    {{-- Perspectives & Recommandations Thérapeutiques (Issues de la dernière consultation) --}}
-    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">10. ORDONNANCE DE SORTIE</h6>
-    <div class="card mb-4 border-primary p-3 bg-white">
-        {{-- Affichage de l'ordonnance si renseignée --}}
-        @if(!empty($derniereConsultation->ordonnance))
-        <div class="mb-3 p-2 bg-light border rounded">
-
-            <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $derniereConsultation->ordonnance ?? '' }}</p>
-        </div>
+    {{-- 10. Ordonnance de sortie --}}
+    <h6 class="fw-bold text-primary border-bottom pb-2 mb-2" style="font-size: 12px;">10. ORDONNANCE DE SORTIE</h6>
+    <div class="card mb-4 border-primary p-3 bg-white shadow-sm">
+        @if(!empty($consultationActuelle->ordonnance))
+            <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $consultationActuelle->ordonnance }}</p>
+        @else
+            <p class="text-muted mb-0 fst-italic">Aucune ordonnance de sortie renseignée.</p>
         @endif
-
-
     </div>
-
 
     {{-- Signatures --}}
     <div class="row mt-5 pt-3">
         <div class="col-6">
-            Date du prochaine rendez-vous: .........................<br>
+            <p class="mb-0">Date du prochain rendez-vous : ........................................</p>
         </div>
         <div class="col-6 text-center">
             <p class="mb-5 fw-bold">Le Médecin traitant</p>
@@ -396,5 +250,4 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     </div>
 
 </body>
-
 </html>
