@@ -129,6 +129,20 @@ class GestionConsultations extends Component
         $this->isModificationsModalOpen = true;
     }
 
+    public function getProduitsDisponiblesProperty()
+    {
+        $query = \App\Models\produits::where('stock', '>', 0);
+
+        if (!empty($this->searchProduit)) {
+            $query->where(function ($q) {
+                $q->where('nom', 'like', '%' . $this->searchProduit . '%')
+                  ->orWhere('reference', 'like', '%' . $this->searchProduit . '%');
+            });
+        }
+
+        return $query->take(15)->get();
+    }
+
     public function updatedType($value)
     {
         $this->tarif_brut = $this->getPrixConsultation($value);

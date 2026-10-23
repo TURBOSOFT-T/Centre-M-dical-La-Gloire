@@ -113,6 +113,16 @@ class User extends Authenticatable
         // return $this->role()->where('id', 1)->exists();
         return $this->$admins;
     }
+
+    public function getIsGerantAttribute()
+    {
+        return $this->role === 'gerant';
+    }
+
+    public function getIsAdminOrGerantAttribute()
+    {
+        return in_array($this->role, ['admin', 'gerant']);
+    }
     
     public function collection()
     {
