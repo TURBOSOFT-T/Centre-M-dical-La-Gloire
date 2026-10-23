@@ -215,54 +215,41 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 </li>
                 @endcan
 
-                <!--  @role('admin')
+
+                @can('assurance_view')
                 <li>
-                    <a href="{{ route('shops') }}">
-                        <div class="parent-icon icon-color-6">
-                            <i class="bx bx-capsule"></i>
+                    <a href="javascript:;" class="has-arrow">
+                        <div class="parent-icon icon-color-4">
+                            <i class="bx bx-shield-alt-2"></i>
                         </div>
                         <div class="menu-title">
-                            Gestion des pharmacies
+                            Assurance
                         </div>
                     </a>
+                    <ul>
+                        <li>
+                            <a href="{{ route('assurances') }}">
+                                <div class="parent-icon icon-color-3">
+                                    <i class="bx bx-shield-quarter"></i>
+                                </div>
+                                <div class="menu-title">
+                                    Assurances Santé
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('patients.assures') }}">
+                                <div class="parent-icon icon-color-4">
+                                    <i class="bx bx-group"></i>
+                                </div>
+                                <div class="menu-title">
+                                    Patients Assurés
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                @endrole
- -->
-
-@can('assurance_view')
-<li>
-    <a href="javascript:;" class="has-arrow">
-        <div class="parent-icon icon-color-4">
-            <i class="bx bx-shield-alt-2"></i>
-        </div>
-        <div class="menu-title">
-            Assurance
-        </div>
-    </a>
-    <ul>
-        <li>
-            <a href="{{ route('assurances') }}">
-                <div class="parent-icon icon-color-3">
-                    <i class="bx bx-shield-quarter"></i>
-                </div>
-                <div class="menu-title">
-                    Assurances Santé
-                </div>
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('patients.assures') }}">
-                <div class="parent-icon icon-color-4">
-                    <i class="bx bx-group"></i>
-                </div>
-                <div class="menu-title">
-                    Patients Assurés
-                </div>
-            </a>
-        </li>
-    </ul>
-</li>
-@endcan
+                @endcan
 
                 @can('examen_view')
                 <li>
@@ -355,14 +342,14 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                         </div>
                     </a>
                     <ul>
-                        @role('admin')
+                        @if(auth()->user()->is_admin_or_gerant)
                         <li>
                             <a href="{{ route('personnels') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
                                 Gestion du Personnel
                             </a>
                         </li>
-                        @endrole
+                        @endif
                         @can('patient_view')
                         <li>
                             <a href="{{ route('patients') }}">
@@ -440,40 +427,40 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
 
                 {{-- 🔹 Menu Déroulant Statistiques & Bilans --}}
-             @if(auth()->user()->is_admin_or_gerant)
-    <li>
-        <a href="javascript:;" class="has-arrow">
-            <div class="parent-icon icon-color-6">
-                <i class="ri-bar-chart-box-line"></i>
-            </div>
-            <div class="menu-title">
-                Statistiques & Bilans
-            </div>
-        </a>
-        <ul>
-            {{-- Sous-menu Hospitalisations --}}
-            <li>
-                <a href="{{ route('hospitalisations.stats') }}">
-                    <i class="ri-hospital-line me-2"></i> Hospitalisations
-                </a>
-            </li>
+                @if(auth()->user()->is_admin_or_gerant)
+                <li>
+                    <a href="javascript:;" class="has-arrow">
+                        <div class="parent-icon icon-color-6">
+                            <i class="ri-bar-chart-box-line"></i>
+                        </div>
+                        <div class="menu-title">
+                            Statistiques & Bilans
+                        </div>
+                    </a>
+                    <ul>
+                        {{-- Sous-menu Hospitalisations --}}
+                        <li>
+                            <a href="{{ route('hospitalisations.stats') }}">
+                                <i class="ri-hospital-line me-2"></i> Hospitalisations
+                            </a>
+                        </li>
 
-            {{-- 🔹 NOUVEAU : Sous-menu Consultations --}}
-            <li>
-                <a href="{{ route('consultations.stats') }}">
-                    <i class="ri-stethoscope-line me-2"></i> Consultations
-                </a>
-            </li>
+                        {{-- 🔹 NOUVEAU : Sous-menu Consultations --}}
+                        <li>
+                            <a href="{{ route('consultations.stats') }}">
+                                <i class="ri-stethoscope-line me-2"></i> Consultations
+                            </a>
+                        </li>
 
-            {{-- Sous-menu Les produits --}}
-            <li>
-                <a href="{{ route('admin.statistiques') }}">
-                    <i class="ri-box-3-line me-2"></i> Les produits
-                </a>
-            </li>
-        </ul>
-    </li>
-@endif
+                        {{-- Sous-menu Les produits --}}
+                        <li>
+                            <a href="{{ route('admin.statistiques') }}">
+                                <i class="ri-box-3-line me-2"></i> Les produits
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endif
 
 
                 @can('setting_view')
