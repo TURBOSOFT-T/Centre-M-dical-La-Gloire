@@ -121,6 +121,11 @@ class User extends Authenticatable
         return $this->role === 'gerant';
         
     }
+    
+    public function getIsCaisseAttribute(): bool
+    {
+        return $this->role === 'caisse';
+    }
 
     /**
      * Vérifie si l'utilisateur est admin ou gérant (utile pour les statistiques & bilans)
