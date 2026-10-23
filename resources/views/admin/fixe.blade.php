@@ -342,7 +342,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                         </div>
                     </a>
                     <ul>
-                        @if(auth()->user()->is_admin_or_gerant)
+                        @if(auth()->user()->is_admin)
                         <li>
                             <a href="{{ route('personnels') }}">
                                 <i class="bx bx-right-arrow-alt"></i>
@@ -649,31 +649,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     @stack('scripts')
 
     @if (auth()->user()->is_admin)
-    <script>
-        function sendMarkRequest(id = null) {
-            return $.ajax("{{ route('markNotification') }}", {
-                method: 'POST',
-                data: {
-                    _token,
-                    id
-                }
-            });
-        }
-        $(function() {
-            $('.mark-as-read').click(function() {
-                let request = sendMarkRequest($(this).data('id'));
-                request.done(() => {
-                    $(this).parents('div.alert').remove();
-                });
-            });
-            $('#mark-all').click(function() {
-                let request = sendMarkRequest();
-                request.done(() => {
-                    $('div.alert').remove();
-                })
-            });
-        });
-    </script>
+    
     @endif
 </body>
 

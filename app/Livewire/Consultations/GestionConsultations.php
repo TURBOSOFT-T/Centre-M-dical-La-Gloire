@@ -129,19 +129,7 @@ class GestionConsultations extends Component
         $this->isModificationsModalOpen = true;
     }
 
-    public function getProduitsDisponiblesProperty()
-    {
-        $query = \App\Models\produits::where('stock', '>', 0);
-
-        if (!empty($this->searchProduit)) {
-            $query->where(function ($q) {
-                $q->where('nom', 'like', '%' . $this->searchProduit . '%')
-                  ->orWhere('reference', 'like', '%' . $this->searchProduit . '%');
-            });
-        }
-
-        return $query->take(15)->get();
-    }
+    
 
     public function updatedType($value)
     {
@@ -1251,7 +1239,10 @@ class GestionConsultations extends Component
         $consultations = Consultation::query()
             ->with(['patient.assurance', 'medecin', 'demandesExamens', 'produits'])
             // Filtrage par rôle : l'admin voit tout, les autres voient uniquement leurs affectations ou créations
-          ->when($user && !$user->hasRole(['admin', 'gerant', 'caisse']) && !$user->is_admin, function ($query) use ($userId) {
+      
+            ->with(['patient.assurance', 'medecin', 'demandesExamens', 'produits'])
+            // 🔹 L'admin, le gérant et la caisse voient tout. Les autres voient uniquement leurs consultations.
+            ->when($user && !$user->hasRole(['admin', 'gerant', 'caisse']) && !$user->is_admin && !$user->is_gerant && !$user->is_caisse, function ($query) use ($userId) {
                 $query->where(function ($q) use ($userId) {
                     $q->where('medecin_id', $userId)
                       ->orWhere('user_id', $userId);

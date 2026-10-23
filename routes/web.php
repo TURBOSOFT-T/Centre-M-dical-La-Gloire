@@ -233,8 +233,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('parametres');
 
         Route::get('/personnels', [AdminController::class, 'personnels'])
-            ->name('personnels')
-            ->middleware('role:admin');
+            ->name('personnels');
         Route::post('/admin/personnels/{id}/update-role', [AdminController::class, 'updateRole'])
             ->name('admin.personnels.updateRole')->middleware('role:admin');
         Route::get('/promotions', [AdminController::class, 'promotions'])

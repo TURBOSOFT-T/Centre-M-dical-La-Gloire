@@ -105,24 +105,32 @@ class User extends Authenticatable
 
     
 
-    public function getIsAdminAttribute()
+ /**
+     * Vérifie si l'utilisateur est administrateur
+     */
+    public function getIsAdminAttribute(): bool
     {
-        $admins = User::where('role', 'admin')
-            ->get();
-
-        // return $this->role()->where('id', 1)->exists();
-        return $this->$admins;
+        return $this->role === 'admin';
     }
 
-    public function getIsGerantAttribute()
+    /**
+     * Vérifie si l'utilisateur est gérant
+     */
+    public function getIsGerantAttribute(): bool
     {
         return $this->role === 'gerant';
+        
     }
 
-    public function getIsAdminOrGerantAttribute()
+    /**
+     * Vérifie si l'utilisateur est admin ou gérant (utile pour les statistiques & bilans)
+     */
+    public function getIsAdminOrGerantAttribute(): bool
     {
-        return in_array($this->role, ['admin', 'gerant']);
+        return in_array($this->role, ['admin', 'gerant', 'caisse']);
     }
+
+
     
     public function collection()
     {
