@@ -60,7 +60,7 @@ class GestionConsultations extends Component
 
     // Facturation & Règlement
    public $type = 'medecin_general';
-    public $tarif_brut = 5000;
+    public $tarif_brut = 2500; // Tarif par défaut pour une consultation générale
     public $montantExamens = 0; // Total cumulé des examens prescrits
     public $est_paye = false;
 
@@ -376,7 +376,7 @@ class GestionConsultations extends Component
         if (!$this->consultationEnPaiement) return;
 
         // 1. Calcul du total brut (Consultation + Examens + Produits)
-        $tarifConsultation = $this->consultationEnPaiement->tarif_brut ?? 5000;
+        $tarifConsultation = $this->consultationEnPaiement->tarif_brut ?? 2500;
         $tarifExamens = $this->consultationEnPaiement->demandesExamens ? $this->consultationEnPaiement->demandesExamens->sum('tarif_brut') : 0;
 
         $tarifProduits = 0;
@@ -519,7 +519,7 @@ class GestionConsultations extends Component
         $this->traitement_sortie = '';
         $this->notes_privees = '';
 
-        $this->tarif_brut = 5000;
+        $this->tarif_brut = 2500; // Tarif par défaut pour une consultation générale
         $this->montantExamens = 0;
         $this->est_paye = false;
 
@@ -612,7 +612,7 @@ class GestionConsultations extends Component
         $this->traitement_sortie = $c->traitement_sortie ?? '';
         $this->notes_privees = $c->notes_privees ?? '';
 
-        $this->tarif_brut = $c->tarif_brut ?? 5000;
+        $this->tarif_brut = $c->tarif_brut ?? 2500; // Tarif par défaut pour une consultation générale
         $this->montantExamens = $c->demandesExamens ? $c->demandesExamens->sum('tarif_brut') : 0;
         $this->est_paye = (bool) $c->est_paye;
 
@@ -1237,7 +1237,7 @@ class GestionConsultations extends Component
         $consultations = Consultation::query()
             ->with(['patient.assurance', 'medecin', 'demandesExamens', 'produits'])
             // Filtrage par rôle : l'admin voit tout, les autres voient uniquement leurs affectations ou créations
-            ->when($user && !$user->hasRole('admin') && !$user->is_admin, function ($query) use ($userId) {
+          ->when($user && !$user->hasRole(['admin', 'gerant', 'caisse']) && !$user->is_admin, function ($query) use ($userId) {
                 $query->where(function ($q) use ($userId) {
                     $q->where('medecin_id', $userId)
                       ->orWhere('user_id', $userId);

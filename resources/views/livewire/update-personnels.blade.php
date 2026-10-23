@@ -41,9 +41,10 @@
                 <select wire:model="role_in_shop" class="form-select @error('role_in_shop') is-invalid @enderror">
                     <option value="caisse">Caisse</option>
                     <option value="personnel">Personnel</option>
-                    <option value="vendeur">Vendeur</option>
+                 
                     <option value="gerant">Gérant</option>
-                    <option value="commercial">Commercial</option>
+                      <option value="medecin">Médecin</option>
+                    <option value="admin">Admin</option>
                     
                 </select>
                 @error('role_in_shop') <div class="invalid-feedback">{{ $message }}</div> @enderror

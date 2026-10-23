@@ -25,9 +25,7 @@
                         <option value="caisse" {{ $personnel->role == 'caisse' ? 'selected' : '' }}>
                             {{ \App\Helpers\TranslationHelper::TranslateText('Caisse') }}
                         </option>
-                        <option value="commercial" {{ $personnel->role == 'commercial' ? 'selected' : '' }}>
-                            {{ \App\Helpers\TranslationHelper::TranslateText('Commercial') }}
-                        </option>
+                       
 
                         <option value="comptable" {{ $personnel->role == 'comptable' ? 'selected' : '' }}>
                             {{ \App\Helpers\TranslationHelper::TranslateText('Comptable') }}
@@ -38,6 +36,10 @@
 
                           <option value="medecin" {{ $personnel->role == 'medecin' ? 'selected' : '' }}>
                             {{ \App\Helpers\TranslationHelper::TranslateText('Médecin') }}
+                        </option>
+
+                          <option value="admin" {{ $personnel->role == 'admin' ? 'selected' : '' }}>
+                            {{ \App\Helpers\TranslationHelper::TranslateText('Admin') }}
                         </option>
                     </select>
                 </div>

@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('consultations', function (Blueprint $table) {
             $table->id();
+             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('code_consultation')->unique(); // Ex: CNS-2026-0001
 
             // Foreign Keys
@@ -26,7 +27,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users')
                 ->onDelete('set null');
-
+              
             // Planning & Statuts
             $table->dateTime('date_heure_rdv')->index();
 

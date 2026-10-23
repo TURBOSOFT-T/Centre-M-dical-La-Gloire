@@ -36,6 +36,7 @@ class User extends Authenticatable
 
         'two_factor_code',
         'two_factor_expires_at',
+        'role'
 
     ];
 

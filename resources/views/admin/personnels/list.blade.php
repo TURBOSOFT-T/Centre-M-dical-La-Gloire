@@ -54,7 +54,7 @@
                                 <th>Prénom</th>
                                 <th>Email</th>
                                 <th>Téléphone</th>
-                                <th>Boutique(s)</th>
+                                <th>Pharmacie(s)</th>
                                 <th>Rôle(s)</th>
                                 <th class="text-end">
                                     <span wire:loading>
@@ -113,7 +113,7 @@
                                         </button>
                                         <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#roleModal{{ $personnel->id }}">
                                             Modifier Rôle
-                                        </button>
+                                        </button> 
 
                                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#personnel-{{ $personnel->id }}">
                                             <i class="ri-settings-5-line"></i> Permissions

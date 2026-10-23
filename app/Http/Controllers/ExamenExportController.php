@@ -49,7 +49,79 @@ class ExamenExportController extends Controller
     /**
      * Importe un fichier SQL ou une base SQLite brute
      */
+
     public function importDatabase(Request $request)
+    {
+        $request->validate([
+            'sql_file' => 'required|file|mimes:sql,txt,sqlite,db|max:102400', // Limite à 100 Mo
+        ]);
+
+        try {
+            $file = $request->file('sql_file');
+            $filePath = $file->getRealPath();
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            // Récupération du driver de base de données actuel (mysql, mariadb ou sqlite)
+            $driver = DB::getDriverName();
+
+            // Si c'est un fichier binaire SQLite brut (.sqlite ou .db)
+            if (in_array($extension, ['sqlite', 'db'])) {
+                if ($driver !== 'sqlite') {
+                    throw new \Exception("Impossible d'importer un fichier SQLite alors que la base de données active utilise le driver " . $driver);
+                }
+
+                $dbName = basename(config('database.connections.sqlite.database', 'database.sqlite'));
+                $dbPath = database_path($dbName);
+                
+                DB::purge('sqlite');
+                if (!copy($filePath, $dbPath)) {
+                    throw new \Exception("Impossible de remplacer le fichier de la base de données SQLite.");
+                }
+                return redirect()->back()->with('success', 'Base de données SQLite restaurée avec succès.');
+            }
+
+            // Si c'est un script de requêtes SQL textuelles
+            $sqlContent = File::get($filePath);
+
+            // Nettoyage de base des commentaires
+            $sqlContent = preg_replace('/^--.*$/m', '', $sqlContent);
+            $sqlContent = preg_replace('/\/\*.*?\*\//s', '', $sqlContent);
+
+            // Gestion dynamique des contraintes de clés étrangères selon le SGBD
+            if ($driver === 'sqlite') {
+                DB::statement('PRAGMA foreign_keys = OFF;');
+            } else {
+                // MySQL / MariaDB
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            }
+
+            DB::unprepared($sqlContent);
+
+            // Réactivation des contraintes
+            if ($driver === 'sqlite') {
+                DB::statement('PRAGMA foreign_keys = ON;');
+            } else {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            }
+
+            return redirect()->back()->with('success', 'Le script SQL a été importé avec succès.');
+        } catch (\Exception $e) {
+            // S'assure de réactiver les clés étrangères même en cas d'erreur selon le driver
+            try {
+                $driver = DB::getDriverName();
+                if ($driver === 'sqlite') {
+                    DB::statement('PRAGMA foreign_keys = ON;');
+                } else {
+                    DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+                }
+            } catch (\Throwable $th) {
+                // Ignore si la connexion est rompue
+            }
+            
+            return redirect()->back()->with('error', 'Erreur lors de la restauration : ' . $e->getMessage());
+        }
+    }
+    public function importDatabase2(Request $request)
     {
         $request->validate([
             'sql_file' => 'required|file|mimes:sql,txt,sqlite,db|max:102400', // Limite à 100 Mo

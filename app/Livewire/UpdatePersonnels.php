@@ -51,7 +51,7 @@ class UpdatePersonnels extends Component
             'email'        => ['required', 'email', Rule::unique('users', 'email')->ignore($this->personnelId)],
             'phone'        => ['required', 'numeric', Rule::unique('users', 'phone')->ignore($this->personnelId)],
             'shop_id'      => 'nullable|exists:shops,id',
-            'role_in_shop' => 'required|in:caisse,personnel,vendeur,gerant,commercial',
+            'role_in_shop' => 'required|in:caisse,personnel,vendeur,gerant,commercial ,admin,medecin',
         ];
     }
 

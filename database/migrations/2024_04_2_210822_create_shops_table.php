@@ -25,7 +25,17 @@ return new class extends Migration
             $table->string("location")->nullable(true)->default(null);
             $table->string('phone')->nullable(true)->default(null);
             $table->string('code_postal')->nullable(true)->default(null);
-            $table->enum("role", ["personnel", "seller"])->default("seller");
+            $table->enum("role", ["personnel", "seller",
+            "medecin",
+           
+            "caisse",
+          
+            "gerant",
+            "vendeur",
+           
+            
+            
+            ])->default("seller");
             $table->string('two_factor_code')->nullable();
             $table->dateTime('two_factor_expires_at')->nullable();
             $table->enum("statut", ["disponible", "indisponible"])->default("indisponible");

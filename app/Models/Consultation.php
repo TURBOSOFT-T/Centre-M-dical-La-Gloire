@@ -61,7 +61,8 @@ class Consultation extends Model
         'date_vu_responsable',
         'responsable_id',
         'modifications_historique',
-        'evolution_maladie'
+        'evolution_maladie',
+        'user_id',
     ];
 
     protected $casts = [
