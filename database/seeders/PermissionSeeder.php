@@ -20,10 +20,8 @@ class PermissionSeeder extends Seeder
 
 
        
+'consultation_add_produit',
 
-        'hospitalisation_stat_view',
-        'produit_stat_view',
-        'concultation_stat_view',
         
 
 

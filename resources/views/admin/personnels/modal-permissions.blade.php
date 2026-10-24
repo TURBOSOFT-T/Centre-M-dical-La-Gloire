@@ -166,7 +166,7 @@
                                     </td>
 
                                     <td>
-                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_caisse" @checked($personnel->hasPermissionTo('consultation_caisse'))> Encaisser
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_add_produit" @checked($personnel->hasPermissionTo('consultation_add_produit'))> Ajouter Médicaments
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_add_evolution" @checked($personnel->hasPermissionTo('consultation_add_evolution'))> Ajouter évolutions
@@ -190,6 +190,9 @@
 
                                     <td>
                                         <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_pay" @checked($personnel->hasPermissionTo('consultation_pay'))> Notification caisse
+                                    </td>
+                                     <td>
+                                        <input type="checkbox" class="form-check-input" name="permissions[]" value="consultation_caisse" @checked($personnel->hasPermissionTo('consultation_caisse'))> Encaisser
                                     </td>
 
                                      <td>

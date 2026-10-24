@@ -723,11 +723,14 @@
                                 <label class="form-label font-weight-bold">Hypothèse Diagnostique</label>
                                 <textarea wire:model.live.debounce.500ms="hypothese_diagnostique" class="form-control" rows="2" placeholder="Hypothèse / Diagnostic différentiel..."></textarea>
                             </div>
+                            @endcan
+
+                            
+                            <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
+                            @can('consultation_add_exam')
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Examens demandés</h6>
                             </div>
-                            <!-- SECTION 8 : PRESCRIPTION & RÉSULTATS D'EXAMENS -->
-                            @can('consultation_add_exam')
                             @if($isEditMode && isset($selectedConsultationId))
                             @php
                             $consultationActive = $consultations->find($selectedConsultationId);
@@ -747,7 +750,7 @@
                             @endif
                             @endif
                             @endcan
-
+                            @can('consultation_edit_champ')
                             <div class="col-md-12 mt-3">
                                 <label class="form-label font-weight-bold">Diagnostic positif</label>
                                 <textarea wire:model.live.debounce.500ms="diagnostic" class="form-control" rows="2" placeholder="Avis médical / Diagnostic confirmé..."></textarea>
@@ -761,7 +764,10 @@
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Traitements</h6>
                             </div>
+                            @endcan
+                           
                             <!-- ================= SECTION 5 : NOUVEAU BLOC DE PRESCRIPTION DES PRODUITS (PHARMACIE & STOCK) ================= -->
+                           @can('consultation_add_produit')
                             <div class="col-12 mt-4">
                                 <div class="card border shadow-sm radius-12">
                                     <div class="card-header bg-light py-3">
@@ -831,6 +837,7 @@
                                         </div>
 
                                         {{-- Produits sélectionnés avec champs dynamiques (Quantité, Voie d'administration, Posologie) --}}
+                                     
                                         @if(!empty($produitsSelectionnes))
                                         <div class="border-top pt-3 mt-3">
                                             <h6 class="fw-bold text-dark mb-3">
@@ -884,14 +891,17 @@
                                             <small>Cochez un produit dans la liste ci-dessus pour configurer sa posologie et sa voie d'administration.</small>
                                         </div>
                                         @endif
+                                       
 
                                     </div>
                                 </div>
                             </div>
+                            @endcan
+
+                            @can('consultation_edit_champ')
                             <div class="col-12 mt-3">
                                 <h6 class="text-primary font-weight-bold border-bottom pb-2"><i class="bx bx-history me-1"></i> Evolutions de la maladie</h6>
                             </div>
-
                             <div class="col-12 mt-3">
 
 
@@ -923,6 +933,7 @@
                                 <small class="text-muted d-block text-center py-2">Aucune note de visite journalière enregistrée.</small>
                                 @endif
                             </div>
+
 
 
                             <div class="col-12 mt-3">
