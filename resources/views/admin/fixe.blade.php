@@ -300,7 +300,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 
                 @can('order_view')
                 <li>
-                    <a href="javascript:;" class="has-arrow">
+                    <a href="{{ route('commandes') }}">
                         <div class="parent-icon icon-color-4">
                             <i class="ri-truck-line"></i>
                         </div>
@@ -308,26 +308,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                             Commandes
                         </div>
                     </a>
-                    <ul>
-                        <li>
-                            <a href="{{ route('commandes') }}">
-                                <i class="bx bx-right-arrow-alt"></i>
-                                Toutes les commandes
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('commandes_en_lives') }}">
-                                <i class="bx bx-right-arrow-alt"></i>
-                                Commandes en cours
-                            </a>
-                        </li>
-
-
-
-
-
-
-                    </ul>
+                  
                 </li>
                 @endcan
 
@@ -517,15 +498,9 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                 </div>
                 <div class="right-topbar ms-auto">
                     <ul class="navbar-nav">
-                        <!-- <li class="nav-item search-btn-mobile">
-                            <a class="nav-link position-relative" href="javascript:;"> <i
-                                    class="bx bx-search vertical-align-middle"></i>
-                            </a>
-                        </li> -->
+                     
 
-                        <li class="nav-item dropdown dropdown-lg">
-                            @livewire('admin-messages-dropdown')
-                        </li>
+                     
                         <li class="nav-item dropdown dropdown-lg">
                             <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative"
                                 href="javascript:;" data-bs-toggle="dropdown"> <i
@@ -648,9 +623,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <script src="/admin/assets/js/app.js"></script>
     @stack('scripts')
 
-    @if (auth()->user()->is_admin)
-    
-    @endif
+   
 </body>
 
 </html>

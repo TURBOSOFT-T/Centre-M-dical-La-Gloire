@@ -47,10 +47,10 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 							<div class="col-xl-6">
 								<div class="card-body p-5">
 									<div class="text-center">
-										
-										 @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" alt="logo"  width="80"  class="logo">
-                        @endif
+
+										@if(!empty($logoBase64))
+										<img src="{{ $logoBase64 }}" alt="logo" width="80" class="logo">
+										@endif
 										<h3 class="mt-4 font-weight-bold">
 											Bienvenue au Centre Médical La Gloire
 										</h3>
@@ -66,14 +66,14 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
 								</div>
 							</div>
 							<div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
-								
-									 @if(!empty($logoBase64))
-                        <img src="{{ $logoBase64 }}" class="img-fluid d-none d-sm-block"
+
+								@if(!empty($logoBase64))
+								<img src="{{ $logoBase64 }}" class="img-fluid d-none d-sm-block"
 									alt="Illustration Stratégie CRM"
 									loading="lazy">
-                        @endif
+								@endif
 							</div>
-							
+
 							<!-- <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
 								<img src="https://blog.comexplorer.com/hubfs/strate%CC%81gie-crm-1.webp" class="img-fluid  d-none d-sm-block" alt="..." >
 							</div>  -->

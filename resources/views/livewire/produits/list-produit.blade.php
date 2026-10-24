@@ -41,7 +41,7 @@
                     <th>Sell</th>
 
 
-                    <th>Création</th>
+                   
                     <th>Date peremption</th>
                     <th style="text-align: right;">
                         <span wire:loading>
@@ -69,13 +69,13 @@
 
                     <!-- Colonne 1 : Statut du Stock Général -->
                     <td class="cursor">
-                        @if ($produit->stock > 50)
+                        @if ($produit->stock > 20)
                         <span class="text-success" title="En Stock Globalement">
                             <i class="fas fa-check-circle"></i>
                             <span class="badge bg-success">En Stock</span>
                             <b>{{ $produit->stock }} U.</b>
                         </span>
-                        @elseif ($produit->stock > 0 && $produit->stock <= 50)
+                        @elseif ($produit->stock > 0 && $produit->stock <= 20)
                             <span title="{{ $produit->stock }} Produit(s) au total">
                             <b>{{ $produit->stock }} U.</b>
                             <span class="badge" style="background-color: #e0d600; color: #fff;">Stock Bas</span>
@@ -114,16 +114,9 @@
                     </td>
 
                     <td>
-                        @if ($produit->inPromotion())
-                        <span class="small">- {{ $produit->inPromotion()->pourcentage }} %</span>
-                        <b class="text-success">{{ $produit->getPrice() }} <x-devise></x-devise></b>
-                        <br>
-                        <strike>
-                            <span class="text-danger small">{{ $produit->prix }} <x-devise></x-devise></span>
-                        </strike>
-                        @else
+                     
                         {{ $produit->getPrice() }} <x-devise></x-devise>
-                        @endif
+                      
                     </td>
                     <td>
                         @can('price_view')
@@ -135,8 +128,7 @@
                         <i class="ri-wallet-2-line vert"></i> {{ $produit->vendus->count() }}
                     </td>
 
-                    <td>{{ $produit->created_at->format('d/m/Y') }}</td>
-
+                   
                     <td>
                         @if($produit->date_peremption)
                         @if($produit->est_expire)
@@ -256,8 +248,12 @@
             </tbody>
         </table>
     </div>
-
-    {{ $produits->links('pagination::bootstrap-5') }}
+  @if($produits->hasPages())
+     <div class="card-footer bg-white border-top-0 py-3">
+       {{ $produits->links('pagination::bootstrap-5') }}
+    </div>
+    @endif
+   
 
     @role('admin')
     <div class="text-end p-2">

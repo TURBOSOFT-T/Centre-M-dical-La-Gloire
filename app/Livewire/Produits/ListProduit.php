@@ -13,7 +13,7 @@ use Livewire\WithPagination;
 class ListProduit extends Component
 {
     protected $listeners = ['add-stock' => '$refresh'];
-    use WithPagination;
+  //  use WithPagination;
     
   public $key = '';
     public $showModal = false;

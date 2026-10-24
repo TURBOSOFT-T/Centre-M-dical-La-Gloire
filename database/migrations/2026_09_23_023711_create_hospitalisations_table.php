@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('hospitalisations', function (Blueprint $table) {
             $table->id();
-            
+
             // Identification & Liaisons
             $table->string('code_hospitalisation')->unique(); // Ex: HOSP-2026-0001
             $table->foreignId('dossier_medical_id')->constrained('dossiers_medicaux')->onDelete('cascade');
@@ -30,13 +30,13 @@ return new class extends Migration
             $table->dateTime('date_entree')->nullable();
             $table->dateTime('date_sortie_prevue')->nullable();
             $table->dateTime('date_sortie_effective')->nullable();
-             $table->string('nombre_jours')->nullable();
+            $table->string('nombre_jours')->nullable();
 
 
-               $table->enum('type_prise_en_charge', ['observation', 'hospitalisation'])
-                  ->default('hospitalisation');
+            $table->enum('type_prise_en_charge', ['observation', 'hospitalisation'])
+                ->default('hospitalisation');
 
-                  $table->integer('visite_urgentiste_qte')->default(0);
+            $table->integer('visite_urgentiste_qte')->default(0);
             $table->decimal('visite_urgentiste_pu', 10, 2)->default(0);
             $table->decimal('visite_urgentiste_total', 10, 2)->default(0);
 
@@ -47,13 +47,13 @@ return new class extends Migration
 
             // 2. Ajout du type de standing / catégorie de chambre
             $table->enum('standing_type', [
-                'haut_standing', 
-                'classique', 
-                'economique', 
+                'haut_standing',
+                'classique',
+                'economique',
                 'post_up'
             ])->nullable();
 
-         
+
             // Motif & Diagnostic
             $table->text('motif_admission');
             $table->text('diagnostic_entree')->nullable();

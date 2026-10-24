@@ -84,10 +84,6 @@ class SellerSeeder extends Seeder
         'trasport_edit',
         'trasport_delete',
 
-        'code_promotion_view',
-        'code_promotion_add',
-        'code_promotion_edit',
-        'code_promotion_delete',
 
         'compte_view',
         'compte_add',

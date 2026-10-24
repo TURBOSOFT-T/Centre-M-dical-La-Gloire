@@ -83,19 +83,7 @@
                 <div class="collapse navbar-collapse main-navigation mainmenu " id="main-nav-bar">
 
                     <ul class="nav navbar-nav navigation-box">
-                        <li class="current">
-                            <a href="{{ route('home') }}">{{ __('accueil') }}</a>
-
-                        </li>
-                        
-
-
-
-
-                        
-
-
-                        </li>
+                       
                         @guest
 
 
@@ -141,7 +129,7 @@
 
 
     </main>
-    @livewire('live-chat')
+  
     <!-- Bouton TikTok -->
     @if(!empty($config->tiktok))
     <div class="tiktok-dark">

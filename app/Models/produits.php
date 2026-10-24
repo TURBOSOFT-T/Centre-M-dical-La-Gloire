@@ -57,7 +57,7 @@ class produits extends Model
 
     protected $appends = [
         'final_price',
-        'has_promotion',
+       
         'total_sold',
         'slug',
 
@@ -94,10 +94,7 @@ public function getJoursRestantsAttribute(): int
     }
 
 
-    public function promotion()
-    {
-        return $this->belongsTo(promotions::class, 'id_promotion');
-    }
+   
     public function vendus()
     {
         return $this->hasMany(contenu_commande::class, 'id_produit');
@@ -106,74 +103,27 @@ public function getJoursRestantsAttribute(): int
 
     public function getPrice()
     {
-        if ($this->promotion && $this->promotion->pourcentage) {
-            return $this->prix - ($this->prix * $this->promotion->pourcentage / 100);
-        }
+        
 
         return $this->prix;
     }
 
-    public function diminuerStockParTaille(int $tailleId, int $quantite): void
-    {
-        $taille = $this->tailles()->where('id', $tailleId)->first();
-
-        if ($taille && $taille->pivot->stock >= $quantite) {
-            // Met à jour le stock dans la table pivot
-            $this->tailles()->updateExistingPivot($tailleId, [
-                'stock' => $taille->pivot->stock - $quantite
-            ]);
-        } else {
-            throw new \Exception("Stock insuffisant pour cette taille.");
-        }
-    }
+   
 
     public function getFinalPriceAttribute()
     {
         return $this->getPrice();
     }
 
-    public function getHasPromotionAttribute()
-    {
-        return $this->promotion !== null;
-    }
+   
 
     public function getTotalSoldAttribute()
     {
         return $this->vendus()->sum('quantite') ?? 0;
     }
 
-    public function getTotalSoldAttribute1()
-    {
-        return $this->vendus()->count();
-    }
-    public function getPrice1()
-    {
-        if ($this->id_promotion) {
-            $promotion = promotions::find($this->id_promotion);
-            if ($promotion) {
-                $price = $this->prix - ($this->prix * ($promotion->pourcentage / 100));
-                return $price;
-            } else {
-                return $this->prix;
-            }
-        } else {
-            return $this->prix;
-        }
-    }
+   
 
-    public function inPromotion()
-    {
-        if ($this->id_promotion) {
-            $promotion = promotions::find($this->id_promotion);
-            if ($promotion) {
-                return $promotion;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
 
     /* public function diminuer_stock(int $quantite): void
     {
@@ -271,8 +221,5 @@ public function getJoursRestantsAttribute(): int
 
 
 
-    public function familles()
-    {
-        return $this->belongsTo(Famille::class, 'famille_id', 'id');
-    }
+   
 }

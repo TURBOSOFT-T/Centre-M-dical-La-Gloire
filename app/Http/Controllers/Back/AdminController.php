@@ -9,7 +9,7 @@ use App\Models\commandes;
 use App\Models\historiques_stock;
 use App\Models\config;
 use App\Models\historiques_connexion;
-use App\Models\{produits, Category,Consultation,RendezVous, Marque, Contact, favoris,  DossierMedical, Hospitalisation, Message, Patient, Shop,  Visitor, Sous_category};
+use App\Models\{produits, Category, Consultation, RendezVous, Marque, Contact, favoris,  DossierMedical, Hospitalisation, Message, Patient, Shop,  Visitor, Sous_category};
 use App\Models\User;
 use App\Models\views;
 use Illuminate\Http\Request;
@@ -31,28 +31,13 @@ class AdminController extends Controller
 {
     use ListGouvernorats;
 
- 
 
 
-    public function favories()
-    {
-        $favorie = favoris::where('user_id', auth()->id())->get();
-        return view('front.comptes.favoris', compact('favoris'));
-    }
 
-    public function admin_contact_form()
-    {
-        $contacts = Contact::paginate(100);
-        return view('admin.contacts.list', compact('contacts'));
-    }
 
-    public function supprimer_messages(Request $request, $id)
-    {
-        $contact = Contact::findOrFail($id);
-        $contact->delete();
 
-        return redirect()->back()->with('success', 'Message supprimé avec succès');;
-    }
+
+
 
     public function dashboard(Request $request)
     {
@@ -95,8 +80,9 @@ class AdminController extends Controller
         $stat_commande_non_confirmer_Month = [];
         $profilNet = [];
         for ($i = 1; $i <= 12; $i++) {
-            $visitsPerMonth[] = Views::whereYear('created_at', $currentYear)
+            $visitsPerMonth[] = Consultation::whereYear('created_at', $currentYear)
                 ->whereMonth('created_at', $i)
+                //  ->where('statut', 'termine')
                 ->count();
             $commandesPerMonth[] = Commandes::whereYear('created_at', $currentYear)
                 ->whereMonth('created_at', $i)->count();
@@ -139,7 +125,7 @@ class AdminController extends Controller
         }
 
 
-        $total_visites = views::whereBetween('created_at', [$date_debut, $date_fin])->count();
+        $total_visites = Consultation::whereBetween('created_at', [$date_debut, $date_fin])->count();
         $total_commandes = commandes::whereBetween('created_at', [$date_debut, $date_fin])->where('statut', 'payée')->get(['id']);
         $total_produits = produits::count();
         $totalDesCommandes = 0;
@@ -148,7 +134,7 @@ class AdminController extends Controller
         }
         $totalUser = Patient::whereBetween('created_at', [$date_debut, $date_fin])->count();
 
-        $totalVisitors = Visitor::count();
+        $totalVisitors = Consultation::count();
         $todayVisitors = Visitor::whereDate('created_at', today())->count();
         $weekVisitors = Visitor::whereBetween('created_at', [
             now()->startOfWeek(),
@@ -241,11 +227,9 @@ class AdminController extends Controller
 
         $request->session()->flash('date_debut', $request->input('date_debut'));
         $request->session()->flash('date_fin', $request->input('date_fin'));
-        $messages = Message::orderBy('created_at', 'desc')
-            ->take(5) // Récupère uniquement les 5 derniers messages reçus
-            ->get();
+
         return view('admin.index')
-            ->with("messages", $messages)
+
             ->with("totalUser", $totalUser)
             ->with('visitsPerMonth', $visitsPerMonth)
             ->with('commandesPerMonth', $commandesPerMonth)
@@ -314,7 +298,7 @@ class AdminController extends Controller
     {
         return view("admin.produits.corbeille");
     }
-  public function corbeillepatient()
+    public function corbeillepatient()
     {
         return view("admin.patients.corbeille");
     }
@@ -400,13 +384,6 @@ class AdminController extends Controller
 
 
 
-    //////////////////Support client
-
-    public function support()
-    {
-        return view('admin.supports.list');
-    }
-
 
     ///////////////Marques/////////////////////
 
@@ -416,22 +393,22 @@ class AdminController extends Controller
     }
 
 
-        public function examens()
+    public function examens()
     {
         return view('admin.examens.list');
     }
 
-//////////////////Assurances/////////////////////
+    //////////////////Assurances/////////////////////
 
     public function assurances()
     {
         return view('admin.assurances.list');
     }
 
-  
 
 
-  
+
+
 
 
 
@@ -480,7 +457,7 @@ class AdminController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-            
+
         $ipAddress = request()->ip();
         return view('admin.parametres.index', compact('connexions'));
     }
@@ -489,7 +466,7 @@ class AdminController extends Controller
     public function personnels()
     {
         // $personnels = User::where('role', 'personnel')->get();
-            $total_supprimers = User::onlyTrashed()->count();
+        $total_supprimers = User::onlyTrashed()->count();
         $personnels = User::whereNotIn('role', ['client'])->get();
         return view('admin.personnels.list', compact('personnels', 'total_supprimers'));
     }
@@ -554,18 +531,6 @@ class AdminController extends Controller
 
 
 
-    public function promotions($id = null)
-    {
-        if ($id !== null) {
-            $produit = Produits::find($id);
-            if (!$produit) {
-                abort(404);
-            }
-        } else {
-            $produit = null;
-        }
-        return view('admin.promotions.index', compact('produit'));
-    }
 
 
     public function clients()
@@ -577,19 +542,19 @@ class AdminController extends Controller
 
 
 
-       public function patients()
+    public function patients()
     {
         $patients = Patient::with('assurance')->get();
-      
+
         return view('admin.patients.list', compact('patients'));
     }
 
 
-    
-       public function patientsAssures()
+
+    public function patientsAssures()
     {
         $patients = Patient::with('assurance')->get();
-      
+
         return view('admin.patients.listAssures', compact('patients'));
     }
 
@@ -608,13 +573,13 @@ class AdminController extends Controller
         $consultations = Consultation::with(['patient.assurance', 'medecin'])->get();
         return view('admin.consultations.list', compact('consultations'));
     }
- public function hospitalisations()
+    public function hospitalisations()
     {
         $hospitalisations = Hospitalisation::with(['patient.assurance', 'medecin'])->get();
         return view('admin.hospitalisations.list', compact('hospitalisations'));
     }
 
-     public function dossiersmedicaux()
+    public function dossiersmedicaux()
     {
         $dossiersmedicaux = DossierMedical::all();
         return view('admin.dossiersmedicaux.list', compact('dossiersmedicaux'));

@@ -53,35 +53,7 @@
                         @endcan
                     </div>
                 </div>
-                <!--   <div class="row">
-                        <div class="col-sm-6">
-                            <div class="card-title">
-                                <h5 class="mb-0 my-auto">
-                                    Liste des produits
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="input-group mb-3">
-                                 @can('product_add')
-                                <button class="btn btn-warning btn-sm  px-5" onclick="url('{{ route('promotions') }}')">
-                                    Promotions
-                                </button>
-                                @endcan
-                                @can('gestion_stock')
-                                    <button class="btn btn-dark btn-sm  px-5" data-bs-toggle="modal"
-                                        data-bs-target="#modal-add-stock">
-                                        Ajout de stock
-                                    </button>
-                                @endcan
-                                @can('product_add')
-                                    <button class="btn btn-primary btn-sm  px-5" onclick="url('{{ route('produit.add') }}')">
-                                        Ajouter un produit
-                                    </button>
-                                @endcan
-                            </div>
-                        </div>
-                    </div> -->
+          
                 <hr />
                 @livewire('Produits.ListProduit')
             </div>

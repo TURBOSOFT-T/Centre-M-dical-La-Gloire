@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('promotions:check')->daily();
+       
 
         $schedule->call(function () {
             DB::table('messages')

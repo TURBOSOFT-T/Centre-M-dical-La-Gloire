@@ -216,7 +216,7 @@ public function mount()
                         $query->where('shop_id', $activeShopId)
                             ->where('stock_particulier', '>', 0);
                     })
-                    ->take(5)
+                    ->take(10)
                     ->get();
 
                 $result = [];

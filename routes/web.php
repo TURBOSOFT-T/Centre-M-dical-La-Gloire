@@ -13,16 +13,13 @@ use App\Http\Controllers\BannersController;
 
 use App\Http\Controllers\ForgotPasswordController;
 
-use App\Http\Controllers\CouponController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\{
 
-    ContactController,
-    panier_client,
-    CommandeController,
+   
     LocaleController,
-    MyAccountController,
-    favoris_client,
+   
     HomeController,
    
 };
@@ -178,7 +175,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-    Route::get('/admin/support', [AdminController::class, 'support'])->name('support');
+
     Route::get('/admin/caissiers', [AdminController::class, 'caissiers'])
         ->name('caissiers');
 
@@ -236,10 +233,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('personnels');
         Route::post('/admin/personnels/{id}/update-role', [AdminController::class, 'updateRole'])
             ->name('admin.personnels.updateRole')->middleware('role:admin');
-        Route::get('/promotions', [AdminController::class, 'promotions'])
-            ->name('promotions');
-        Route::get('/promotions/{id}', [AdminController::class, 'promotions'])
-            ->name('promotions_produit');
+     
         Route::get('/commande/{id}', [AdminController::class, 'details_commande'])
             ->name('details_commande');
 
@@ -359,11 +353,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-        //getion des banniers
-        Route::get('/admin/banner/index', [BannersController::class, 'index'])
-            ->name('banner.index');
-        Route::get('/admin/banner/{id}', [BannersController::class, 'index_update'])
-            ->name('banner.update');
+      
     });
 });
 

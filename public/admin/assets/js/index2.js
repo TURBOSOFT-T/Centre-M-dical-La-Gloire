@@ -24,7 +24,7 @@ $(function () {
                 data: commandesPerMonth,
             },
             {
-                name: "Vistes",
+                name: "Consultations",
                 data: visitsPerMonth,
             },
         ],

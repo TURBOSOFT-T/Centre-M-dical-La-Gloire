@@ -6,7 +6,7 @@ use App\Models\{produits, Category, Marque};
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use App\Http\Traits\{TailleProduit, ListColor, ListColors};
+
 use Intervention\Image\ImageManagerStatic as Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -15,9 +15,7 @@ use Intervention\Image\Drivers\Gd\Driver;
 class AddProduit extends Component
 {
     use WithFileUploads;
-    use ListColor;
-    use TailleProduit;
-
+  
     public $nom, $tags,  $prix, $category_id, $photo, $photos, $prix_achat, $photo2, $photos2, $produit, $reference, $description, $marque_id;
 
     public $is_new = false;
@@ -63,8 +61,7 @@ class AddProduit extends Component
         return view('livewire.produits.add-produit', [
             'categories' => Category::all(),
             'marques'    => Marque::all(),
-            'couleurs'   => $this->getListColor(),
-            'tailles'    => $this->getListTailleProduit(),
+           
         ]);
     }
     private function compressAndStoreImage($imageFile)
@@ -133,10 +130,6 @@ class AddProduit extends Component
         $produit->date_peremption = $this->date_peremption ?: null;
         $produit->numero_lot = $this->numero_lot ?: null;
 
-        // Compression et stockage de la photo principale
-      //  $produit->photo = $this->compressAndStoreImage($this->photo);
-
-        // Compression et stockage de la galerie photos
         if ($this->photos) {
             $photosPaths = [];
             foreach ($this->photos as $p) {
