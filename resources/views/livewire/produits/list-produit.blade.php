@@ -250,7 +250,7 @@
     </div>
   @if($produits->hasPages())
      <div class="card-footer bg-white border-top-0 py-3">
-       {{ $produits->links('pagination::bootstrap-5') }}
+       {{ $produits->links() }}
     </div>
     @endif
    
