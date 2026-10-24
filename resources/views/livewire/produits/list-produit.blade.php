@@ -11,7 +11,7 @@
                     <!-- <input type="text" class="form-control btn-sm" wire:model="key"
                         placeholder="Titre, Description des articles"> -->
                     <input type="text"
-                        wire:model.live.debounce.300ms="key"
+                        wire:model.live.debounce.100ms="key"
                         class="form-control"
                         placeholder="Recherche par Titre, Description et reference">
                     <div class="input-group-append">

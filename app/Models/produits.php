@@ -125,23 +125,6 @@ public function getJoursRestantsAttribute(): int
    
 
 
-    /* public function diminuer_stock(int $quantite): void
-    {
-        if ($this->stock >= $quantite) {
-            $this->stock -= $quantite;
-            $this->save();
-        }
-    }
-
-    public function retourner_stock(int $quantite): void
-    {
-        $this->stock += $quantite;
-        $this->save();
-    }                               
- */
-
-    // Dans App\Models\produits.php
-
    
     public function diminuer_stock(int $quantite, ?int $shopId = null): void
     {

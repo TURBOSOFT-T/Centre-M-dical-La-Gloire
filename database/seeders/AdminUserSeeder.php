@@ -54,24 +54,12 @@ class AdminUserSeeder extends Seeder
             ]
         );
 
-         $user3 = User::updateOrCreate(
-            ['email' => 'thomastuemo@gmail.com'], // Critère de recherche unique
-            [
-                'nom' => 'Admin',
-                'prenom' => 'Admin',
-                'role' => 'admin',
-                'adresse' => 'Douala, Cameroun',
-                'phone' => '672958053',
-                'code_postal' => '00237',
-                'password' => Hash::make('672958053'),
-            ]
-        );
-    
+       
     
         // 6. Leur assigner le rôle Spatie
         $user1->syncRoles([$adminRole]);
         $user2->syncRoles([$adminRole]);
-        $user3->syncRoles([$adminRole]);
+  
 
         
 
