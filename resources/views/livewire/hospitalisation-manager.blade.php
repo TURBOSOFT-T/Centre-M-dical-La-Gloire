@@ -103,7 +103,7 @@
                             </td>
                             <td>
                                 @if($hosp->medecin)
-                                <small class="fw-semibold">Dr. {{ $hosp->medecin->nom }} {{ $hosp->medecin->prenom }}</small>
+                                <small class="fw-semibold"> {{ $hosp->medecin->nom }} {{ $hosp->medecin->prenom }}</small>
                                 @else
                                 <span class="text-muted small">Non assigné</span>
                                 @endif
