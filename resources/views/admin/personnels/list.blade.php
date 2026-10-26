@@ -72,7 +72,7 @@
                         <tbody>
                             @forelse ($personnels as $personnel)
                             <tr>
-                                <td>{{ $personnel->nom }}</td>
+                                <td>{{ $personnel->grade ?? ' ' }}.{{ $personnel->nom }}</td>
                                 <td>{{ $personnel->prenom }}</td>
                                 <td>{{ $personnel->email }}</td>
                                 <td>{{ $personnel->phone }}</td>
