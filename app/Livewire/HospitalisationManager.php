@@ -338,8 +338,8 @@ class HospitalisationManager extends Component
         $hosp = Hospitalisation::findOrFail($id);
 
         $total = floatval($hosp->montant_total);
-        $partPatient = max(0, $total - floatval($hosp->part_assurance));
-        $resteAPayer = max(0, $partPatient - floatval($hosp->montant_paye));
+        $partPatient = max(1, $total - floatval($hosp->part_assurance));
+        $resteAPayer = max(1, $partPatient - floatval($hosp->montant_paye));
 
         $this->validate([
             'montant_verse' => 'required|numeric|min:1|max:' . $resteAPayer,

@@ -49,8 +49,21 @@ class ExamenExportController extends Controller
     /**
      * Importe un fichier SQL ou une base SQLite brute
      */
+   public function exportDatabase()
+    {
+        $databasePath = database_path('database.sqlite');
+        if (!File::exists($databasePath)) {$databasePath = config('database.connections.sqlite.database');
+        }
 
-    public function importDatabase(Request $request)
+        if (File::exists($databasePath)) {$fileName = 'backup_sqlite_' . date('Y_m_d_His') . '.sqlite';
+            return response()->download($databasePath,$fileName, [
+                'Content-Type' => 'application/x-sqlite3',
+            ]);
+        }
+
+        return redirect()->back()->with('error', 'Fichier de base de données SQLite introuvable.');
+    }
+    public function importDatabase2(Request $request)
     {
         $request->validate([
             'sql_file' => 'required|file|mimes:sql,txt,sqlite,db|max:102400', // Limite à 100 Mo
@@ -121,7 +134,7 @@ class ExamenExportController extends Controller
             return redirect()->back()->with('error', 'Erreur lors de la restauration : ' . $e->getMessage());
         }
     }
-    public function importDatabase2(Request $request)
+    public function importDatabase(Request $request)
     {
         $request->validate([
             'sql_file' => 'required|file|mimes:sql,txt,sqlite,db|max:102400', // Limite à 100 Mo
@@ -176,7 +189,7 @@ class ExamenExportController extends Controller
     /**
      * Exporte toute la base de données (SQLite)
      */
-    public function exportDatabase()
+    public function exportDatabase2()
     {
         $databaseName = DB::getDatabaseName();
         $tables =$this->getAllTableNames();

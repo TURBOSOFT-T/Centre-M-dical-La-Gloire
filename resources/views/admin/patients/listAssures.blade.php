@@ -29,16 +29,7 @@
 
             <div class="card radius-15">
                 <div class="card-body">
-                    <div class="card-title">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="mb-0 my-auto">
-                                Liste des patients
-                            </h5>
-                            <button class="btn btn-sm btn-primary" onclick="url('{{ route('export_clients') }}')">
-                                <i class="ri-file-excel-2-line"></i> Exporter la liste
-                            </button>
-                        </div>
-                    </div>
+                   
                     <hr />
                     @livewire('facturationAssuranceManager')
                 </div>

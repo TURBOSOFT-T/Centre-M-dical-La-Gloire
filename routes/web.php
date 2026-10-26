@@ -303,8 +303,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/export/clients', [AdminController::class, 'export_clients'])
         ->name('export_clients')
         ->middleware('permission:clients_view');
-    Route::get('comptes', [AdminController::class, 'comptes'])
-        ->name('comptes');
 
     Route::get('contact-admin', [AdminController::class, 'contact_admin'])
         ->name('contact-admin')

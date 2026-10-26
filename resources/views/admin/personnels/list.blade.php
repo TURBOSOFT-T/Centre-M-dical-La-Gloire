@@ -30,12 +30,16 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="card-title mb-0">
-                        <h5 class="mb-0">Liste des personnels</h5>
+                        <h5 class="mb-0">
+
+
+                            <div>
+                                <h4 class="mb-0 font-weight-bold text-primary">
+                                    <i class="bx bx-user-plus me-2"></i> Liste du personnel
+                                </h4>
+                                    </div>
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#import">
-                            <i class="ri-file-excel-2-line me-1"></i> Importer fichier Excel
-                        </button>
 
                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#add">
                             <i class="ri-user-add-line me-1"></i> Ajouter un personnel
@@ -113,7 +117,7 @@
                                         </button>
                                         <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#roleModal{{ $personnel->id }}">
                                             Modifier Rôle
-                                        </button> 
+                                        </button>
 
                                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#personnel-{{ $personnel->id }}">
                                             <i class="ri-settings-5-line"></i> Permissions

@@ -218,7 +218,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             </td>
             <td>
                 <div class="info-title">Prescription & Réalisation</div>
-                <strong>Médecin Prescripteur :</strong> Dr. {{ $consultation->medecin?->name ?? $consultation->medecin?->nom ?? 'Non assigné' }}<br>
+                <strong>Médecin Prescripteur :</strong> {{$consultation->medecin?->grade ??  ' '}}. {{ $consultation->medecin?->name ?? $consultation->medecin?->nom ?? 'Non assigné' }}<br>
                 <strong>Date de Consultation :</strong> {{ $consultation->date_heure_rdv ? $consultation->date_heure_rdv->format('d/m/Y à H:i') : '-' }}<br>
                 <strong>Biologiste / Technicien :</strong>
                 @if($demandes->first()?->realisateur)

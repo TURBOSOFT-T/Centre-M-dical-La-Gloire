@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nom');
             $table->string('email')->unique();
             $table->string('prenom')->nullable()->default(null);
+              $table->text('grade')->nullable();
             $table->string('phone')->unique(); // Unique et obligatoire$table->string('email')->nullable()->unique()->default(null);
             $table->string('avatar')->nullable()->default(null);
             $table->string('password')->nullable()->default(null);

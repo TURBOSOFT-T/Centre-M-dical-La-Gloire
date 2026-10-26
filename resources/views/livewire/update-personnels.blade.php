@@ -13,6 +13,21 @@
                 @error('prenom') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
 
+            <div class="col-sm-6">
+                    <label for="">Grade *</label>
+                    <select wire:model="grade" class="form-control" required>
+                        <option value="">Grade</option>
+                        @foreach ($grades as $g)
+                        <option value="{{ $g }}">
+                            {{ $g }}
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('g')
+                    <span class="small text-danger" role="alert"> {{ $message }} </span>
+                    @enderror
+                </div>
+
             <div class="col-md-6">
                 <label class="form-label">Email</label>
                 <input type="email" wire:model="email" class="form-control @error('email') is-invalid @enderror">

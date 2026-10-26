@@ -65,7 +65,7 @@
             <div class="border rounded p-3 bg-light">
                 <h6 class="fw-bold text-primary mb-2 border-bottom pb-1">DÉTAILS DEMANDE</h6>
                 <p class="mb-1"><strong>Examen :</strong> {{ $demande->examen?->nom }}</p>
-                <p class="mb-1"><strong>Prescripteur :</strong> Dr. {{ $demande->prescripteur?->nom ?? $demande->prescripteur?->name ?? 'N/A' }}</p>
+                <p class="mb-1"><strong>Prescripteur :</strong> {{ $demande->prescripteur?->grade ?? '' }}. {{ $demande->prescripteur?->nom ?? $demande->prescripteur?->name ?? 'N/A' }}</p>
                 <p class="mb-0"><strong>Date de réalisation :</strong> {{ $demande->date_realisation ? \Carbon\Carbon::parse($demande->date_realisation)->format('d/m/Y à H:i') : '-' }}</p>
             </div>
         </div>

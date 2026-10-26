@@ -15,7 +15,7 @@
                                 <li class="breadcrumb-item">
                                     <a href="javascript: void(0);">{{ config('app.name') }}</a>
                                 </li>
-                                <li class="breadcrumb-item active">Contacts - Frais</li>
+                                <li class="breadcrumb-item active">Cofigurations</li>
                             </ol>
                         </div>
                     </div>

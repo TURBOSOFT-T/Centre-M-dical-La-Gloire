@@ -289,7 +289,7 @@ $partPatient = max(0, $totalBrut - $partAssuranceFinal);
             </td>
             <td>
                 <div class="box-header">Prise en charge Médicale</div>
-                <strong>Médecin traitant :</strong> Dr. {{ $consultation->medecin?->nom ?? 'Non assigné' }} {{ $consultation->medecin?->prenom ?? '' }}<br>
+                <strong>Médecin traitant :</strong> {{ $consultation->medecin?->grade ?? '' }}. {{ $consultation->medecin?->nom ?? 'Non assigné' }} {{ $consultation->medecin?->prenom ?? '' }}<br>
                 <strong>Acte :</strong> Consultation {{ ucfirst(str_replace('_', ' ', $consultation->type ?? 'générale')) }}<br>
                 <strong>Statut Caisse :</strong>
                 @if($consultation->est_paye)

@@ -598,7 +598,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
     <!--End Back To Top Button-->
     <!--footer -->
     <div class="footer">
-        <p class="mb-0">@ {{ date('Y') }} | Developed By :
+        <p class="mb-0">@ 2026- {{ date('Y') }} | Developed By :
             <a href="https://turbosoft-services.com" target="_blank" style="color: #c71f17 !important;">
                 <strong>
                     TUROSOFT

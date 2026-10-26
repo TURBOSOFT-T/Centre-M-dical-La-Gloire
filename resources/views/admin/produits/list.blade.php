@@ -35,7 +35,7 @@
                     <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div>
                             <h4 class="mb-0 font-weight-bold text-primary">
-                                <i class="bx bx-user-plus me-2"></i> Liste des produits
+                                <i class="bx bx-user-plus me-2"></i> Liste des médicaments
                             </h4>
                             <p class="text-muted small mb-0"> Liste des produits - Centre Médical La Gloire</p>
                         </div>

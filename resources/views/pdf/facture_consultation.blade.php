@@ -171,7 +171,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
         </tr>
         <tr>
             <td><strong>Téléphone :</strong> {{ $consultation->patient->telephone }}</td>
-            <td><strong>Médecin :</strong> {{ $consultation->medecin?->name ?? 'Service Général' }}</td>
+            <td><strong>Médecin :</strong>{{ $consultation->medecin?->grade ?? '' }}. {{ $consultation->medecin?->name ?? 'Service Général' }}</td>
         </tr>
         @if($consultation->patient->est_assure && $consultation->patient->assurance)
             <tr>

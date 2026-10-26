@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer(['front.fixe', 'front.index','auth.login','auth.register', 'admin.login'], HomeComposer::class);
+        View::composer(['auth.login','auth.register', 'admin.login'], HomeComposer::class);
         setlocale(LC_TIME, config('app.locale'));
 
         DB::listen(function ($query) {

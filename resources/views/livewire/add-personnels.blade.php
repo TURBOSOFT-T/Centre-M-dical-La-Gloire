@@ -26,6 +26,21 @@
                     </div>
                 </div>
 
+                  <div class="col-sm-6">
+                    <label for="">Grade *</label>
+                    <select wire:model="grade" class="form-control" required>
+                        <option value="">Grade</option>
+                        @foreach ($grades as $g)
+                        <option value="{{ $g }}">
+                            {{ $g }}
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('g')
+                    <span class="small text-danger" role="alert"> {{ $message }} </span>
+                    @enderror
+                </div>
+
                 <!-- Adresse E-mail -->
                 <div class="col-sm-6">
                     <div class="mb-3">
@@ -72,8 +87,8 @@
                             <option value="caisse">Seller (Caisse)</option>
                             <option value="medecin">Medecin</option>
                             <option value="secretaire">Sécretaire</option>
-                               <option value="comptable">Comptable</option>
-                            
+                            <option value="comptable">Comptable</option>
+
 
                         </select>
                         @error('role_in_shop')

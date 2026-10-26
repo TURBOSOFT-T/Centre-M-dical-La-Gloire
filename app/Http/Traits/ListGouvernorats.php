@@ -11,10 +11,10 @@ trait ListGouvernorats
             "Douala  bonaberie",
             "Douala Dakar",
             "Bafoussam",
-           
+
             "Yaoundé",
-           
-           
+
+
             "Bafang"
         ];
     }

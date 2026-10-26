@@ -9,7 +9,7 @@ use App\Models\commandes;
 use App\Models\historiques_stock;
 use App\Models\config;
 use App\Models\historiques_connexion;
-use App\Models\{produits, Category, Consultation, RendezVous, Marque, Contact, favoris,  DossierMedical, Hospitalisation, Message, Patient, Shop,  Visitor, Sous_category};
+use App\Models\{produits, Category, Consultation, RendezVous, Marque, Contact, favoris,  DossierMedical, Hospitalisation, Message, Patient, Shop, Sous_category};
 use App\Models\User;
 use App\Models\views;
 use Illuminate\Http\Request;
@@ -30,14 +30,6 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
     use ListGouvernorats;
-
-
-
-
-
-
-
-
 
     public function dashboard(Request $request)
     {
@@ -135,14 +127,9 @@ class AdminController extends Controller
         $totalUser = Patient::whereBetween('created_at', [$date_debut, $date_fin])->count();
 
         $totalVisitors = Consultation::count();
-        $todayVisitors = Visitor::whereDate('created_at', today())->count();
-        $weekVisitors = Visitor::whereBetween('created_at', [
-            now()->startOfWeek(),
-            now()->endOfWeek()
-        ])->count();
-        $monthVisitors = Visitor::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
+     
+    
+     
         //get all command group by gouvernorrant collun Asc 
         $top_gouvernorat = [];
         $gouvernorats = commandes::select('gouvernorat', DB::raw('COUNT(*) as count'))
@@ -593,13 +580,7 @@ class AdminController extends Controller
     }
 
 
-    public function comptes()
-    {
-        $clients = User::where('role', 'client')->get();
-        $comptes = User::all();
-        return view('admin.comptes.list', compact('clients', 'comptes'));
-    }
-
+    
 
 
     public function contact_admin()

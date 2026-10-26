@@ -19,7 +19,7 @@ class CheckDomain
         //verification si le site est en production pour la restriction des domaines autres.
         
         if ( config("app.env") == "production" ) {
-            $allowedDomain = 'swootbio.com';
+            $allowedDomain = '';
             $requestDomain = $request->getHttpHost();
 
             if ($requestDomain !== $allowedDomain) {

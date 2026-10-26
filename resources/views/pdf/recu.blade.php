@@ -36,7 +36,7 @@
         </tr>
         <tr>
             <td><strong>Patient :</strong> {{ $consultation->patient->nom ?? 'N/A' }} {{ $consultation->patient->prenom ?? '' }}</td>
-            <td><strong>Médecin :</strong> Dr. {{ $consultation->medecin->nom ?? 'Non assigné' }}</td>
+            <td><strong>Médecin :</strong> {{$consultation->medecin->grade ?? ' '}}. {{ $consultation->medecin->nom ?? 'Non assigné' }}</td>
         </tr>
         <tr>
             <td><strong>Statut Paiement :</strong> <span style="text-transform: uppercase; font-weight: bold;">{{ $consultation->statut_paiement }}</span></td>

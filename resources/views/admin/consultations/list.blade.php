@@ -29,18 +29,7 @@
 
             <div class="card radius-15">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="card-title">
-                                <h5 class="mb-0 my-auto">
-                                    Liste des consultations
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-
-                        </div>
-                    </div>
+              
                     <hr />
                     <div class="row">
                         <div class="col-sm-12">

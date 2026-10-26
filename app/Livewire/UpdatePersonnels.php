@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Http\Traits\ListGrades;
 use App\Models\User;
 use App\Models\Shop;
 use Livewire\Component;
@@ -18,6 +19,9 @@ class UpdatePersonnels extends Component
     public $shop_id;
     public $role_in_shop = 'caisse';
 
+      public $grades, $grade;
+    use ListGrades;
+
     /**
      * Initialisation des données de l'utilisateur à modifier
      */
@@ -28,6 +32,7 @@ class UpdatePersonnels extends Component
 
         $this->nom = $personnel->nom;
         $this->prenom = $personnel->prenom;
+          $this->grade= $personnel->grade;
         $this->email = $personnel->email;
         $this->phone = $personnel->phone;
         $this->role_in_shop = $personnel->role ?? 'caisse';
@@ -58,7 +63,7 @@ class UpdatePersonnels extends Component
     public function render()
     {
         $shops = Shop::all();
-
+  $this->grades = $this->getListGrade();
         return view('livewire.update-personnels', compact('shops'));
     }
 
@@ -71,6 +76,7 @@ class UpdatePersonnels extends Component
         $personnel = User::findOrFail($this->personnelId);
         $personnel->nom   = $this->nom;
         $personnel->prenom = $this->prenom;
+          $personnel->grade = $this->grade;
         $personnel->email  = $this->email;
         $personnel->phone  = $this->phone;
         $personnel->role   = $this->role_in_shop;

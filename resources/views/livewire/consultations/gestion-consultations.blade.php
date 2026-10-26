@@ -1106,7 +1106,7 @@
                                         </div>
 
                                         <div class="col-6"><strong>Médecin Traitant :</strong></div>
-                                        <div class="col-6 text-end font-weight-bold text-primary">{{ $selectedConsultation->medecin?->nom ?? 'Non assigné' }}</div>
+                                        <div class="col-6 text-end font-weight-bold text-primary"> {{ $selectedConsultation->medecin?->grade ?? '' }}.{{ $selectedConsultation->medecin?->nom ?? 'Non assigné' }}</div>
 
                                         <div class="col-6"><strong>Type de Consultation :</strong></div>
                                         <div class="col-6 text-end"><span class="badge bg-light text-dark">{{ ucfirst(str_replace('_', ' ', $selectedConsultation->type)) }}</span></div>

@@ -197,7 +197,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
             <td class="signature-box" style="width: 50%;">
                 <div class="signature-title">
                     Le Médecin Traitant<br>
-                    <span style="font-weight: normal; font-size: 9pt;">{{ $consultation->medecin?->name ?? 'Dr. Médecin de garde' }}</span>
+                    <span style="font-weight: normal; font-size: 9pt;">{{ $consultation->medecin?->grade ?? ' ' }}.{{ $consultation->medecin?->nom ?? 'Dr. Médecin de garde' }}</span>
                 </div>
             </td>
         </tr>
