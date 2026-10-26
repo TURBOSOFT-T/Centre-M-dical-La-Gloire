@@ -4,11 +4,25 @@
         <form wire:submit="filtrer">
             <div class="row g-2 align-items-end">
 
+                <!-- Recherche -->
                 <div class="col-sm-6 col-md-3">
                     <label class="form-label">Recherche</label>
                     <input type="text" wire:model.live="key" placeholder="Nom, prénom, téléphone..." class="form-control">
                 </div>
 
+                <!-- Période Rapide -->
+                <div class="col-sm-6 col-md-2">
+                    <label class="form-label fw-bold">Période</label>
+                    <select wire:model.live="filtre_periode" class="form-control">
+                        <option value="">Toutes les dates</option>
+                        <option value="jour">Aujourd'hui</option>
+                        <option value="semaine">Cette Semaine</option>
+                        <option value="mois">Ce Mois</option>
+                        <option value="periode">Personnalisée</option>
+                    </select>
+                </div>
+
+                <!-- Confirmation -->
                 <div class="col-sm-6 col-md-2">
                     <label class="form-label">Confirmation</label>
                     <select class="form-control" wire:model="statut2">
@@ -18,6 +32,7 @@
                     </select>
                 </div>
 
+                <!-- État -->
                 <div class="col-sm-6 col-md-2">
                     <label class="form-label">État</label>
                     <select class="form-control" wire:model="statut">
@@ -30,34 +45,36 @@
                     </select>
                 </div>
 
-                <div class="col-sm-6 col-md-2">
-                    <label class="form-label">Caisses/Boutique</label>
+                <!-- Caisses / Boutique -->
+                <div class="col-sm-6 col-md-3">
+                    <label class="form-label">Caisses / Boutique</label>
                     <select class="form-control" wire:model="commercial_id">
                         <option value="">Tous</option>
-                        @foreach ($commerciaux as $comm)
-                            <option value="{{ $comm->id }}">{{ $comm->nom }}</option>
+                        @foreach ($caisses as $caisse)
+                            <option value="{{ $caisse->id }}">{{ $caisse->nom }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="col-sm-6 col-md-3">
-                    <label class="form-label">Date exacte</label>
-                    <input type="date" class="form-control" wire:model="date">
-                </div>
-
             </div>
 
+            <!-- Ligne conditionnelle pour Période Personnalisée (Du / Au) -->
+            @if ($filtre_periode === 'periode')
+                <div class="row g-2 mt-1 align-items-end">
+                    <div class="col-sm-6 col-md-3">
+                        <label class="form-label">Du</label>
+                        <input type="datetime-local" class="form-control" wire:model="date_debut">
+                    </div>
+
+                    <div class="col-sm-6 col-md-3">
+                        <label class="form-label">Au</label>
+                        <input type="datetime-local" class="form-control" wire:model="date_fin">
+                    </div>
+                </div>
+            @endif
+
+            <!-- Boutons d'action -->
             <div class="row g-2 mt-1 align-items-end">
-                <div class="col-sm-6 col-md-3">
-                    <label class="form-label">Du</label>
-                    <input type="datetime-local" class="form-control" wire:model="date_debut">
-                </div>
-
-                <div class="col-sm-6 col-md-3">
-                    <label class="form-label">Au</label>
-                    <input type="datetime-local" class="form-control" wire:model="date_fin">
-                </div>
-
                 <div class="col-sm-4 col-md-2 mt-2">
                     <button class="btn btn-primary w-100" type="submit">
                         <i class="ri-filter-3-line"></i> Filtrer
@@ -80,7 +97,7 @@
             </div>
         </form>
 
-        <!-- Tableau des ventes par caisse -->
+        <!-- Tableau des ventes par caisse (Évaluation Admin) -->
         @if (!empty($totauxParCommercial))
             <div class="mt-4 mb-3">
                 <h5 class="mb-2">Total des ventes par caisse :</h5>
@@ -96,7 +113,7 @@
                             @foreach ($totauxParCommercial as $id => $data)
                                 <tr>
                                     <td>{{ $data['nom'] ?? 'Client' }}</td>
-                                    <td><strong>{{ $data['total'] }} <x-devise></x-devise></strong></td>
+                                    <td><strong>{{ number_format($data['total'], 0, ',', ' ') }} <x-devise></x-devise></strong></td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -120,12 +137,10 @@
                         <th style="width: 40px;"></th>
                         <th>Nom</th>
                         <th>Code Patient</th>
-                        <th>Responsable</th> 
+                        <th>Responsable</th>
                         <th>Montant</th>
-                    
                         <th>Statut</th>
                         <th>Mode</th>
-                     
                         <th class="text-end">
                             <span wire:loading>
                                 <img src="https://i.gifer.com/ZKZg.gif" height="15" alt="Chargement...">
@@ -168,7 +183,6 @@
 
                             <td>
                                 {{ $commande->nom }}
-
                                 @if ($commande->note)
                                     <i class="ri-message-2-fill text-warning" title="Une note a été ajoutée"></i>
                                 @endif
@@ -179,11 +193,11 @@
                             </td>
 
                             <td>
-                                {{ $commande->caissier->nom ?? ' -------' }} 
+                                {{ $commande->caissier->nom ?? ' -------' }}
                             </td>
 
                             <td>
-                                <strong>{{ $commande->montant() - $commande->coupon ?? '' }} <x-devise></x-devise></strong>
+                                <strong>{{ number_format(($commande->montant() - $commande->coupon), 0, ',', ' ') ?? '' }} <x-devise></x-devise></strong>
                             </td>
 
                             <td>
@@ -207,7 +221,7 @@
                                                 data-current-status="{{ $commande->statut }}">
                                                 <option value="créé" {{ $commande->statut === 'créé' ? 'selected' : '' }}>Créé</option>
                                                 <option value="traitement" {{ $commande->statut === 'traitement' ? 'selected' : '' }}>En Traitement</option>
-                                                 <option value="livrée" {{ $commande->statut === 'livrée' ? 'selected' : '' }}>Livrée</option>
+                                                <option value="livrée" {{ $commande->statut === 'livrée' ? 'selected' : '' }}>Livrée</option>
                                                 <option value="payée" {{ $commande->statut === 'payée' ? 'selected' : '' }}>Payée</option>
                                                 <option value="retournée" {{ $commande->statut === 'retournée' ? 'selected' : '' }}>Retournée</option>
                                             </select>
@@ -229,12 +243,9 @@
                                 @endcan
                             </td>
 
-                          
-
                             <td>
                                 <span class="text-capitalize">{{ $commande->mode }}</span>
                             </td>
-
 
                             <td class="text-end">
                                 <div class="btn-group">
@@ -319,7 +330,6 @@
                             'success'
                         );
                     } else {
-                        // Réinitialiser la valeur du select au statut d'origine si annulé
                         selectElement.value = currentStatus;
                     }
                 });

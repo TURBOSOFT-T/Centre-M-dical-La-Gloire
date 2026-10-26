@@ -436,7 +436,7 @@ $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64
                         {{-- Sous-menu Les produits --}}
                         <li>
                             <a href="{{ route('admin.statistiques') }}">
-                                <i class="ri-box-3-line me-2"></i> Les produits
+                                <i class="ri-box-3-line me-2"></i> Médicaments
                             </a>
                         </li>
                     </ul>

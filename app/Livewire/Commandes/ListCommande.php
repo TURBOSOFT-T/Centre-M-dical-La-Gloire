@@ -8,8 +8,10 @@ use App\Models\produits;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ListCommande extends Component
 {
@@ -20,8 +22,9 @@ class ListCommande extends Component
 
     public $selectedCommandes = [];
     public $date, $statut, $key, $commercial_id, $date_debut, $date_fin, $statut2;
-
-
+    
+    // 🗓️ Propriété pour le filtre par période rapide
+    public $filtre_periode = ''; // 'jour', 'semaine', 'mois'
 
     private function applyShopRestriction($query)
     {
@@ -41,289 +44,222 @@ class ListCommande extends Component
         $this->date = '';
         $this->date_debut = '';
         $this->date_fin = '';
+        $this->filtre_periode = '';
+        $this->selectedCommandes = [];
 
-        // Recharge les commandes après réinitialisation
-        $this->filtrer();
+        $this->resetPage();
     }
-
-
 
     public function filtrer()
     {
-        // Cette méthode peut rester vide. 
-        // Livewire l'appellera simplement pour satisfaire la requête sans erreur.
-        $this->resetPage(); // Optionnel : utile pour revenir à la page 1 lors d'un clic
+        $this->resetPage();
     }
 
+    public function toggleCommandeSelection($id)
+    {
+        if (in_array($id, $this->selectedCommandes)) {
+            $this->selectedCommandes = array_diff($this->selectedCommandes, [$id]);
+        } else {
+            $this->selectedCommandes[] = $id;
+        }
+    }
 
+    public function getSelectedCommandes()
+    {
+        session()->flash('success', count($this->selectedCommandes) . ' commande(s) sélectionnée(s) pour export.');
+    }
 
     public function render()
     {
         $commandesQuery = commandes::query();
 
+        // 🔒 Restriction par boutique
+        $this->applyShopRestriction($commandesQuery);
 
         $user = auth()->user();
 
-        // Filtre par commercial (admin seulement)
-        if ($user->role == 'admin' && !empty($this->commercial_id)) {
-            $commandesQuery->where('commercial_id', $this->commercial_id);
+        // 👤 Gestion des rôles et visibilité des commandes
+        if ($user->role == 'caisse') {
+            // Le caissier voit ses propres commandes confirmées OU celles en attente/non confirmées
+            $commandesQuery->where(function($q) use ($user) {
+                $q->where('caisse_id', $user->id)
+                  ->orWhereNull('caisse_id')
+                  ->orWhere('etat', '!=', 'confirmé');
+            });
+        } elseif ($user->role == 'admin' && !empty($this->commercial_id)) {
+            // Filtrage par caisse sélectionnée (via le select 'commercial_id')
+            $commandesQuery->where('caisse_id', $this->commercial_id);
         }
 
-        if ($user->role == 'admin' && !empty($this->caisse_id)) {
-            $commandesQuery->where('caisse_id', $this->caisse_id);
-        }
-
-
-        // $commandesQuery->where('statut', '!=', 'payée');
-        // $commandesQuery->where('etat', '!=', 'annulé');
-        //  $commandesQuery->where('statut', '!=', 'retournée');
-        if (strlen($this->date) > 0) {
+        // 📅 Filtre par Période Rapide (Jour, Semaine, Mois)
+        if (!empty($this->filtre_periode)) {
+            switch ($this->filtre_periode) {
+                case 'jour':
+                    $commandesQuery->whereDate('created_at', Carbon::today());
+                    break;
+                case 'semaine':
+                    $commandesQuery->whereBetween('created_at', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek()
+                    ]);
+                    break;
+                case 'mois':
+                    $commandesQuery->whereMonth('created_at', Carbon::now()->month)
+                                  ->whereYear('created_at', Carbon::now()->year);
+                    break;
+            }
+        } 
+        // 📅 Filtres de dates classiques (Date exacte ou Intervalle)
+        elseif (!empty($this->date)) {
             $commandesQuery->whereDate('created_at', $this->date);
         }
 
-        // Filtre par date + heure
-        if (!empty($this->date)) {
-            $dateTime = str_replace('T', ' ', $this->date);
-            $commandesQuery->where('created_at', '>=', $dateTime);
-        }
-
-        // Filtre entre date + heure
         if (!empty($this->date_debut) && !empty($this->date_fin)) {
             $debut = str_replace('T', ' ', $this->date_debut);
             $fin = str_replace('T', ' ', $this->date_fin);
-
             $commandesQuery->whereBetween('created_at', [$debut, $fin]);
         }
 
-
-
+        // ⚙️ Filtre par État de la commande
         if (strlen($this->statut) > 0) {
             $commandesQuery->where('statut', $this->statut);
         }
+
+        // ⚙️ Filtre par Confirmation (statut2)
         if (strlen($this->statut2) > 0) {
-            if ($this->statut2 == "confirmer") {
+            if ($this->statut2 == "confirmé") {
                 $commandesQuery->where('etat', "confirmé");
             } else {
-                $commandesQuery->where('etat', "annulé");
+                $commandesQuery->where('etat', "!=", "confirmé");
             }
         }
-        
+
+        // 🔍 Recherche Multiterme
         if (strlen($this->key) > 0) {
-            $commandesQuery->where('nom', 'like', '%' . $this->key . '%')
-                ->orWhere('adresse', 'like', '%' . $this->key . '%')
-                ->orWhere('phone', 'like', '%' . $this->key . '%')
-                ->orWhere('reference', 'like', '%' . $this->key . '%')
-                ->orWhere('prenom', 'like', '%' . $this->key . '%');
+            $commandesQuery->where(function($q) {
+                $q->where('nom', 'like', '%' . $this->key . '%')
+                  ->orWhere('adresse', 'like', '%' . $this->key . '%')
+                  ->orWhere('phone', 'like', '%' . $this->key . '%')
+                  ->orWhere('reference', 'like', '%' . $this->key . '%')
+                  ->orWhere('prenom', 'like', '%' . $this->key . '%');
+            });
         }
-        $commandes = $commandesQuery->Orderby('id', "Desc")->paginate(10);
-        $total = commandes::count();
 
-        // ✅ Envoyer aussi la liste des commerciaux au view si admin
-        $commerciaux = auth()->user()->role == 'admin'
-            ? User::where('role', 'caisse')->get()
-            : collect();
+        // 📊 Calcul des totaux par caissier (pour l'évaluation administrative)
+        $totauxParCommercial = [];
+        if ($user->role == 'admin') {
+            $rawTotaux = (clone $commandesQuery)
+                ->select('caisse_id', DB::raw('SUM(montant_total) as total'))
+                ->groupBy('caisse_id')
+                ->with('caissier')
+                ->get();
 
-        /* 
-            $commerciaux = auth()->user()->role == 'admin'
-    ? User::whereNotIn('role', ['client', 'admin'])->get()
-    : collect(); */
-        return view('livewire.commandes.list-commande', compact("commandes", "total", "commerciaux"));
+            foreach ($rawTotaux as $row) {
+                if ($row->caisse_id) {
+                    $caisseNom = $row->caissier->nom ?? 'Inconnu';
+                    $totauxParCommercial[$row->caisse_id] = [
+                        'nom' => $caisseNom,
+                        'total' => $row->total ?? 0
+                    ];
+                }
+            }
+        }
+
+        $commandes = $commandesQuery->orderBy('id', 'desc')->paginate(10);
+        $total = $this->applyShopRestriction(commandes::query())->count();
+
+        // Liste des caissiers pour le select
+        $caisses = User::where('role', 'caisse')->get();
+
+        return view('livewire.commandes.list-commande', compact("commandes", "total", "caisses", "totauxParCommercial"));
     }
+
     public function updateStatus($commandeId, $newStatus)
     {
-        $commande = commandes::findOrFail($commandeId);
+        $commande = $this->applyShopRestriction(commandes::query())->findOrFail($commandeId);
         $user = auth()->user();
-        $client = $commande->user;
 
-        // 🛑 Si la commande est confirmée et que l'utilisateur n'est ni
-        // le caissier qui a confirmé, ni un admin → INTERDIT
-        if (
-            $commande->etat === 'confirmé'
-            && $commande->caisse_id != $user->id
-            && $user->role != 'admin'
-        ) {
+        if ($commande->etat === 'confirmé' && $commande->caisse_id != $user->id && $user->role != 'admin') {
             session()->flash('warning', 'Vous ne pouvez pas modifier cette commande confirmée par un autre caissier.');
             return;
         }
 
-        // 🛑 Si la commande n’est pas confirmée, seul le caissier qui confirme OU admin peut continuer
-        if (
-            $commande->etat !== 'confirmé'
-            && $user->role != 'admin'
-            && $commande->caisse_id != $user->id
-            && $newStatus !== 'confirmé'
-        ) {
-            session()->flash('warning', 'Vous devez confirmer la commande avant de la modifier.');
-            return;
-        }
-
-        // -----------------------
-        // 🔥 Mise à jour du statut
-        // -----------------------
-
         $commande->statut = $newStatus;
 
-        // ➤ Gestion des commandes retournées
         if ($newStatus == "retournée") {
-            foreach ($commande->contenus as $contenus) {
-                $article = produits::find($contenus->id_produit);
+            foreach ($commande->contenus as $contenu) {
+                $article = produits::find($contenu->id_produit);
                 if ($article) {
-                    $article->retourner_stock($contenus->quantite, $commande->shop_id);
+                    $article->retourner_stock($contenu->quantite, $commande->shop_id);
                 }
             }
         }
 
-        // ➤ Commande payée
         if ($newStatus == "payée") {
             $telephoneClient = $commande->phone ?? null;
-
             if ($telephoneClient) {
-
-            $nomClient = $commande->nom ?? 'Client';
-            $messageTexte = "Bonjour " . $nomClient . ", votre commande #" . $commande->reference . " d'un montant de " . number_format($commande->montant_total, 0, ',', ' ') . " FCFA a ete payee avec succes. Merci pour votre achat chez SWOOT BIO !";
-                  try {
-                    $response = \Illuminate\Support\Facades\Http::get('https://sms.etech-keys.com/ss/api.php', [
-                        'login'         => '655262413',
-                        'password'      => '655262413',
-                        'sender_id'     => 'ETECH KEYS',
-                        'destinataire'  => $telephoneClient,
-                        'message'       => $messageTexte,
-                        'ext_id'        => $commande->id,
-                        'programmation' => 0
-                    ]);
-
+                $nomClient = $commande->nom ?? 'Client';
+                $messageTexte = "Bonjour " . $nomClient . ", votre commande #" . $commande->reference . " a ete payee avec succes.";
                 
-
-                    if (!$response->successful()) {
-                        \Log::error("Erreur HTTP lors de l'envoi du SMS (Commande #" . $commande->id . ") : " . $response->body());
-                    }
+                try {
+                    Http::get('https://sms.etech-keys.com/ss/api.php', [
+                        'login'        => '655262413',
+                        'password'     => '655262413',
+                        'sender_id'    => 'ETECH KEYS',
+                        'destinataire' => $telephoneClient,
+                        'message'      => $messageTexte,
+                        'ext_id'       => $commande->id,
+                        'programmation'=> 0
+                    ]);
                 } catch (\Exception $e) {
-                    \Log::error("Exception SMS commande #" . $commande->id . " : " . $e->getMessage());
+                    Log::error("Exception SMS commande #" . $commande->id . " : " . $e->getMessage());
                 }
             }
-        }
-
-        // ➤ Autres statuts avec email
-        if (in_array($newStatus, ["En cours livraison", "traitement", "planification"])) {
-            // $this->sendOrderConfirmationMail($commande);
         }
 
         $commande->save();
-        
         session()->flash('success', 'Le statut de la commande a bien été mis à jour.');
     }
 
-    public function updateStatus1($commandeId, $newStatus)
-    {
-        $commande = commandes::findOrFail($commandeId);
-        $user = auth()->user();
-        $client = $commande->user;
-
-        // 🛑 Si la commande est confirmée et que l'utilisateur n'est ni
-        // le caissier qui a confirmé, ni un admin → INTERDIT
-        if (
-            $commande->etat === 'confirmé'
-            && $commande->caisse_id != $user->id
-            && $user->role != 'admin'
-        ) {
-            session()->flash('warning', 'Vous ne pouvez pas modifier cette commande confirmée par un autre caissier.');
-            return;
-        }
-
-        // 🛑 Si la commande n’est pas confirmée, seul le caissier qui confirme OU admin peut continuer
-        if (
-            $commande->etat !== 'confirmé'
-            && $user->role != 'admin'
-            && $commande->caisse_id != $user->id
-            && $newStatus !== 'confirmé'
-        ) {
-            session()->flash('warning', 'Vous devez confirmer la commande avant de la modifier.');
-            return;
-        }
-
-        // -----------------------
-        // 🔥 Mise à jour du statut
-        // -----------------------
-
-        $commande->statut = $newStatus;
-
-        // ➤ Gestion des commandes retournées
-        if ($newStatus == "retournée") {
-
-
-
-            foreach ($commande->contenus as $contenus) {
-                $article = produits::find($contenus->id_produit);
-                if ($article) {
-                    //  $article->retourner_stock($contenus->quantite);
-                    $article->retourner_stock($contenus->quantite, $commande->shop_id);
-                }
-            }
-
-            //  $this->sendOrderConfirmationMail($commande);
-        }
-
-        // ➤ Commande payée
-        if ($newStatus == "payée") {
-            foreach ($commande->contenus as $contenus) {
-                if ($client) {
-                    $client->points += $contenus->total_gain_points;
-                    $client->save();
-                }
-            }
-        }
-
-        // ➤ Autres statuts avec email
-        if (in_array($newStatus, ["En cours livraison", "traitement", "planification"])) {
-            // $this->sendOrderConfirmationMail($commande);
-        }
-
-        $commande->save();
-    }
     public function confirmer($id)
     {
-        $commande = commandes::find($id);
+        $commande = $this->applyShopRestriction(commandes::query())->find($id);
         $user = auth()->user();
-        if ($commande) {
 
+        if ($commande) {
             $commande->etat = "confirmé";
             $commande->caisse_id = $user->id;
             $commande->save();
-            // $this->sendOrderConfirmationMail($commande);
+            session()->flash('success', 'Commande confirmée avec succès.');
         }
     }
 
     public function annuler($id)
     {
+        $commande = $this->applyShopRestriction(commandes::query())->find($id);
         $user = auth()->user();
-        $commande = commandes::find($id);
-        $client = $commande->user;
+
         if ($commande) {
-            foreach ($commande->contenus as $contenus) {
-                $article = produits::find($contenus->id_produit);
+            foreach ($commande->contenus as $contenu) {
+                $article = produits::find($contenu->id_produit);
                 if ($article) {
-                    //  $article->retourner_stock($contenus->quantite);
-                    $article->retourner_stock($contenus->quantite, $commande->shop_id);
+                    $article->retourner_stock($contenu->quantite, $commande->shop_id);
                 }
             }
             $commande->statut = "retournée";
             $commande->etat = "annulé";
             $commande->caisse_id = $user->id;
-
             $commande->save();
-            // $this->sendOrderConfirmationMail($commande);
+
+            session()->flash('info', 'Commande annulée et stock restitué.');
         }
     }
-
-
 
     public function delete($id)
     {
         DB::transaction(function () use ($id) {
             $commande = $this->applyShopRestriction(commandes::query())->findOrFail($id);
 
-            // Si la commande n'était pas déjà annulée/retournée/payée, on rend le stock
-            // (Note: 'payée' mis au féminin pour correspondre à vos autres statuts)
             if (!in_array($commande->statut, ['retournée', 'annulé', 'payée'])) {
                 foreach ($commande->contenus as $contenu) {
                     $article = produits::find($contenu->id_produit);
@@ -336,6 +272,6 @@ class ListCommande extends Component
             $commande->delete();
         });
 
-        session()->flash('success', 'Commande supprimée avec succès');
+        session()->flash('success', 'Commande supprimée avec succès.');
     }
 }
