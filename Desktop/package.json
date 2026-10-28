@@ -1,0 +1,43 @@
+{
+  "name": "centre-medical",
+  "version": "1.0.0",
+  "description": "Application desktop Centre Médical ",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "prebuild": "javascript-obfuscator main.js --output main.js --compact true --control-flow-flattening true --dead-code-injection true",
+    "build": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.centremedical.lagloire",
+    "productName": "Centre Médical ",
+    "disableAsarIntegrity": true,
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      {
+        "from": "..",
+        "to": "laravel",
+        "filter": [
+          "**/*",
+          "!desktop/**",
+          "!**/.git/**",
+          "!**/tests/**",
+          "!**/storage/logs/**",
+          "!**/node_modules/**"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false,
+      "requestedExecutionLevel": "requireAdministrator"
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0",
+    "javascript-obfuscator": "^5.9.0"
+  }
+}
