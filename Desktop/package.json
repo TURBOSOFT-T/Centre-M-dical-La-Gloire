@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "prebuild": "javascript-obfuscator main.js --output main.js --compact true --control-flow-flattening true --dead-code-injection true",
-    "build": "electron-builder --win nsis"
+    "build": "electron-builder --win nsis",
+    "postbuild": "node protect.js"
   },
   "build": {
     "appId": "com.centremedical.lagloire",
