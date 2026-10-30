@@ -70,7 +70,17 @@ return new class extends Migration
             $table->text('historique_maladie')->nullable();
             $table->text('antecedents_maladie')->nullable();
             $table->text('mode_de_vie')->nullable();
-
+// ==========================================
+            // CHAMPS SPÉCIFIQUES - FEMMES ENCEINTES / CPN
+            // ==========================================
+            $table->boolean('is_pregnant')->default(false); // Indique si la patiente est enceinte
+            $table->integer('gestational_age_weeks')->nullable(); // Âge de la grossesse en Semaines d'Aménorrhée (SA)
+            $table->date('expected_delivery_date')->nullable(); // Date Probable d'Accouchement (DPA)
+            $table->integer('gravida')->nullable(); // Nombre total de grossesses (G)
+            $table->integer('parity')->nullable(); // Nombre d'accouchements / parité (P)
+            $table->integer('prenatal_visit_number')->nullable(); // Numéro de la CPN (ex: 1 pour CPN1, 2 pour CPN2...)
+            $table->string('fetal_heart_rate')->nullable(); // Bruits du Cœur Fœtal (BCF)
+            $table->text('pregnancy_notes')->nullable(); // Observations obstétricales particulières
             // Examens & Clinique
             $table->text('examen_physique')->nullable();
             $table->text('examen_general')->nullable();
